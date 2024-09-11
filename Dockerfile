@@ -1,7 +1,5 @@
 # syntax=docker/dockerfile:1
 
-# This file can only be used internally at Met.no.
-
 # build:
 # docker buildx build -t sedr -f Dockerfile .
 
@@ -21,7 +19,7 @@ RUN apt-get update && \
 
 # Set workdir and install app with requirements.
 WORKDIR /app
-COPY 07-edr-spesifics.py requirements.txt pytest.ini ./
+COPY *.py requirements.txt pytest.ini ./
 RUN python3 -m venv ./venv && \
   ./venv/bin/pip install -r /app/requirements.txt
 
