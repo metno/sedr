@@ -14,7 +14,14 @@ Experiment
 
 ### Test it out
 
-Run docker image: `docker run -it --rm docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+Run docker image:
+
+- `docker run -it --rm docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+
+Debug logging:
+
+- Create a directory: `mkdir ./logs`
+- Run container, mounting the new directory at /logs, and tell container to output log there: `docker run -it --rm -v ./logs:/logs docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log 
 
 ### Results testing existing services
 

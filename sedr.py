@@ -15,7 +15,7 @@ edr_version = "1.1"
 
 # Globals
 extents = {}
-collection_ids = []
+collection_ids = {}
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,22 +69,30 @@ schema = set_up_schemathesis(args)
 
 def set_up_logging(args, logfile=None) -> logging.Logger:
     """Set up logging."""
+    loglevel = logging.WARNING
+
     logger = logging.getLogger(__file__)
+    logger.setLevel(logging.DEBUG)
+
+    # File
     if logfile is not None:
-        with open(file=logfile, mode="w", encoding="utf-8") as f:
-            f.write(
-                f"SEDR version {sedr_version} on python {sys.version}, schemathesis {schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, openapi-version {args.openapi_version}.\n\n"
-            )
+        try:
+            with open(file=logfile, mode="w", encoding="utf-8") as f:
+                f.write(
+                    f"SEDR version {sedr_version} on python {sys.version}, schemathesis {schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, openapi-version {args.openapi_version}.\n\n"
+                )
+        except PermissionError as err:
+            print(f"Could not write to logfile {logfile}: {err}\nIf you're running this as a docker container, make sure you mount the log dir (docker run -v host-dir:container-dir) and give log option to sedr using the container-dir (--log-file /container-dir/debug.log).")
+            sys.exit(1)
 
         fh = logging.FileHandler(mode="a", filename=logfile)
         fh.setLevel(logging.DEBUG)
         logger.addHandler(fh)
 
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setLevel(logging.WARNING)
+    # Console
+    stdout_handler = logging.StreamHandler()
+    stdout_handler.setLevel(loglevel)
     logger.addHandler(stdout_handler)
-
-    logger.setLevel(logging.DEBUG)
 
     return logger
 
@@ -101,41 +109,13 @@ def test_api(case):
         ) from err
 
 
-def parse_locations(jsondata):
-    """ Parse locations from JSON, test geometries, return list of valid locations."""
-    try:
-        _ = json.loads(jsondata)
-    except json.JSONDecodeError as e:
-        raise AssertionError(f"parse_locations: Invalid JSON from {jsondata}") from e
-
-    assert (
-        "name" in json.loads(jsondata)
-    ), f'Expected "name": "locations" in {case.path}, didn\'t find "name".'
-    assert (
-        "locations" in json.loads(jsondata)["name"]
-    ), f'Expected "name": "locations" key in {case.path}, didn\'t find "locations".'
-    assert "features" in json.loads(
-        jsondata
-    ), f'Expected "features" in {case.path}.'
-
-    for feature in json.loads(jsondata)["features"]:
-        if feature["geometry"]["type"] == "Point":
-            _ = shapely.Point(feature["geometry"]["coordinates"])
-        elif feature["geometry"]["type"] == "Polygon":
-            _ = shapely.Polygon(feature["geometry"]["coordinates"])
-        else:
-            raise AssertionError(
-                f"Unable to create geometry type {feature['geometry']['type']} from coords {feature['geometry']['coordinates']}"
-            )
-
-
 @schemathesis.hook
 def after_call(self, response, case):
     """Hook runs after any call to the API."""
     if case.request:
         # Log calls with status
-        logger.info(
-            "after_call Testing URL %s gave %s - %s",
+        logger.debug(
+            "after_call URL %s gave %s - %s",
             case.request.path_url,
             case.status_code,
             case.text[0:150],
@@ -207,11 +187,13 @@ def test_conformance(case):
             resp.status_code < 400
         ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
 
+    logger.debug("Conformance %s tested OK", response.url)
+
 
 @schema.parametrize()
 @settings(max_examples=args.iterations)
 def test_collections(case):
-    """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
+    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics."""
     global collection_ids, extents
 
     if not case.path.endswith("/collections"):
@@ -227,8 +209,8 @@ def test_collections(case):
     for collection in json.loads(response.text)["collections"]:
         collection_url = collection["links"][0]["href"]
 
-        # collection_ids[collection_url] = collection["id"]
-        logger.debug("after_call found collection id %s", collection["id"])
+        collection_ids[collection_url] = collection["id"]
+        logger.debug("test_collections found collection id %s", collection["id"])
 
         extent = None
         try:
@@ -239,10 +221,13 @@ def test_collections(case):
             # Make sure bbox contains a list of extents, not just an extent
             assert isinstance(
                 extent, list
-            ), f"Extent→spatial→bbox should be a list of bboxes, not a single bbox. Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
+            ), f"Extent→spatial→bbox should be a list of bboxes, not a single bbox. \
+                Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
             extents[collection_url] = tuple(extent)
 
-            logger.debug("after_call found extent for %s: %s", collection_url, extent)
+            logger.debug(
+                "test_collections found extent for %s: %s", collection_url, extent
+            )
         except AttributeError as err:
             pass
         except KeyError as err:
@@ -250,7 +235,8 @@ def test_collections(case):
                 raise AssertionError(
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
-        collection_ids[collection_url] = collection["id"]
+
+    logger.debug("Collections %s tested OK", response.url)
 
 
 @schema.parametrize()
@@ -293,16 +279,46 @@ def test_positions(case):
             response.status_code != 200
         ), f"Expected status code 422 but got {response.status_code}"
 
+    logger.debug("Positions %s tested OK", response.url)
+
 
 @schema.parametrize()
 @settings(max_examples=args.iterations)
 def test_locations(case):
-    """The default test in function test_api() will fuzz parameters. This function can test .../locations more closely."""
+    """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
     if not case.path.endswith("/locations"):
         return
 
     response = case.call()
     parse_locations(response.text)
+
+    logger.debug("Locations %s tested OK", response.url)
+
+
+def parse_locations(jsondata):
+    """Parse locations from JSON, test geometries."""
+    try:
+        _ = json.loads(jsondata)
+    except json.JSONDecodeError as e:
+        raise AssertionError(f"parse_locations: Invalid JSON from {jsondata}") from e
+
+    assert "name" in json.loads(
+        jsondata
+    ), 'Expected "name": "locations" in /locations, didn\'t find "name".'
+    assert (
+        "locations" in json.loads(jsondata)["name"]
+    ), 'Expected "name": "locations" key in /locations, didn\'t find "locations".'
+    assert "features" in json.loads(jsondata), 'Expected "features" in /locations.'
+
+    for feature in json.loads(jsondata)["features"]:
+        if feature["geometry"]["type"] == "Point":
+            _ = shapely.Point(feature["geometry"]["coordinates"])
+        elif feature["geometry"]["type"] == "Polygon":
+            _ = shapely.Polygon(feature["geometry"]["coordinates"])
+        else:
+            raise AssertionError(
+                f"Unable to create geometry type {feature['geometry']['type']} from coords {feature['geometry']['coordinates']}"
+            )
 
 
 logger = set_up_logging(args=args, logfile=args.log_file)
@@ -312,4 +328,4 @@ get_collections = schema["/collections"]["GET"]
 
 
 if __name__ == "__main__":
-    pytest.main(["-rA", __file__])
+    pytest.main(["-rA", "--show-capture=no", __file__])
