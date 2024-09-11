@@ -14,7 +14,7 @@ Experiment
 
 ### Test it out
 
-Run docker image: `docker run -it --rm github.com/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+Run docker image: `docker run -it --rm docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
 
 ### Results testing existing services
 
