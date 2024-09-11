@@ -10,7 +10,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 from urllib.parse import urlsplit
 
-sedr_version = "0.7.0"
+sedr_version = "v0.7.0"
 edr_version = "1.1"
 
 # Globals
