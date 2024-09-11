@@ -1,0 +1,6 @@
+venv
+.hypothesis
+.vscode
+__pycache__
+venv
+logs

@@ -1,0 +1,4 @@
+schemathesis~=3.34
+pytest~=8.3
+shapely~=2.0
+requests
