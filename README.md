@@ -16,7 +16,7 @@ Experiment
 
 Run docker image:
 
-- `docker run -it --rm docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+- `docker run -it --rm ghcr.io/metno/sedr:main --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
 
 Debug logging will show every request and it's status:
 
