@@ -1,6 +1,6 @@
 # SEDR - An OGC EDR validator
 
-An experiment to validate OGC EDR APIs using schemathesis, and give good feedback to developers.
+An experimental validator for OGC EDR APIs using schemathesis.
 
 ## Who is responsible?
 
@@ -16,12 +16,11 @@ Experiment
 
 Run docker image:
 
-- `docker run -it --rm ghcr.io/metno/sedr:main --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+- `docker run -it --rm ghcr.io/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
 
 Debug logging will show every request and it's status:
 
-- Create a directory: `mkdir ./logs`
-- Run container, mounting the new directory at /logs, and tell container to output log there: `docker run -it --rm -v ./logs:/logs docker.io/library/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log 
+- Run container, mounting the current directory at /logs, and tell container to output log there: `docker run -it --rm -v .:/logs ghcr.io/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log`
 
 ### Results testing existing services
 
