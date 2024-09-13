@@ -41,9 +41,12 @@ Not production ready.
 
 Schemathesis and pytest are the main components. Stateful tests are not used, as they require openapi links in the spec.
 
+- Python
+- [Schemathesis](https://schemathesis.readthedocs.io/en/stable/)
+
 ## How to contribute
 
-Create an issue or start a discussion.
+Create an issue or start a discussion. Please do not contriute without discussing it first, as this is just a proof of concept.
 
 ## Documentation Template
 
