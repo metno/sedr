@@ -1,3 +1,4 @@
+setuptools # prospector requirement
 tox
 black
 prospector

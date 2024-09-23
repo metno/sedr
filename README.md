@@ -41,8 +41,16 @@ Not production ready.
 
 Schemathesis and pytest are the main components. Stateful tests are not used, as they require openapi links in the spec.
 
-- Python
-- [Schemathesis](https://schemathesis.readthedocs.io/en/stable/)
+### Components
+
+- Python 3
+- [Schemathesis](https://schemathesis.readthedocs.io/en/stable/), which use pytest to run
+
+### Limitations
+
+- Openapi 3.1
+- OGC EDR API version 1.1
+- Very basic tests for now
 
 ## How to contribute
 

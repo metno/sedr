@@ -23,11 +23,12 @@ RUN apt-get update && \
 # Set workdir
 WORKDIR /app
 
-COPY *.py requirements.txt pytest.ini ./
+COPY requirements.txt pytest.ini ./
+COPY sedr/ ./sedr/
 RUN python3 -m venv ./venv && \
   ./venv/bin/pip install -r /app/requirements.txt
 
 # # Run as nonroot user
 # USER sedr
 
-ENTRYPOINT ["/app/venv/bin/python", "sedr.py"]
+ENTRYPOINT ["/app/venv/bin/python", "./sedr/__init__.py"]
