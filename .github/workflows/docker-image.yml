@@ -1,10 +1,13 @@
 # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
+# https://docs.docker.com/build/ci/github-actions/manage-tags-labels/
 name: Docker Image CI
 
 on:
   push:
-    branches: ['main']
-
+    branches:
+      - 'main'
+    tags:
+      - "v*.*.*"
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -35,6 +38,15 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
 
       - name: Build and push Docker image
         id: push
