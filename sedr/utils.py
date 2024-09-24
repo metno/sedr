@@ -61,15 +61,15 @@ def set_up_logging(args, logfile=None) -> logging.Logger:
         try:
             with open(file=logfile, mode="w", encoding="utf-8") as f:
                 f.write(
-                    f"SEDR version {__version__} on python {sys.version}, schemathesis " + \
-                    f"{schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, " + \
-                    f"openapi-version {args.openapi_version}.\n\n"
+                    f"SEDR version {__version__} on python {sys.version}, schemathesis "
+                    + f"{schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, "
+                    + f"openapi-version {args.openapi_version}.\n\n"
                 )
         except PermissionError as err:
             print(
-                f"Could not write to logfile {logfile}: {err}\nIf you're running this as a docker " + \
-                "container, make sure you mount the log dir (docker run -v host-dir:container-dir) " + \
-                "and give log option to sedr using the container-dir (--log-file /container-dir/debug.log)."
+                f"Could not write to logfile {logfile}: {err}\nIf you're running this as a docker "
+                + "container, make sure you mount the log dir (docker run -v host-dir:container-dir) "
+                + "and give log option to sedr using the container-dir (--log-file /container-dir/debug.log)."
             )
             sys.exit(1)
 
