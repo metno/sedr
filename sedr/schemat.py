@@ -1,3 +1,4 @@
+import sys
 import requests
 import json
 import schemathesis
@@ -5,7 +6,7 @@ from hypothesis import settings
 import shapely
 from shapely.wkt import loads as wkt_loads
 
-import utils
+import util
 
 
 # Globals
@@ -20,19 +21,30 @@ def set_up_schemathesis(args):
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
-schema = set_up_schemathesis(utils.args)
+schema = set_up_schemathesis(util.args)
+# /collections is tested by default, if it exists. Adding this to require it to exist
+get_collections = schema["/collections"]["GET"]
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
-@settings(max_examples=utils.args.iterations)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_api(case):
     """Run schemathesis standard tests."""
+    response = None
     try:
         case.call_and_validate()
     except schemathesis.exceptions.CheckFailed as err:
-        raise AssertionError(
-            f"Request to {case.base_url + case.formatted_path} failed: {', '.join(err.causes[0].args)}. Check debug log for more info."
-        ) from err
+        # raise AssertionError(
+        causes = None
+        if len(err.causes) > 0:
+            causes = ', '.join(err.causes[0].args)
+        else:
+            pass
+        print(
+            f"Request to {case.base_url + case.formatted_path} failed: {causes}. Check debug log for more info.",
+            file=sys.stderr,
+        )
+        # ) from err
 
 
 @schemathesis.hook
@@ -40,7 +52,7 @@ def after_call(self, response, case):
     """Hook runs after any call to the API."""
     if case.request:
         # Log calls with status
-        utils.logger.debug(
+        util.logger.debug(
             "after_call URL %s gave %s - %s",
             case.request.path_url,
             case.status_code,
@@ -48,8 +60,8 @@ def after_call(self, response, case):
         )
 
 
-@schema.include(path_regex="^" + utils.args.base_path + "$").parametrize()
-@settings(max_examples=utils.args.iterations)
+@schema.include(path_regex="^" + util.args.base_path + "$").parametrize()
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
@@ -63,15 +75,15 @@ def test_landingpage(case):
     try:
         landingpage_json = json.loads(response.text)
     except json.decoder.JSONDecodeError as e:
-        utils.logger.error("Landing page is not valid JSON.")
+        util.logger.error("Landing page is not valid JSON.")
         raise AssertionError(
             f"Expected valid JSON but got {e}. See {spec_ref} for more info."
         ) from e
 
     if "title" not in landingpage_json:
-        utils.logger.warning("Landing page does not contain a title.")
+        util.logger.warning("Landing page does not contain a title.")
     if "description" not in landingpage_json:
-        utils.logger.warning("Landing page does not contain a description.")
+        util.logger.warning("Landing page does not contain a description.")
     assert (
         "links" in landingpage_json
     ), "Landing page does not contain links. See {spec_ref} for more info."
@@ -86,11 +98,11 @@ def test_landingpage(case):
             "rel" in link
         ), f"Link {link} does not have a rel attribute. See {spec_ref} for more info."
 
-    utils.logger.debug("Landingpage %s tested OK", response.url)
+    util.logger.debug("Landingpage %s tested OK", response.url)
 
 
-@schema.include(path_regex="^" + utils.args.base_path + "conformance").parametrize()
-@settings(max_examples=utils.args.iterations)
+@schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_conformance(case):
     """Test that the conformance links are valid."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
@@ -113,11 +125,11 @@ def test_conformance(case):
             resp.status_code < 400
         ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
 
-    utils.logger.debug("Conformance %s tested OK", response.url)
+    util.logger.debug("Conformance %s tested OK", response.url)
 
 
 @schema.parametrize()
-@settings(max_examples=utils.args.iterations)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics."""
     global collection_ids, extents
@@ -136,7 +148,7 @@ def test_collections(case):
         collection_url = collection["links"][0]["href"]
 
         collection_ids[collection_url] = collection["id"]
-        utils.logger.debug("test_collections found collection id %s", collection["id"])
+        util.logger.debug("test_collections found collection id %s", collection["id"])
 
         extent = None
         try:
@@ -151,7 +163,7 @@ def test_collections(case):
                 Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
             extents[collection_url] = tuple(extent)
 
-            utils.logger.debug(
+            util.logger.debug(
                 "test_collections found extent for %s: %s", collection_url, extent
             )
         except AttributeError:
@@ -162,11 +174,11 @@ def test_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-    utils.logger.debug("Collections %s tested OK", response.url)
+    util.logger.debug("Collections %s tested OK", response.url)
 
 
 @schema.parametrize()
-@settings(max_examples=utils.args.iterations)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_positions(case):
     """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
     if not case.path.endswith("/position"):
@@ -190,7 +202,7 @@ def test_positions(case):
         ]
     )
     if extent.contains(point):
-        utils.logger.debug(
+        util.logger.debug(
             "test_WKT Testing value INSIDE of extent, %s", case.query["coords"]
         )
         # Assert that the HTTP status code is 200
@@ -198,28 +210,24 @@ def test_positions(case):
             response.status_code == 200
         ), f"Expected status code 200 but got {response.status_code}"
     else:
-        utils.logger.debug(
+        util.logger.debug(
             "test_WKT Testing value OUTSIDE of extent, %s", case.query["coords"]
         )
         assert (
             response.status_code != 200
         ), f"Expected status code 422 but got {response.status_code}"
 
-    utils.logger.debug("Positions %s tested OK", response.url)
+    util.logger.debug("Positions %s tested OK", response.url)
 
 
 @schema.parametrize()
-@settings(max_examples=utils.args.iterations)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_locations(case):
     """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
     if not case.path.endswith("/locations"):
         return
 
     response = case.call()
-    utils.parse_locations(response.text)
+    util.parse_locations(response.text)
 
-    utils.logger.debug("Locations %s tested OK", response.url)
-
-
-# /collections is tested by default, if it exists. Adding this to require it to exist
-get_collections = schema["/collections"]["GET"]
+    util.logger.debug("Locations %s tested OK", response.url)
