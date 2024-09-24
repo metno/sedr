@@ -35,11 +35,12 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Log output",
     )
+    openapi_version_choices = ["3.1"] # "3.0", "3.1"
     parser.add_argument(
         "--openapi-version",
-        choices=["3.0", "3.1"],
+        choices=openapi_version_choices,
         default="3.1",
-        help="Choose openapi version used in API. Default 3.1. Options are: 3.0, 3.1.",
+        help=f"Choose openapi version used in API. Default 3.1. Options are: {openapi_version_choices}",
     )
 
     args = parser.parse_args()
