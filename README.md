@@ -8,7 +8,7 @@ Team Punkt at met.no
 
 ## Status
 
-Experiment
+Experiment - Every error reported might as well be an error in the validator, rather than the API.
 
 ## Getting started
 
@@ -24,14 +24,7 @@ Debug logging will show every request and it's status:
 
 ### Results testing existing services
 
-- [edrisobaric](https://edrisobaric.k8s.met.no) works
-  - <span style="color:green">......................</span>
-- [FMI](https://opendata.fmi.fi/edr/) some tests works, some fails
-  - <span style="color:green">.</span><span style="color:red">F</span><span style="color:green">...</span><span style="color:red">FF<span style="color:green">.</span><span style="color:red">FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF<span style="color:green">.</span><span style="color:red">FFF<span style="color:green">......</span><span style="color:red">FF<span style="color:green">.........................................</span>F<span style="color:green">...............F<span style="color:green">................................................</span>
-- [UK metoffice](https://labs.metoffice.gov.uk/edr)
-  - fails due to /{service_id}/collections, /{service_id}/conformance?
-- [E-soh](https://esoh.met.no/)
-    <https://api.esoh.met.no/>
+See [test_results.md](test_results.md)
 
 ### Use it for production
 
