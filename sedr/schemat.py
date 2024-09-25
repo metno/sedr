@@ -145,7 +145,8 @@ def test_collections(case):
     ), f"/collections does not contain a collections attribute. See {spec_ref} for more info."
 
     for collection in json.loads(response.text)["collections"]:
-        collection_url = collection["links"][0]["href"]
+        # Use url as key for extents. Remove trailing slash from url.
+        collection_url = collection["links"][0]["href"].rstrip('/')
 
         collection_ids[collection_url] = collection["id"]
         util.logger.debug("test_collections found collection id %s", collection["id"])
@@ -192,7 +193,8 @@ def test_positions(case):
         # Invalid points are already tested by test_api, so not testing here
         return
 
-    extent_coords = extents[case.base_url + str(case.path).removesuffix("position")]
+    extent_path = case.base_url + str(case.path).removesuffix("position")
+    extent_coords = extents[extent_path]
     extent = shapely.geometry.Polygon(
         [
             (extent_coords[0], extent_coords[1]),
