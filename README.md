@@ -24,7 +24,7 @@ Debug logging will show every request and it's status:
 
 ### Results testing existing services
 
-See [test_results.md](test_results.md)
+Will be posted when validator is more complete.
 
 ### Use it for production
 
