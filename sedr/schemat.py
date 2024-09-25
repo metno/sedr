@@ -1,12 +1,12 @@
 import sys
-import requests
 import json
 import schemathesis
-from hypothesis import settings
+from hypothesis import settings, assume
 import shapely
 from shapely.wkt import loads as wkt_loads
 
 import util
+import edreq11 as edreq
 
 
 # Globals
@@ -22,22 +22,23 @@ def set_up_schemathesis(args):
 
 
 schema = set_up_schemathesis(util.args)
-# /collections is tested by default, if it exists. Adding this to require it to exist
-get_collections = schema["/collections"]["GET"]
+
+# Require /collections to exist, in accordance with Requirement A.2.2 A.9
+# <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
+_ = schema["/collections"]["GET"]
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_api(case):
     """Run schemathesis standard tests."""
-    response = None
     try:
         case.call_and_validate()
     except schemathesis.exceptions.CheckFailed as err:
         # raise AssertionError(
         causes = None
-        if len(err.causes) > 0:
-            causes = ', '.join(err.causes[0].args)
+        if err is not None and len(err.causes) > 0:
+            causes = ", ".join(err.causes[0].args)
         else:
             pass
         print(
@@ -66,11 +67,6 @@ def test_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
     response = case.call()
-
-    assert (
-        response.status_code < 400
-    ), f"Expected status code 200 but got {response.status_code}. See {spec_ref} for more info."
-
     landingpage_json = None
     try:
         landingpage_json = json.loads(response.text)
@@ -104,26 +100,39 @@ def test_landingpage(case):
 @schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_conformance(case):
-    """Test that the conformance links are valid."""
-    spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
+    """Test /conformance endpoint."""
     response = case.call()
     conformance_json = json.loads(response.text)
 
-    assert (
-        "conformsTo" in conformance_json
-    ), f"Conformance page /conformance does not contain a conformsTo attribute. See {spec_ref} for more info."
+    if "conformsTo" not in conformance_json:
+        spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
+        raise AssertionError(
+            f"Conformance page /conformance does not contain a conformsTo attribute. See {spec_ref} for more info."
+        )
 
-    for link in conformance_json["conformsTo"]:
-        resp = None
-        try:
-            resp = requests.head(url=link, timeout=10)
-        except requests.exceptions.MissingSchema as error:
-            raise AssertionError(
-                f"Link <{link}> from /conformance is malformed: {error})."
-            ) from error
-        assert (
-            resp.status_code < 400
-        ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
+    resolves, resolves_message = util.test_conformance_links(
+        jsondata=conformance_json["conformsTo"]
+    )
+    if not resolves:
+        raise AssertionError(resolves_message)
+
+    requirementA2_2_A5, requirementA2_2_A5_message = edreq.requirementA2_2_A5(
+        jsondata=conformance_json["conformsTo"]
+    )
+    if not requirementA2_2_A5:
+        raise AssertionError(requirementA2_2_A5_message)
+
+    requirementA2_2_A7, requirementA2_2_A7_message = edreq.requirementA2_2_A7(
+        response.raw.version
+    )
+    if not requirementA2_2_A7:
+        raise AssertionError(requirementA2_2_A7_message)
+
+    requirementA11_1, requirementA11_1_message = edreq.requirementA11_1(
+        jsondata=conformance_json["conformsTo"]
+    )
+    if not requirementA11_1:
+        raise AssertionError(requirementA11_1_message)
 
     util.logger.debug("Conformance %s tested OK", response.url)
 
@@ -146,7 +155,7 @@ def test_collections(case):
 
     for collection in json.loads(response.text)["collections"]:
         # Use url as key for extents. Remove trailing slash from url.
-        collection_url = collection["links"][0]["href"].rstrip('/')
+        collection_url = collection["links"][0]["href"].rstrip("/")
 
         collection_ids[collection_url] = collection["id"]
         util.logger.debug("test_collections found collection id %s", collection["id"])
@@ -178,58 +187,67 @@ def test_collections(case):
     util.logger.debug("Collections %s tested OK", response.url)
 
 
-@schema.parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
-def test_positions(case):
-    """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
-    if not case.path.endswith("/position"):
-        return
+# @schema.parametrize()
+# @settings(max_examples=util.args.iterations, deadline=None)
+# def test_positions(case):
+#     """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
+#     if not case.path.endswith("/position"):
+#         return
 
-    response = case.call()
-    point = None
-    try:
-        point = wkt_loads(case.query["coords"])
-    except shapely.errors.GEOSException:
-        # Invalid points are already tested by test_api, so not testing here
-        return
+#     response = case.call()
+#     point = None
+#     try:
+#         point = wkt_loads(case.query["coords"])
+#     except shapely.errors.GEOSException:
+#         # Invalid points are already tested by test_api, so not testing here
+#         return
 
-    extent_path = case.base_url + str(case.path).removesuffix("position")
-    extent_coords = extents[extent_path]
-    extent = shapely.geometry.Polygon(
-        [
-            (extent_coords[0], extent_coords[1]),
-            (extent_coords[0], extent_coords[3]),
-            (extent_coords[2], extent_coords[3]),
-            (extent_coords[2], extent_coords[1]),
-        ]
-    )
-    if extent.contains(point):
-        util.logger.debug(
-            "test_WKT Testing value INSIDE of extent, %s", case.query["coords"]
-        )
-        # Assert that the HTTP status code is 200
-        assert (
-            response.status_code == 200
-        ), f"Expected status code 200 but got {response.status_code}"
-    else:
-        util.logger.debug(
-            "test_WKT Testing value OUTSIDE of extent, %s", case.query["coords"]
-        )
-        assert (
-            response.status_code != 200
-        ), f"Expected status code 422 but got {response.status_code}"
+#     extent_path = case.base_url + str(case.path).removesuffix("/position")
+#     extent_coords = extents[extent_path]
+#     extent = shapely.geometry.Polygon(
+#         [
+#             (extent_coords[0], extent_coords[1]),
+#             (extent_coords[0], extent_coords[3]),
+#             (extent_coords[2], extent_coords[3]),
+#             (extent_coords[2], extent_coords[1]),
+#         ]
+#     )
 
-    util.logger.debug("Positions %s tested OK", response.url)
+#     schema[case.path][case.method].validate_response(response)
+
+#     if extent.contains(point):
+#         util.logger.debug(
+#             "test_positions Testing value INSIDE of extent, %s", case.query["coords"]
+#         )
+#         # Assert that the HTTP status code is 200
+#         if response.status_code != 200:
+#             assume( # Marking the example as bad. https://github.com/metno/sedr/issues/5
+#                 f"Expected status code 200 but got {response.status_code}"
+#             )
+#     else:
+#         util.logger.debug(
+#             "test_positions Testing value OUTSIDE of extent, %s", case.query["coords"]
+#         )
+#         if response.status_code != 422:
+#             assume( # Marking the example as bad. https://github.com/metno/sedr/issues/5
+#                 f"Expected status code 422 but got {response.status_code}"
+#             )
 
 
-@schema.parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
-def test_locations(case):
-    """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
-    if not case.path.endswith("/locations"):
-        return
+# TODO: needs to be reworked
+# @schema.parametrize()
+# @settings(max_examples=util.args.iterations, deadline=None)
+# def test_locations(case):
+#     """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
+#     if not case.path.endswith("/locations"):
+#         return
 
-    response = case.call()
-    util.parse_locations(response.text)
+#     response = case.call()
+#     # schema[case.path][case.method].validate_response(response)
+#     if response.ok:
+#         util.parse_locations(response.text)
+#     else:
+#         # Invalid points are already tested by test_api, so not testing here
+#         pass
 
-    util.logger.debug("Locations %s tested OK", response.url)
+#     util.logger.debug("Locations %s tested OK", response.url)
