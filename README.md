@@ -38,39 +38,100 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 
 ## Documentation
 
-### How to read results
-
-A typical result looks like this:
-
-```bash
-...
-PASSED sedr/schemat.py::test_locations[GET /collections/observations/position]
-PASSED sedr/schemat.py::test_locations[GET /collections/observations/area]
-PASSED sedr/schemat.py::test_locations[GET /collections/observations/items]
-PASSED sedr/schemat.py::test_locations[GET /collections/observations/items/{item_id}]
-FAILED sedr/schemat.py::test_api[GET /collections/observations/locations] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_api[GET /collections/observations/locations/{location_id}] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_api[GET /collections/observations/position] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_api[GET /collections/observations/area] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_api[GET /collections/observations/items] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_api[GET /collections/observations/items/{item_id}] - AssertionError: Request to https://api.esoh.met.no/collections/observations/items/0 failed: Custom check failed...
-FAILED sedr/schemat.py::test_positions[GET /collections/observations/position] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-FAILED sedr/schemat.py::test_locations[GET /collections/observations/locations] - ExceptionGroup: Hypothesis found 5 distinct failures in explicit examples. (5 sub-exceptions)
-========================================== 8 failed, 34 passed in 49.41s ===========================================
-```
-
 For each "FAILED" line, you can scroll back to see the full error and, if relevant, with a curl-example to reproduce it.
 
-```python
-    |     assert "name" in json.loads(
-    |            ^^^^^^^^^^^^^^^^^^^^^
-    | AssertionError: Expected "name": "locations" in /locations, didn't find "name".
-    | Falsifying explicit example: test_locations(
-    |     case=Case(query={'bbox': '5.0,52.0,6.0,52.1', 'datetime': '2022-01-01T00:00Z', 'parameter-name': 'wind_from_direction:2.0:mean:PT10M,wind_speed:10:mean:PT10M,relative_humidity:2.0:mean:PT1M,air_pressure_at_sea_level:1:mean:PT1M,air_temperature:1.5:maximum:PT10M', 'standard_names': 'wind_from_direction,wind_speed,relative_humidity,air_pressure_at_sea_level,air_temperature', 'levels': '../10.0', 'methods': 'mean, maximum, minimum', 'periods': ''}),
-    | )
+### Typical errors
+
+#### Wrong path to API
+
+```bash
+================================ short test summary info =================================
+ERROR sedr/schemat.py::test_landingpage - Failed: Test function sedr/schemat.py::test_landingpage does not match any API operat...
+ERROR sedr/schemat.py::test_conformance - Failed: Test function sedr/schemat.py::test_conformance does not match any API operat...
+!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!!!!!!
+=================================== 2 errors in 3.51s ====================================
 ```
 
-Here you can see that the test failed due to missing a "name" field in the response.
+#### Wrong path to OpenAPI spec
+
+```bash
+================================ short test summary info =================================
+ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Failed to load schema due to client error (HTTP ...
+!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!
+==================================== 1 error in 2.94s ====================================
+```
+
+#### Wrong URL / port
+
+```bash
+FAILED sedr/schemat.py::test_api[GET /] - requests.exceptions.ConnectionError: HTTPConnectionPool(host='example.com', port=80): M...
+```
+
+```bash
+================================ short test summary info =================================
+ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Connection failed
+!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!
+==================================== 1 error in 3.52s ====================================
+```
+
+```bash
+E   schemathesis.exceptions.SchemaError: Failed to load schema due to client error (HTTP 404 Not Found)
+================================ short test summary info =================================
+ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Failed to load schema due to client error (HTTP ...
+!!!!!!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!!!!!!
+==================================== 1 error in 3.64s ====================================
+```
+
+#### Wrong API version / missing conformance link
+
+Sedr only supports EDR 1.1, but the API is EDR 1.0.
+
+```bash
+        if not requirementA2_2_A5:
+>           raise AssertionError(requirementA2_2_A5_message)
+E           AssertionError: Conformance page /conformance does not contain the core edr class http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core. See <https://docs.ogc.org/is/19-086r6/19-086r6.html#_c9401fee-54b9-d116-8365-af0f85a8243d> for more info.
+
+sedr/schemat.py:123: AssertionError
+
+========================================= PASSES =========================================
+____________________________________ test_api[GET /] _____________________________________
+_______________________________ test_api[GET /conformance] _______________________________
+_______________________________ test_api[GET /collections] _______________________________
+________________________ test_api[GET /collections/observations] _________________________
+___________________ test_api[GET /collections/observations/locations] ____________________
+____________ test_api[GET /collections/observations/locations/{location_id}] _____________
+____________________ test_api[GET /collections/observations/position] ____________________
+______________________ test_api[GET /collections/observations/area] ______________________
+_____________________ test_api[GET /collections/observations/items] ______________________
+________________ test_api[GET /collections/observations/items/{item_id}] _________________
+________________________________ test_landingpage[GET /] _________________________________
+___________________________ test_collections[GET /collections] ___________________________
+================================ short test summary info =================================
+PASSED sedr/schemat.py::test_api[GET /]
+PASSED sedr/schemat.py::test_api[GET /conformance]
+PASSED sedr/schemat.py::test_api[GET /collections]
+PASSED sedr/schemat.py::test_api[GET /collections/observations]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/locations]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/locations/{location_id}]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/position]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/area]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/items]
+PASSED sedr/schemat.py::test_api[GET /collections/observations/items/{item_id}]
+PASSED sedr/schemat.py::test_landingpage[GET /]
+PASSED sedr/schemat.py::test_collections[GET /]
+PASSED sedr/schemat.py::test_collections[GET /conformance]
+PASSED sedr/schemat.py::test_collections[GET /collections]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/locations]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/locations/{location_id}]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/position]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/area]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/items]
+PASSED sedr/schemat.py::test_collections[GET /collections/observations/items/{item_id}]
+FAILED sedr/schemat.py::test_conformance[GET /conformance] - AssertionError: Conformance page /conformance does not contain the core edr class htt...
+======================== 1 failed, 21 passed in 95.89s (0:01:35) =========================
+```
+
 
 ### Components
 
