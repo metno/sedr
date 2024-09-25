@@ -251,3 +251,7 @@ def test_collections(case):
 #         pass
 
 #     util.logger.debug("Locations %s tested OK", response.url)
+
+
+if __name__ == "__main__":
+    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])

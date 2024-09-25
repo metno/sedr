@@ -56,12 +56,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # - name: Retag and push Docker image with additional tags
-      #   run: |
-      #     docker pull ${{ steps.meta.outputs.tags }}
-      #     docker tag ${{ steps.meta.outputs.tags }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-      #     docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:

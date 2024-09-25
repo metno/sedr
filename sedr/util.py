@@ -7,13 +7,15 @@ from urllib.parse import urlsplit
 import shapely
 
 
-__version__ = "v0.7.1"
+__version__ = "v0.7.4"
 edr_version = "1.1"
 
 
 def parse_args() -> argparse.Namespace:
     """Parse arguments."""
     parser = argparse.ArgumentParser(description="schemathesis-edr")
+    parser.add_argument("-v", "--version", action='version',
+        version=f'{__version__}')
     parser.add_argument(
         "--openapi",
         type=str,
