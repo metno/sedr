@@ -132,7 +132,6 @@ FAILED sedr/schemat.py::test_conformance[GET /conformance] - AssertionError: Con
 ======================== 1 failed, 21 passed in 95.89s (0:01:35) =========================
 ```
 
-
 ### Components
 
 Main components of the validator are:
@@ -150,7 +149,8 @@ Main components of the validator are:
 
 ## How to contribute
 
-Create an issue or start a discussion. Please do not contriute without discussing it first.
+Create an issue or start a discussion. Please do not contriute without
+discussing it first.
 
 ## Documentation Template
 

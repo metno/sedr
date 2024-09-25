@@ -1,5 +1,6 @@
 import sys
 import logging
+import requests
 import schemathesis
 import argparse
 import json
@@ -14,13 +15,12 @@ edr_version = "1.1"
 def parse_args() -> argparse.Namespace:
     """Parse arguments."""
     parser = argparse.ArgumentParser(description="schemathesis-edr")
-    parser.add_argument("-v", "--version", action='version',
-        version=f'{__version__}')
+    parser.add_argument("-v", "--version", action="version", version=f"{__version__}")
     parser.add_argument(
         "--openapi",
         type=str,
         help="URL to openapi spec for API",
-        default="https://edrisobaric.k8s.met.no/api",
+        default="",
     )
     parser.add_argument(
         "--url", type=str, help="URL to API", default="https://edrisobaric.k8s.met.no"
@@ -116,9 +116,8 @@ def parse_locations(jsondata):
     #         )
 
 
-def test_conformance_links(jsondata):
+def test_conformance_links(jsondata):  # pylint: disable=unused-argument
     """Test that all conformance links are valid and resolves.
-
     TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so postponing this.
     """
 
@@ -134,6 +133,46 @@ def test_conformance_links(jsondata):
     #         resp.status_code < 400
     #     ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
     return True, ""
+
+
+def parse_landing_json(jsondata) -> tuple[bool, str]:
+    """Parse landing page if it is valid JSON."""
+    # See https://github.com/metno/sedr/issues/6
+    if "title" not in jsondata:
+        return False, "Landing page does not contain a title."
+    if "description" not in jsondata:
+        util.logger.warning("Landing page does not contain a description.")
+    if "links" not in jsondata:
+        return False, "Landing page does not contain links."
+    for link in jsondata["links"]:
+        if not isinstance(link, dict):
+            return False, f"Link {link} is not a dictionary."
+        if "href" not in link:
+            return False, f"Link {link} does not have a href attribute."
+        if "rel" not in link:
+            return False, f"Link {link} does not have a rel attribute."
+    return True, ""
+
+
+def locate_openapi_url(url: str) -> str:
+    """Locate the OpenAPI URL based on main URL."""
+    request = requests.get(url, timeout=10)
+
+    # Json
+    # See https://github.com/metno/sedr/issues/6
+    try:
+        if request.json():
+            for link in request.json()["links"]:
+                if link["rel"] == "service-desc":
+                    return link["href"]
+    except json.JSONDecodeError:
+        pass
+
+    # TODO:
+    # Html
+    # Yaml
+    # Xml
+    return ""
 
 
 args = parse_args()

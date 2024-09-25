@@ -18,6 +18,15 @@ def set_up_schemathesis(args):
     """Set up schemathesis."""
     if args.openapi_version == "3.1":
         schemathesis.experimental.OPEN_API_3_1.enable()
+
+    if args.openapi == "":
+        # Attempt to find schema automatically
+        args.openapi = util.locate_openapi_url(args.url)
+        if len(args.openapi) == 0:
+            raise AssertionError(
+                f"Unable to find openapi spec for API. Please supply manually with --openapi <url>"
+            )
+        util.logger.info("Found openapi spec: %s", args.openapi)
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
@@ -67,34 +76,19 @@ def test_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
     response = case.call()
-    landingpage_json = None
     try:
         landingpage_json = json.loads(response.text)
+        landing, landing_message = util.parse_landing_json(landingpage_json)
+        if not landing:
+            raise AssertionError(
+                f"Landing page is missing required elements. See <{spec_ref}> for more info. {landing_message}"
+            )
+
+        util.logger.debug("Landingpage %s tested OK", response.url)
     except json.decoder.JSONDecodeError as e:
-        util.logger.error("Landing page is not valid JSON.")
-        raise AssertionError(
-            f"Expected valid JSON but got {e}. See {spec_ref} for more info."
-        ) from e
-
-    if "title" not in landingpage_json:
-        util.logger.warning("Landing page does not contain a title.")
-    if "description" not in landingpage_json:
-        util.logger.warning("Landing page does not contain a description.")
-    assert (
-        "links" in landingpage_json
-    ), "Landing page does not contain links. See {spec_ref} for more info."
-    for link in landingpage_json["links"]:
-        assert isinstance(
-            link, dict
-        ), f"Link {link} is not a dictionary. See {spec_ref} for more info."
-        assert (
-            "href" in link
-        ), f"Link {link} does not have a href attribute. See {spec_ref} for more info."
-        assert (
-            "rel" in link
-        ), f"Link {link} does not have a rel attribute. See {spec_ref} for more info."
-
-    util.logger.debug("Landingpage %s tested OK", response.url)
+        util.logger.warning(
+            "Landing page is not valid JSON, other formats are not tested yet."
+        )
 
 
 @schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()

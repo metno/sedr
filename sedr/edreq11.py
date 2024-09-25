@@ -15,7 +15,7 @@ openapi_conformance_urls = [
 ]
 
 
-def requirementA2_2_A5(jsondata: json) -> (bool, str):
+def requirementA2_2_A5(jsondata: str) -> tuple[bool, str]:
     """Check if the conformance page contains the required EDR classes.
 
     jsondata should be the "conformsTo"-part of the conformance page.
@@ -31,7 +31,7 @@ def requirementA2_2_A5(jsondata: json) -> (bool, str):
     return True, ""
 
 
-def requirementA2_2_A7(version: int) -> (bool, str):
+def requirementA2_2_A7(version: int) -> tuple[bool, str]:
     """Check if HTTP1.1 was used."""
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_0d0c25a0-850f-2aa5-9acb-06efcc04d452"
     if version == 11:
@@ -40,7 +40,7 @@ def requirementA2_2_A7(version: int) -> (bool, str):
     return False, f"HTTP version 1.1 was not used. See <{spec_url}> for more info."
 
 
-def requirementA11_1(jsondata: json) -> (bool, str):
+def requirementA11_1(jsondata: str) -> tuple[bool, str]:
     """Check if the conformance page contains openapi classes, and that they match our version."""
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_cc7dd5e3-1d54-41ff-b5ba-c5fcb99fa663"
 
