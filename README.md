@@ -1,5 +1,9 @@
 # SEDR - An OGC EDR validator
 
+![Logo](/img/sedr.png "Logo")
+
+## What is sedr?
+
 An experimental validator for OGC EDR APIs using schemathesis.
 
 ## Who is responsible?
@@ -21,10 +25,6 @@ Run docker image:
 Debug logging will show every request and it's status:
 
 - Run container, mounting the current directory at /logs, and tell container to output log there: `docker run -it --rm -v .:/logs ghcr.io/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log`
-
-### Results testing existing services
-
-Will be posted when validator is more complete.
 
 ### Use it for production
 
