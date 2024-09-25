@@ -2,9 +2,15 @@
 
 import pytest
 import util
+import schemat
 
 
-# Handle --version and --help
-args = util.parse_args()
+__version__ = "v0.7.4"
+edr_version = "1.1"
 
-pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
+
+if __name__ == "__main__":
+    # Handle --version and --help
+    args = util.parse_args()
+
+    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])

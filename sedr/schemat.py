@@ -4,6 +4,7 @@ import schemathesis
 from hypothesis import settings, assume
 import shapely
 from shapely.wkt import loads as wkt_loads
+import pytest
 
 import util
 import edreq11 as edreq
@@ -248,4 +249,5 @@ def test_collections(case):
 
 
 if __name__ == "__main__":
+    args = util.parse_args()
     pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
