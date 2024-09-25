@@ -11,7 +11,7 @@ conformance_urls = [
 ]
 openapi_conformance_urls = [
     "http://www.opengis.net/spec/ogcapi-edr-1/1.1/req/oas30",
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.1/req/oas31",
+    "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
 ]
 
 
