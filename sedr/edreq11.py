@@ -1,8 +1,6 @@
 """EDR requirements."""
 
-import json
 import util
-
 
 conformance_urls = [
     "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
