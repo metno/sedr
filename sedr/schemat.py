@@ -64,8 +64,8 @@ def after_call(context, case, response):
     if response.request:
         # Log calls with status
         util.logger.debug(
-            f"after_call {'OK' if response.ok else 'ERR'} " + \
-            f"{response.request.path_url} {response.text[0:150]}"
+            f"after_call {'OK' if response.ok else 'ERR'} "
+            + f"{response.request.path_url} {response.text[0:150]}"
         )
 
 
