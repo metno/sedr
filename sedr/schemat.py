@@ -40,7 +40,7 @@ schema = set_up_schemathesis(util.args)
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=util.args.iterations, deadline=None)
-def test_api(case):
+def test_openapi(case):
     """Run schemathesis standard tests."""
     try:
         case.call_and_validate()
@@ -73,7 +73,7 @@ def after_call(self, response, case):
 
 @schema.include(path_regex="^" + util.args.base_path + "$").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
-def test_landingpage(case):
+def test_edr_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
     response = case.call()
@@ -94,7 +94,7 @@ def test_landingpage(case):
 
 @schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
-def test_conformance(case):
+def test_edr_conformance(case):
     """Test /conformance endpoint."""
     response = case.call()
     conformance_json = json.loads(response.text)
@@ -134,7 +134,7 @@ def test_conformance(case):
 
 @schema.include(path_regex="^" + util.args.base_path + "collections$").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
-def test_collections(case):
+def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics.
     
     It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
