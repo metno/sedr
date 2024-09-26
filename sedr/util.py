@@ -8,14 +8,15 @@ from urllib.parse import urlsplit
 import shapely
 
 
-__version__ = "v0.7.4"
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-3.0"
 edr_version = "1.1"
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(version: str = "") -> argparse.Namespace:
     """Parse arguments."""
     parser = argparse.ArgumentParser(description="schemathesis-edr")
-    parser.add_argument("-v", "--version", action="version", version=f"{__version__}")
+    parser.add_argument("-v", "--version", action="version", version=version)
     parser.add_argument(
         "--openapi",
         type=str,
@@ -118,9 +119,9 @@ def parse_locations(jsondata):
 
 def test_conformance_links(jsondata):  # pylint: disable=unused-argument
     """Test that all conformance links are valid and resolves.
+
     TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so postponing this.
     """
-
     # for link in conformance_json["conformsTo"]:
     #     resp = None
     #     try:
@@ -141,7 +142,7 @@ def parse_landing_json(jsondata) -> tuple[bool, str]:
     if "title" not in jsondata:
         return False, "Landing page does not contain a title."
     if "description" not in jsondata:
-        util.logger.warning("Landing page does not contain a description.")
+        logger.warning("Landing page does not contain a description.")
     if "links" not in jsondata:
         return False, "Landing page does not contain links."
     for link in jsondata["links"]:
@@ -173,3 +174,10 @@ def locate_openapi_url(url: str) -> str:
     # Yaml
     # Xml
     return ""
+
+
+args = logger = None
+
+if __name__ == "__main__":
+    args = parse_args()
+    logger = set_up_logging(args=args, logfile=args.log_file)
