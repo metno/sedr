@@ -37,10 +37,6 @@ def set_up_schemathesis(args):
 
 schema = set_up_schemathesis(util.args)
 
-# Require /collections to exist, in accordance with Requirement A.2.2 A.9
-# <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
-_ = schema["/collections"]["GET"]
-
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=util.args.iterations, deadline=None)
@@ -136,14 +132,15 @@ def test_conformance(case):
     util.logger.debug("Conformance %s tested OK", response.url)
 
 
-@schema.parametrize()
+@schema.include(path_regex="^" + util.args.base_path + "collections$").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_collections(case):
-    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics."""
+    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics.
+    
+    It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
+    <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
+    """
     global collection_ids, extents
-
-    if not case.path.endswith("/collections"):
-        return
 
     response = case.call()
     spec_ref = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_ed0b4d0d-f90a-4a7d-a123-17a1d7849b2d"
@@ -183,7 +180,7 @@ def test_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-    util.logger.debug("Collections %s tested OK", response.url)
+    # util.logger.debug("Collections %s tested OK", response.url)
 
 
 # @schema.parametrize()
