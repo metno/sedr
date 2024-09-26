@@ -2,9 +2,18 @@
 
 import pytest
 import util
+import schemat
 
 
-# Handle --version and --help
-args = util.parse_args()
+__author__ = "Lars Falk-Petersen"
+__version__ = "v0.7.4"
+__license__ = "GPL-3.0"
+edr_version = "1.1"
 
-pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
+
+if __name__ == "__main__":
+    # Handle --version and --help
+    args = util.parse_args()
+
+    # show-capture=no means hide stdout/stderr. Should change debug output instead.
+    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])

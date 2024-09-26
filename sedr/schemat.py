@@ -4,6 +4,7 @@ import schemathesis
 from hypothesis import settings, assume
 import shapely
 from shapely.wkt import loads as wkt_loads
+import pytest
 
 import util
 import edreq11 as edreq
@@ -26,11 +27,13 @@ def set_up_schemathesis(args):
             raise AssertionError(
                 f"Unable to find openapi spec for API. Please supply manually with --openapi <url>"
             )
-        util.logger.info("Found openapi spec: %s", args.openapi)
+        logger.info("Found openapi spec: %s", args.openapi)
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
-schema = set_up_schemathesis(util.args)
+args = util.parse_args()
+logger = util.set_up_logging(args=args, logfile=args.log_file)
+schema = set_up_schemathesis(args)
 
 # Require /collections to exist, in accordance with Requirement A.2.2 A.9
 # <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
@@ -38,7 +41,7 @@ _ = schema["/collections"]["GET"]
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
-@settings(max_examples=util.args.iterations, deadline=None)
+@settings(max_examples=args.iterations, deadline=None)
 def test_api(case):
     """Run schemathesis standard tests."""
     try:
@@ -62,7 +65,7 @@ def after_call(self, response, case):
     """Hook runs after any call to the API."""
     if case.request:
         # Log calls with status
-        util.logger.debug(
+        logger.debug(
             "after_call URL %s gave %s - %s",
             case.request.path_url,
             case.status_code,
@@ -70,8 +73,8 @@ def after_call(self, response, case):
         )
 
 
-@schema.include(path_regex="^" + util.args.base_path + "$").parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
+@schema.include(path_regex="^" + args.base_path + "$").parametrize()
+@settings(max_examples=args.iterations, deadline=None)
 def test_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
@@ -84,15 +87,15 @@ def test_landingpage(case):
                 f"Landing page is missing required elements. See <{spec_ref}> for more info. {landing_message}"
             )
 
-        util.logger.debug("Landingpage %s tested OK", response.url)
+        logger.debug("Landingpage %s tested OK", response.url)
     except json.decoder.JSONDecodeError as e:
-        util.logger.warning(
+        logger.warning(
             "Landing page is not valid JSON, other formats are not tested yet."
         )
 
 
-@schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
+@schema.include(path_regex="^" + args.base_path + "conformance").parametrize()
+@settings(max_examples=args.iterations, deadline=None)
 def test_conformance(case):
     """Test /conformance endpoint."""
     response = case.call()
@@ -128,11 +131,11 @@ def test_conformance(case):
     if not requirementA11_1:
         raise AssertionError(requirementA11_1_message)
 
-    util.logger.debug("Conformance %s tested OK", response.url)
+    logger.debug("Conformance %s tested OK", response.url)
 
 
 @schema.parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
+@settings(max_examples=args.iterations, deadline=None)
 def test_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics."""
     global collection_ids, extents
@@ -152,7 +155,7 @@ def test_collections(case):
         collection_url = collection["links"][0]["href"].rstrip("/")
 
         collection_ids[collection_url] = collection["id"]
-        util.logger.debug("test_collections found collection id %s", collection["id"])
+        logger.debug("test_collections found collection id %s", collection["id"])
 
         extent = None
         try:
@@ -167,7 +170,7 @@ def test_collections(case):
                 Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
             extents[collection_url] = tuple(extent)
 
-            util.logger.debug(
+            logger.debug(
                 "test_collections found extent for %s: %s", collection_url, extent
             )
         except AttributeError:
@@ -178,11 +181,11 @@ def test_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-    util.logger.debug("Collections %s tested OK", response.url)
+    logger.debug("Collections %s tested OK", response.url)
 
 
 # @schema.parametrize()
-# @settings(max_examples=util.args.iterations, deadline=None)
+# @settings(max_examples=args.iterations, deadline=None)
 # def test_positions(case):
 #     """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
 #     if not case.path.endswith("/position"):
@@ -210,7 +213,7 @@ def test_collections(case):
 #     schema[case.path][case.method].validate_response(response)
 
 #     if extent.contains(point):
-#         util.logger.debug(
+#         logger.debug(
 #             "test_positions Testing value INSIDE of extent, %s", case.query["coords"]
 #         )
 #         # Assert that the HTTP status code is 200
@@ -219,7 +222,7 @@ def test_collections(case):
 #                 f"Expected status code 200 but got {response.status_code}"
 #             )
 #     else:
-#         util.logger.debug(
+#         logger.debug(
 #             "test_positions Testing value OUTSIDE of extent, %s", case.query["coords"]
 #         )
 #         if response.status_code != 422:
@@ -230,7 +233,7 @@ def test_collections(case):
 
 # TODO: needs to be reworked
 # @schema.parametrize()
-# @settings(max_examples=util.args.iterations, deadline=None)
+# @settings(max_examples=args.iterations, deadline=None)
 # def test_locations(case):
 #     """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
 #     if not case.path.endswith("/locations"):
@@ -244,8 +247,4 @@ def test_collections(case):
 #         # Invalid points are already tested by test_api, so not testing here
 #         pass
 
-#     util.logger.debug("Locations %s tested OK", response.url)
-
-
-if __name__ == "__main__":
-    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
+#     logger.debug("Locations %s tested OK", response.url)

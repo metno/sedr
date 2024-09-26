@@ -173,7 +173,3 @@ def locate_openapi_url(url: str) -> str:
     # Yaml
     # Xml
     return ""
-
-
-args = parse_args()
-logger = set_up_logging(args=args, logfile=args.log_file)

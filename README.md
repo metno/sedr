@@ -38,9 +38,16 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 
 ## Documentation
 
-For each "FAILED" line, you can scroll back to see the full error and, if relevant, with a curl-example to reproduce it.
+### Limitations
 
-### Typical errors
+- Assuming Openapi 3.1
+- Assuming OGC EDR API version 1.1
+- Basic tests for now
+- Profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> are planned to be supported.
+
+### Understanding errors
+
+For each "FAILED" line, you can scroll back to see the full error and, if relevant, with a curl-example to reproduce it.
 
 #### Wrong path to API
 
@@ -86,7 +93,7 @@ ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Failed to load sche
 
 Sedr only supports EDR 1.1, but the API is EDR 1.0.
 
-```bash
+```python
         if not requirementA2_2_A5:
 >           raise AssertionError(requirementA2_2_A5_message)
 E           AssertionError: Conformance page /conformance does not contain the core edr class http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core. See <https://docs.ogc.org/is/19-086r6/19-086r6.html#_c9401fee-54b9-d116-8365-af0f85a8243d> for more info.
@@ -137,21 +144,10 @@ FAILED sedr/schemat.py::test_conformance[GET /conformance] - AssertionError: Con
 Main components of the validator are:
 
 - [Schemathesis](https://schemathesis.readthedocs.io/en/stable/)
-- [hypothesis}](https://hypothesis.readthedocs.io/en/latest/)
+- [hypothesis](https://hypothesis.readthedocs.io/en/latest/)
 - [pytest](https://docs.pytest.org/en/stable/)
-
-### Limitations
-
-- Assuming Openapi 3.1
-- Assuming OGC EDR API version 1.1
-- Basic tests for now
-- Profiles are not yet supported
 
 ## How to contribute
 
 Create an issue or start a discussion. Please do not contriute without
 discussing it first.
-
-## Documentation Template
-
-This document is based on the [Met-norway-readme](https://gitlab.met.no/maler/met-norway-readme)-template.
