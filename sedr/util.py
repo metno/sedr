@@ -1,5 +1,6 @@
 import sys
 import logging
+from typing import Optional
 import requests
 import schemathesis
 import argparse
@@ -55,7 +56,7 @@ def parse_args(version: str = "") -> argparse.Namespace:
     return args
 
 
-def set_up_logging(args, logfile=None) -> logging.Logger:
+def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
     loglevel = logging.WARNING
 
@@ -67,7 +68,7 @@ def set_up_logging(args, logfile=None) -> logging.Logger:
         try:
             with open(file=logfile, mode="w", encoding="utf-8") as f:
                 f.write(
-                    f"SEDR version {__version__} on python {sys.version}, schemathesis "
+                    f"SEDR version {version} on python {sys.version}, schemathesis "
                     + f"{schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, "
                     + f"openapi-version {args.openapi_version}.\n\n"
                 )
