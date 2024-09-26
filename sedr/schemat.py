@@ -59,15 +59,13 @@ def test_openapi(case):
 
 
 @schemathesis.hook
-def after_call(self, response, case):
+def after_call(context, case, response):
     """Hook runs after any call to the API."""
-    if case.request:
+    if response.request:
         # Log calls with status
         util.logger.debug(
-            "after_call URL %s gave %s - %s",
-            case.request.path_url,
-            case.status_code,
-            case.text[0:150],
+            f"after_call {'OK' if response.ok else 'ERR'} " + \
+            f"{response.request.path_url} {response.text[0:150]}"
         )
 
 
@@ -188,7 +186,7 @@ for p in schema.raw_schema["paths"].keys():
 
         @schema.include(path_regex="/position$").parametrize()
         @settings(max_examples=util.args.iterations, deadline=None)
-        def test_edr_positions(case):
+        def test_edr_position_extent(case):
             """The default test in function test_openapi will fuzz the coordinates.
 
             This function will test response given by coords inside and outside of the extent.
