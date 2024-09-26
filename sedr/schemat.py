@@ -136,7 +136,7 @@ def test_edr_conformance(case):
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics.
-    
+
     It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
     <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
     """
@@ -181,52 +181,63 @@ def test_edr_collections(case):
                 ) from err
 
 
-# @schema.parametrize()
-# @settings(max_examples=args.iterations, deadline=None)
-# def test_positions(case):
-#     """The default test in function test_api() will fuzz the coordinates.
-#       This function will test response given by coords inside and outside of the extent."""
-#     if not case.path.endswith("/position"):
-#         return
+for p in schema.raw_schema["paths"].keys():
 
-#     response = case.call()
-#     point = None
-#     try:
-#         point = wkt_loads(case.query["coords"])
-#     except shapely.errors.GEOSException:
-#         # Invalid points are already tested by test_api, so not testing here
-#         return
+    # Include position endpoint if exists (otherwise schemathesis will refuse to run)
+    if p.endswith("/position"):
 
-#     extent_path = case.base_url + str(case.path).removesuffix("/position")
-#     extent_coords = extents[extent_path]
-#     extent = shapely.geometry.Polygon(
-#         [
-#             (extent_coords[0], extent_coords[1]),
-#             (extent_coords[0], extent_coords[3]),
-#             (extent_coords[2], extent_coords[3]),
-#             (extent_coords[2], extent_coords[1]),
-#         ]
-#     )
+        @schema.include(path_regex="/position$").parametrize()
+        @settings(max_examples=util.args.iterations, deadline=None)
+        def test_edr_positions(case):
+            """The default test in function test_openapi will fuzz the coordinates.
 
-#     schema[case.path][case.method].validate_response(response)
+            This function will test response given by coords inside and outside of the extent.
+            """
+            response = case.call()
+            point = None
+            try:
+                point = wkt_loads(case.query["coords"])
+            except shapely.errors.GEOSException:
+                return  # Invalid points are already tested by test_api, so not testing here
 
-#     if extent.contains(point):
-#         util.logger.debug(
-#             "test_positions Testing value INSIDE of extent, %s", case.query["coords"]
-#         )
-#         # Assert that the HTTP status code is 200
-#         if response.status_code != 200:
-#             assume( # Marking the example as bad. https://github.com/metno/sedr/issues/5
-#                 f"Expected status code 200 but got {response.status_code}"
-#             )
-#     else:
-#         util.logger.debug(
-#             "test_positions Testing value OUTSIDE of extent, %s", case.query["coords"]
-#         )
-#         if response.status_code != 422:
-#             assume( # Marking the example as bad. https://github.com/metno/sedr/issues/5
-#                 f"Expected status code 422 but got {response.status_code}"
-#             )
+            extent_path = case.base_url + str(case.path).removesuffix("/position")
+            extent_coords = extents[extent_path]
+            extent = shapely.geometry.Polygon(
+                [
+                    (extent_coords[0], extent_coords[1]),
+                    (extent_coords[0], extent_coords[3]),
+                    (extent_coords[2], extent_coords[3]),
+                    (extent_coords[2], extent_coords[1]),
+                ]
+            )
+
+            schema[case.path][case.method].validate_response(response)
+
+            if extent.contains(point):
+                util.logger.debug(
+                    "test_positions Testing value INSIDE of extent, %s",
+                    case.query["coords"],
+                )
+                # Assert that the HTTP status code is 200
+                if response.status_code != 200:
+                    assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
+                        f"Expected status code 200 but got {response.status_code}"
+                    )
+                    pytest.fail(
+                        f"Expected status code 200 but got {response.status_code}"
+                    )
+            else:
+                util.logger.debug(
+                    "test_positions Testing value OUTSIDE of extent, %s",
+                    case.query["coords"],
+                )
+                if response.status_code != 422:
+                    assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
+                        f"Expected status code 422 but got {response.status_code}"
+                    )
+                    pytest.fail(
+                        f"Expected status code 422 but got {response.status_code}"
+                    )
 
 
 # TODO: needs to be reworked
