@@ -180,8 +180,6 @@ def test_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-    # util.logger.debug("Collections %s tested OK", response.url)
-
 
 # @schema.parametrize()
 # @settings(max_examples=args.iterations, deadline=None)
