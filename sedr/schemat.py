@@ -10,6 +10,10 @@ import util
 import edreq11 as edreq
 
 
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-3.0"
+
+
 # Globals
 extents = {}
 collection_ids = {}
@@ -21,19 +25,17 @@ def set_up_schemathesis(args):
         schemathesis.experimental.OPEN_API_3_1.enable()
 
     if args.openapi == "":
-        # Attempt to find schema automatically
+        # Attempt to find schema URL automatically
         args.openapi = util.locate_openapi_url(args.url)
         if len(args.openapi) == 0:
             raise AssertionError(
                 f"Unable to find openapi spec for API. Please supply manually with --openapi <url>"
             )
-        logger.info("Found openapi spec: %s", args.openapi)
+        util.logger.info("Found openapi spec: %s", util.args.openapi)
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
-args = util.parse_args()
-logger = util.set_up_logging(args=args, logfile=args.log_file)
-schema = set_up_schemathesis(args)
+schema = set_up_schemathesis(util.args)
 
 # Require /collections to exist, in accordance with Requirement A.2.2 A.9
 # <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
@@ -41,7 +43,7 @@ _ = schema["/collections"]["GET"]
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
-@settings(max_examples=args.iterations, deadline=None)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_api(case):
     """Run schemathesis standard tests."""
     try:
@@ -65,7 +67,7 @@ def after_call(self, response, case):
     """Hook runs after any call to the API."""
     if case.request:
         # Log calls with status
-        logger.debug(
+        util.logger.debug(
             "after_call URL %s gave %s - %s",
             case.request.path_url,
             case.status_code,
@@ -73,8 +75,8 @@ def after_call(self, response, case):
         )
 
 
-@schema.include(path_regex="^" + args.base_path + "$").parametrize()
-@settings(max_examples=args.iterations, deadline=None)
+@schema.include(path_regex="^" + util.args.base_path + "$").parametrize()
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
@@ -87,15 +89,15 @@ def test_landingpage(case):
                 f"Landing page is missing required elements. See <{spec_ref}> for more info. {landing_message}"
             )
 
-        logger.debug("Landingpage %s tested OK", response.url)
+        util.logger.debug("Landingpage %s tested OK", response.url)
     except json.decoder.JSONDecodeError as e:
-        logger.warning(
+        util.logger.warning(
             "Landing page is not valid JSON, other formats are not tested yet."
         )
 
 
-@schema.include(path_regex="^" + args.base_path + "conformance").parametrize()
-@settings(max_examples=args.iterations, deadline=None)
+@schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_conformance(case):
     """Test /conformance endpoint."""
     response = case.call()
@@ -131,11 +133,11 @@ def test_conformance(case):
     if not requirementA11_1:
         raise AssertionError(requirementA11_1_message)
 
-    logger.debug("Conformance %s tested OK", response.url)
+    util.logger.debug("Conformance %s tested OK", response.url)
 
 
 @schema.parametrize()
-@settings(max_examples=args.iterations, deadline=None)
+@settings(max_examples=util.args.iterations, deadline=None)
 def test_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics."""
     global collection_ids, extents
@@ -155,7 +157,7 @@ def test_collections(case):
         collection_url = collection["links"][0]["href"].rstrip("/")
 
         collection_ids[collection_url] = collection["id"]
-        logger.debug("test_collections found collection id %s", collection["id"])
+        util.logger.debug("test_collections found collection id %s", collection["id"])
 
         extent = None
         try:
@@ -170,7 +172,7 @@ def test_collections(case):
                 Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
             extents[collection_url] = tuple(extent)
 
-            logger.debug(
+            util.logger.debug(
                 "test_collections found extent for %s: %s", collection_url, extent
             )
         except AttributeError:
@@ -181,13 +183,14 @@ def test_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-    logger.debug("Collections %s tested OK", response.url)
+    util.logger.debug("Collections %s tested OK", response.url)
 
 
 # @schema.parametrize()
 # @settings(max_examples=args.iterations, deadline=None)
 # def test_positions(case):
-#     """The default test in function test_api() will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
+#     """The default test in function test_api() will fuzz the coordinates.
+#       This function will test response given by coords inside and outside of the extent."""
 #     if not case.path.endswith("/position"):
 #         return
 
@@ -213,7 +216,7 @@ def test_collections(case):
 #     schema[case.path][case.method].validate_response(response)
 
 #     if extent.contains(point):
-#         logger.debug(
+#         util.logger.debug(
 #             "test_positions Testing value INSIDE of extent, %s", case.query["coords"]
 #         )
 #         # Assert that the HTTP status code is 200
@@ -222,7 +225,7 @@ def test_collections(case):
 #                 f"Expected status code 200 but got {response.status_code}"
 #             )
 #     else:
-#         logger.debug(
+#         util.logger.debug(
 #             "test_positions Testing value OUTSIDE of extent, %s", case.query["coords"]
 #         )
 #         if response.status_code != 422:
@@ -247,4 +250,4 @@ def test_collections(case):
 #         # Invalid points are already tested by test_api, so not testing here
 #         pass
 
-#     logger.debug("Locations %s tested OK", response.url)
+#     util.logger.debug("Locations %s tested OK", response.url)
