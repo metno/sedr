@@ -23,7 +23,7 @@ RUN apt-get update && \
 # Set workdir
 WORKDIR /app
 
-COPY requirements.txt ./
+COPY requirements.txt pytest.ini ./
 COPY sedr/ ./sedr/
 RUN python3 -m venv ./venv && \
   ./venv/bin/pip install -r /app/requirements.txt

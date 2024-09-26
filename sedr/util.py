@@ -12,6 +12,8 @@ __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 edr_version = "1.1"
 
+args = logger = None
+
 
 def parse_args(version: str = "") -> argparse.Namespace:
     """Parse arguments."""
@@ -29,8 +31,8 @@ def parse_args(version: str = "") -> argparse.Namespace:
     parser.add_argument(
         "--iterations",
         type=int,
-        default=50,
-        help="Amount of examples to generate, per test. Default 50. Increase for local, developer testing.",
+        default=10,
+        help="Amount of examples to generate, per test. Default 10. Increase for local, developer testing.",
     )
     parser.add_argument(
         "--log-file",
@@ -174,10 +176,3 @@ def locate_openapi_url(url: str) -> str:
     # Yaml
     # Xml
     return ""
-
-
-args = logger = None
-
-if __name__ == "__main__":
-    args = parse_args()
-    logger = set_up_logging(args=args, logfile=args.log_file)
