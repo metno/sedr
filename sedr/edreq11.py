@@ -1,6 +1,6 @@
 """EDR requirements."""
 
-import util
+import sedr.util as util
 
 conformance_urls = [
     "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
@@ -44,7 +44,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
 
     for url in jsondata:
         if url in openapi_conformance_urls:
-            if (
+            if util.args and (
                 util.args.openapi_version == "3.1"
                 and "oas31" in url
                 or util.args.openapi_version == "3.0"
@@ -53,7 +53,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
                 return True, url
             return (
                 False,
-                f"OpenAPI version {util.args.openapi_version} and version in conformance {url} doesn't match. See <{spec_url}> for more info.",
+                f"OpenAPI version {util.args.openapi_version if util.args else "unknown"} and version in conformance {url} doesn't match. See <{spec_url}> for more info.",
             )
 
     return (

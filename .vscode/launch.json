@@ -10,9 +10,15 @@
             "request": "launch",
             "program": "venv/bin/st",
             "console": "integratedTerminal",
-            "args": ["run", "--experimental=openapi-3.1", "https://edrisobaric.k8s.met.no/api"],
+            "args": ["run",
+                // "--show-trace",
+                "--experimental=openapi-3.1",
+                "--checks", "all",
+                "--workers", "2",
+                // "--include-path-regex", "'/collections$'",
+                "--hypothesis-suppress-health-check=too_slow",
+                "https://edrisobaric.k8s.met.no/api"],
             "env": {"SCHEMATHESIS_HOOKS": "sedr.hooks"}
-
         }
     ]
 }
