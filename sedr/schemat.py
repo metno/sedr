@@ -5,6 +5,7 @@ from hypothesis import settings, assume
 import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
+import requests
 
 import util
 import edreq11 as edreq
@@ -16,9 +17,11 @@ __license__ = "GPL-3.0"
 
 
 # Globals
+schema = None
 extents = {}
 collection_ids = {}
-rodeo = False
+# TODO: rodeo always enabled for testing. Remove.
+rodeo = True
 
 
 def set_up_schemathesis(args):
@@ -37,8 +40,11 @@ def set_up_schemathesis(args):
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
-schema = set_up_schemathesis(util.args)
-
+try:
+    schema = set_up_schemathesis(util.args)
+except requests.exceptions.ConnectionError as err:
+    msg = f"Unable to connect to site <{util.args.url}>"
+    pytest.fail(msg)
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=util.args.iterations, deadline=None)
@@ -75,6 +81,7 @@ def after_call(context, case, response):
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_conformance(case):
     """Test /conformance endpoint."""
+    global rodeo
     response = case.call()
     conformance_json = json.loads(response.text)
 
@@ -108,9 +115,10 @@ def test_edr_conformance(case):
     if not requirementA11_1:
         raise AssertionError(requirementA11_1_message)
 
-    # TODO: rodeo always enabled for testing. Remove.
-    if True or rodeoprofile.conformance_url in conformance_json["conformsTo"]:
+    if rodeoprofile.conformance_url in conformance_json["conformsTo"]:
         rodeo = True
+
+    if rodeo:
         requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
             jsondata=conformance_json["conformsTo"]
         )
@@ -194,6 +202,12 @@ def test_edr_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
+        if rodeo:
+            requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
+                jsondata=collection
+            )
+            if not requirement7_4:
+                raise AssertionError(requirement7_4_message)
 
 for p in schema.raw_schema["paths"].keys():
     # Include position endpoint if exists (otherwise schemathesis will refuse to run)
