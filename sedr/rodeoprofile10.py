@@ -3,6 +3,7 @@
 import util
 
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
+spec_base_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
 
 
 def requirement7_1(jsondata: str) -> tuple[bool, str]:
@@ -10,7 +11,7 @@ def requirement7_1(jsondata: str) -> tuple[bool, str]:
 
     jsondata should be the "conformsTo"-part of the conformance page.
     """
-    spec_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html#_requirements_class_core"
+    spec_url = f"{spec_base_url}#_requirements_class_core"
     if conformance_url not in jsondata:
         return (
             False,
@@ -21,7 +22,7 @@ def requirement7_1(jsondata: str) -> tuple[bool, str]:
 
 def requirement7_2(jsondata: str) -> tuple[bool, str]:
     """Check OpenAPI."""
-    spec_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html#_openapi"
+    spec_url = f"{spec_base_url}#_openapi"
     openapi_type = "application/vnd.oai.openapi+json;version=" #3.0"
     servicedoc_type = "text/html"
 
@@ -31,7 +32,7 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
             if openapi_type not in link["type"]:
                 return (
                     False,
-                    f"OpenAPI link service-desc should identify the content as openAPI and include version. Example <application/vnd.oai.openapi+json;version=3.0>. Found: <{link['type']}> See <{spec_url}> for more info.",
+                    f"OpenAPI link service-desc should identify the content as openAPI and include version. Example <application/vnd.oai.openapi+json;version=3.0>. Found: <{link['type']}> See <{spec_url}> and <{spec_base_url}#_openapi_2> for more info.",
                 )
             break
     else:
@@ -59,7 +60,7 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
 
 def requirement7_4(jsondata: str) -> tuple[bool, str]:
     """Check collection title. Can only test A, B."""
-    spec_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html#_collection_title"
+    spec_url = f"{spec_base_url}#_collection_title"
 
     #B
     try:
@@ -72,7 +73,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
         #A
         return (
             False,
-            f"Collection must have a title. Error {err}. See <{spec_url}> for more info.",
+            f"Collection must have a title. Error {err}. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
     return (
             True,
