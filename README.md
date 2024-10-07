@@ -41,9 +41,9 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 ### Limitations
 
 - Assuming Openapi 3.1
-- Assuming OGC EDR API version 1.1
+- Assuming OGC EDR API version 1.1/1.2
 - Basic tests for now
-- Profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> are planned to be supported.
+- Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> than the full EDR spec.
 
 ### Understanding errors
 
@@ -91,7 +91,7 @@ ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Failed to load sche
 
 #### Wrong API version / missing conformance link
 
-Sedr only supports EDR 1.1, but the API is EDR 1.0.
+Sedr supports EDR 1.1, but the API is EDR 1.0.
 
 ```python
         if not requirementA2_2_A5:

@@ -16,5 +16,7 @@ def main():
 
 # Handle --version and --help
 util.args = util.parse_args(__version__)
-util.logger = util.set_up_logging(args=util.args, logfile=util.args.log_file, version=__version__)
+util.logger = util.set_up_logging(
+    args=util.args, logfile=util.args.log_file, version=__version__
+)
 main()

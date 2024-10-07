@@ -29,7 +29,7 @@ def set_up_schemathesis(args):
         args.openapi = util.locate_openapi_url(args.url)
         if len(args.openapi) == 0:
             raise AssertionError(
-                f"Unable to find openapi spec for API. Please supply manually with --openapi <url>"
+                "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
             )
         util.logger.info("Found openapi spec: %s", util.args.openapi)
     return schemathesis.from_uri(args.openapi, base_url=args.url)
@@ -84,7 +84,7 @@ def test_edr_landingpage(case):
             )
 
         util.logger.debug("Landingpage %s tested OK", response.url)
-    except json.decoder.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError:
         util.logger.warning(
             "Landing page is not valid JSON, other formats are not tested yet."
         )
@@ -133,9 +133,7 @@ def test_edr_conformance(case):
 @schema.include(path_regex="^" + util.args.base_path + "collections$").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
-    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics.
-
-    It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
+    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics. It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
     <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
     """
     global collection_ids, extents
@@ -143,8 +141,8 @@ def test_edr_collections(case):
     response = case.call()
     spec_ref = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_ed0b4d0d-f90a-4a7d-a123-17a1d7849b2d"
 
-    assert "collections" in json.loads(
-        response.text
+    assert (
+        "collections" in json.loads(response.text)
     ), f"/collections does not contain a collections attribute. See {spec_ref} for more info."
 
     for collection in json.loads(response.text)["collections"]:
@@ -180,17 +178,13 @@ def test_edr_collections(case):
 
 
 for p in schema.raw_schema["paths"].keys():
-
     # Include position endpoint if exists (otherwise schemathesis will refuse to run)
     if p.endswith("/position"):
 
         @schema.include(path_regex="/position$").parametrize()
         @settings(max_examples=util.args.iterations, deadline=None)
         def test_edr_position_extent(case):
-            """The default test in function test_openapi will fuzz the coordinates.
-
-            This function will test response given by coords inside and outside of the extent.
-            """
+            """The default test in function test_openapi will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
             response = case.call()
             point = None
             try:

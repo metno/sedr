@@ -6,18 +6,21 @@ import sys
 
 
 class TestInit(unittest.TestCase):
-
     def test_version(self):
         result = subprocess.run(
             [sys.executable, "./__init__.py", "--version"],
             capture_output=True,
             text=True,
+            check=True,
         )
         self.assertIn("v", result.stdout)
 
     def test_help(self):
         result = subprocess.run(
-            [sys.executable, "./__init__.py", "--help"], capture_output=True, text=True
+            [sys.executable, "./__init__.py", "--help"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         self.assertIn("usage:", result.stdout)
 
@@ -31,6 +34,7 @@ class TestInit(unittest.TestCase):
             ],
             capture_output=True,
             text=True,
+            check=True,
         )
         self.assertEqual(0, result.returncode)
 

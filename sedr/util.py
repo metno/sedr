@@ -1,12 +1,10 @@
 import sys
 import logging
-from typing import Optional
 import requests
 import schemathesis
 import argparse
 import json
 from urllib.parse import urlsplit
-import shapely
 
 
 __author__ = "Lars Falk-Petersen"
