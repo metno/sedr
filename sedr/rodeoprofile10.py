@@ -31,7 +31,7 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
             if openapi_type not in link["type"]:
                 return (
                     False,
-                    f"OpenAPI link service-desc should identify the content as openAPI and include version. Example <application/vnd.oai.openapi+json;version=3.0> See <{spec_url}> for more info.",
+                    f"OpenAPI link service-desc should identify the content as openAPI and include version. Example <application/vnd.oai.openapi+json;version=3.0>. Found: <{link['type']}> See <{spec_url}> for more info.",
                 )
             break
     else:
@@ -46,11 +46,35 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
             if servicedoc_type not in link["type"]:
                 return (
                     False,
-                    f"Landing page should linkt to service-doc, with type {servicedoc_type}. See <{spec_url}> for more info.",
+                    f"Service-doc should have type <{servicedoc_type}>. Found <{link['type']}> See <{spec_url}> for more info.",
                 )
             break
     else:
         return (
             False,
             f"Landing page should linkt to service-doc, with type {servicedoc_type}. See <{spec_url}> for more info.",
+        )
+    return True, ""
+
+
+def requirement7_4(jsondata: str) -> tuple[bool, str]:
+    """Check collection title. Can only test A, B."""
+    spec_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html#_collection_title"
+
+    #B
+    try:
+        if len(jsondata["title"]) > 50:
+            return (
+               False,
+                f"Collection title should not exeede 50 chars. See <{spec_url}> for more info.",
+            )
+    except json.JSONDecodeError as err:
+        #A
+        return (
+            False,
+            f"Collection must have a title. Error {err}. See <{spec_url}> for more info.",
+        )
+    return (
+            True,
+            "",
         )
