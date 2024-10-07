@@ -67,7 +67,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
         if len(jsondata["title"]) > 50:
             return (
                False,
-                f"Collection title should not exeed 50 chars. See <{spec_url}> for more info.",
+                f"Collection title should not exceed 50 chars. See <{spec_url}> for more info.",
             )
     except json.JSONDecodeError as err:
         #A
