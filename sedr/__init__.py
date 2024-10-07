@@ -1,12 +1,11 @@
 """Main init file for sedr. Schemathesis related in schemat.py, others in utils.py."""
 
-import pytest
-import util
-
-
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 __version__ = "v0.7.5"
+
+import pytest
+import util
 
 
 def main():

@@ -3,7 +3,8 @@
 import util
 
 conformance_urls = [
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
+    # EDR 1.1
+    "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/core",
     "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
     "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
 ]
