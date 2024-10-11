@@ -1,9 +1,9 @@
 """rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
-import util
-
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
-spec_base_url = "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
+spec_base_url = (
+    "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
+)
 
 
 def requirement7_1(jsondata: str) -> tuple[bool, str]:
@@ -20,10 +20,11 @@ def requirement7_1(jsondata: str) -> tuple[bool, str]:
 
     return True, ""
 
+
 def requirement7_2(jsondata: str) -> tuple[bool, str]:
     """Check OpenAPI."""
     spec_url = f"{spec_base_url}#_openapi"
-    openapi_type = "application/vnd.oai.openapi+json;version=" #3.0"
+    openapi_type = "application/vnd.oai.openapi+json;version="  # 3.0"
     servicedoc_type = "text/html"
 
     # A, B, C
@@ -62,20 +63,20 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
     """Check collection title. Can only test A, B."""
     spec_url = f"{spec_base_url}#_collection_title"
 
-    #B
+    # B
     try:
         if len(jsondata["title"]) > 50:
             return (
-               False,
+                False,
                 f"Collection title should not exceed 50 chars. See <{spec_url}> for more info.",
             )
     except json.JSONDecodeError as err:
-        #A
+        # A
         return (
             False,
             f"Collection must have a title. Error {err}. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
     return (
-            True,
-            "",
-        )
+        True,
+        "",
+    )

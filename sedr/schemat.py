@@ -42,9 +42,10 @@ def set_up_schemathesis(args):
 
 try:
     schema = set_up_schemathesis(util.args)
-except requests.exceptions.ConnectionError as err:
+except requests.exceptions.ConnectionError:
     msg = f"Unable to connect to site <{util.args.url}>"
     pytest.fail(msg)
+
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=util.args.iterations, deadline=None)
@@ -208,6 +209,7 @@ def test_edr_collections(case):
             )
             if not requirement7_4:
                 raise AssertionError(requirement7_4_message)
+
 
 for p in schema.raw_schema["paths"].keys():
     # Include position endpoint if exists (otherwise schemathesis will refuse to run)
