@@ -20,7 +20,7 @@ Experiment - Every error reported might as well be an error in the validator, ra
 
 Run docker image:
 
-- `docker run -it --rm ghcr.io/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no`
+- `docker run -it --rm ghcr.io/metno/sedr --url https://edrisobaric.k8s.met.no`
 
 Debug logging will show every request and it's status:
 
