@@ -46,6 +46,12 @@ def parse_args(version: str = "") -> argparse.Namespace:
         default="3.1",
         help=f"Choose openapi version used in API. Default 3.1. Options are: {openapi_version_choices}",
     )
+    parser.add_argument(
+        "--rodeo-profile",
+        action="store_true",
+        default=False,
+        help="Use the rodeo profile even though the API doesn't specify it. Default False.",
+    )
 
     args = parser.parse_args()
     # Parse out base_path for conveience
