@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import schemathesis
@@ -6,7 +7,6 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
-import urllib.parse
 
 import util
 import edreq11 as edreq
@@ -77,9 +77,10 @@ def after_call(context, case, response):
             + f"{response.request.path_url} {response.text[0:150]}"
         )
 
+test = os.path.join(util.args.base_path, "conformance")
 
 @schema.include(
-    path_regex="^" + urllib.parse.urljoin(util.args.base_path, "/conformance")
+    path_regex="^" + os.path.join(util.args.base_path, "conformance")
 ).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_conformance(case):
@@ -162,7 +163,7 @@ def test_edr_landingpage(case):
             raise AssertionError(requirement7_2_message)
 
 
-@schema.include(path_regex="^" + urllib.parse.urljoin(util.args.base_path, "collections$")).parametrize()
+@schema.include(path_regex="^" + os.path.join(util.args.base_path, "collections$")).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics. It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
