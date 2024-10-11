@@ -14,7 +14,7 @@ openapi_conformance_urls = [
 ]
 
 
-def requirementA2_2_A5(jsondata: str) -> tuple[bool, str]:
+def requirementA2_2_A5(jsondata: str, siteurl="") -> tuple[bool, str]:
     """Check if the conformance page contains the required EDR classes.
 
     jsondata should be the "conformsTo"-part of the conformance page.
@@ -24,7 +24,7 @@ def requirementA2_2_A5(jsondata: str) -> tuple[bool, str]:
         if url not in jsondata:
             return (
                 False,
-                f"Conformance page /conformance does not contain the core edr class {url}. See <{spec_url}> for more info.",
+                f"Conformance page <{siteurl}conformance> does not contain the core edr class {url}. See <{spec_url}> for more info.",
             )
 
     return True, ""
