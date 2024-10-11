@@ -53,7 +53,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
                 return True, url
             return (
                 False,
-                f"OpenAPI version {util.args.openapi_version if util.args else "unknown"} and version in conformance {url} doesn't match. See <{spec_url}> for more info.",
+                f"OpenAPI version <{util.args.openapi_version if util.args else "unknown"}> and version in conformance <{url}> doesn't match. See <{spec_url}> for more info.",
             )
 
     return (

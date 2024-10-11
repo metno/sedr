@@ -1,8 +1,8 @@
 setuptools # prospector requirement
 tox
-black
 prospector
 bandit
 pymarkdownlnt
 mypy
 types-requests
+ruff

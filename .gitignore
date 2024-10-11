@@ -6,5 +6,4 @@ venv
 logs
 .tox
 old
-.mypy_cache
-.pytest_cache
+.*_cache
