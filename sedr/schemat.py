@@ -6,6 +6,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
+import urllib.parse
 
 import util
 import edreq11 as edreq
@@ -20,8 +21,7 @@ __license__ = "GPL-3.0"
 schema = None
 extents = {}
 collection_ids = {}
-# TODO: rodeo always enabled for testing. Remove.
-rodeo = True
+rodeo = False
 
 
 def set_up_schemathesis(args):
@@ -78,13 +78,21 @@ def after_call(context, case, response):
         )
 
 
-@schema.include(path_regex="^" + util.args.base_path + "conformance").parametrize()
+@schema.include(
+    path_regex="^" + urllib.parse.urljoin(util.args.base_path, "/conformance")
+).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_conformance(case):
     """Test /conformance endpoint."""
     global rodeo
     response = case.call()
     conformance_json = json.loads(response.text)
+
+    if (
+        util.args.rodeo_profile
+        or rodeoprofile.conformance_url in conformance_json["conformsTo"]
+    ):
+        rodeo = True
 
     if "conformsTo" not in conformance_json:
         spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
@@ -99,7 +107,7 @@ def test_edr_conformance(case):
         raise AssertionError(resolves_message)
 
     requirementA2_2_A5, requirementA2_2_A5_message = edreq.requirementA2_2_A5(
-        jsondata=conformance_json["conformsTo"]
+        jsondata=conformance_json["conformsTo"], siteurl=util.args.url
     )
     if not requirementA2_2_A5:
         raise AssertionError(requirementA2_2_A5_message)
@@ -115,9 +123,6 @@ def test_edr_conformance(case):
     )
     if not requirementA11_1:
         raise AssertionError(requirementA11_1_message)
-
-    if rodeoprofile.conformance_url in conformance_json["conformsTo"]:
-        rodeo = True
 
     if rodeo:
         requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
@@ -157,7 +162,7 @@ def test_edr_landingpage(case):
             raise AssertionError(requirement7_2_message)
 
 
-@schema.include(path_regex="^" + util.args.base_path + "collections$").parametrize()
+@schema.include(path_regex="^" + urllib.parse.urljoin(util.args.base_path, "collections$")).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics. It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
