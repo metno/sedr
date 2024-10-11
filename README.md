@@ -44,6 +44,7 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - Assuming OGC EDR API version 1.2 (draft)
 - Few, basic tests for now
 - Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> than the full EDR spec.
+- Use --rodeo-profile to force a test against the profile (will happen automatically if conformance includes the profile)
 
 ### Understanding errors
 
