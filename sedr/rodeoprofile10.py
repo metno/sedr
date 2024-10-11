@@ -1,5 +1,7 @@
 """rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
+import json
+
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
 spec_base_url = (
     "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
@@ -70,7 +72,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
                 False,
                 f"Collection title should not exceed 50 chars. See <{spec_url}> for more info.",
             )
-    except json.JSONDecodeError as err:
+    except (json.JSONDecodeError, KeyError) as err:
         # A
         return (
             False,
