@@ -9,7 +9,7 @@ import pytest
 import requests
 
 import util
-import edreq11 as edreq
+import edreq12 as edreq
 import rodeoprofile10 as profile
 
 
