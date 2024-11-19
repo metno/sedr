@@ -10,7 +10,8 @@ from urllib.parse import urlsplit
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 
-args = logger = None
+args = None
+logger = logging.getLogger(__file__)
 
 
 def parse_args(args, version: str = "") -> argparse.Namespace:
@@ -94,7 +95,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     return logger
 
 
-def parse_locations(jsondata):
+def parse_locations(jsondata) -> None:
     """Parse locations from JSON, test geometries."""
     try:
         _ = json.loads(jsondata)
@@ -122,7 +123,7 @@ def parse_locations(jsondata):
     #         )
 
 
-def test_conformance_links(jsondata):  # pylint: disable=unused-argument
+def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unused-argument
     """Test that all conformance links are valid and resolves.
 
     TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so postponing this.
