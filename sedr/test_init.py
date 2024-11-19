@@ -8,7 +8,7 @@ import sys
 class TestInit(unittest.TestCase):
     def test_version(self):
         result = subprocess.run(
-            [sys.executable, "./__init__.py", "--version"],
+            [sys.executable, "sedr/__init__.py", "--version"],
             capture_output=True,
             text=True,
             check=True,
@@ -17,7 +17,7 @@ class TestInit(unittest.TestCase):
 
     def test_help(self):
         result = subprocess.run(
-            [sys.executable, "./__init__.py", "--help"],
+            [sys.executable, "sedr/__init__.py", "--help"],
             capture_output=True,
             text=True,
             check=True,
@@ -28,7 +28,7 @@ class TestInit(unittest.TestCase):
         result = subprocess.run(
             [
                 sys.executable,
-                "./__init__.py",
+                "sedr/__init__.py",
                 "--url",
                 "https://edrisobaric.k8s.met.no",
             ],
