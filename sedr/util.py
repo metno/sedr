@@ -144,7 +144,7 @@ def test_conformance_links(jsondata):  # pylint: disable=unused-argument
 
 
 def parse_landing_json(jsondata) -> tuple[bool, str]:
-    """Parse landing page if it is valid JSON."""
+    """Parse landing page if it is valid JSON. TODO: move to edreq11.py and link to standard."""
     # See https://github.com/metno/sedr/issues/6
     if "title" not in jsondata:
         return False, "Landing page does not contain a title."

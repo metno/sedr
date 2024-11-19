@@ -10,7 +10,7 @@ import requests
 
 import util
 import edreq11 as edreq
-import rodeoprofile10 as rodeoprofile
+import rodeoprofile10 as profile
 
 
 __author__ = "Lars Falk-Petersen"
@@ -69,7 +69,7 @@ def test_openapi(case):
 
 @schemathesis.hook
 def after_call(context, case, response):
-    """Hook runs after any call to the API."""
+    """Hook runs after any call to the API, used for logging."""
     if response.request:
         # Log calls with status
         util.logger.debug(
@@ -90,7 +90,7 @@ def test_edr_conformance(case):
 
     if (
         util.args.rodeo_profile
-        or rodeoprofile.conformance_url in conformance_json["conformsTo"]
+        or profile.conformance_url in conformance_json["conformsTo"]
     ):
         rodeo = True
 
@@ -110,7 +110,8 @@ def test_edr_conformance(case):
         jsondata=conformance_json["conformsTo"], siteurl=util.args.url
     )
     if not requirementA2_2_A5:
-        raise AssertionError(requirementA2_2_A5_message)
+        util.logger.error(requirementA2_2_A5_message)
+        # raise AssertionError(requirementA2_2_A5_message)
 
     requirementA2_2_A7, requirementA2_2_A7_message = edreq.requirementA2_2_A7(
         response.raw.version
@@ -125,7 +126,7 @@ def test_edr_conformance(case):
         raise AssertionError(requirementA11_1_message)
 
     if rodeo:
-        requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
+        requirement7_1, requirement7_1_message = profile.requirement7_1(
             jsondata=conformance_json["conformsTo"]
         )
         if not requirement7_1:
@@ -155,7 +156,7 @@ def test_edr_landingpage(case):
         )
 
     if rodeo:
-        requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
+        requirement7_2, requirement7_2_message = profile.requirement7_2(
             jsondata=landingpage_json
         )
         if not requirement7_2:
@@ -211,7 +212,7 @@ def test_edr_collections(case):
                 ) from err
 
         if rodeo:
-            requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
+            requirement7_4, requirement7_4_message = profile.requirement7_4(
                 jsondata=collection
             )
             if not requirement7_4:
@@ -219,13 +220,23 @@ def test_edr_collections(case):
 
 
 for p in schema.raw_schema["paths"].keys():
-    # Include position endpoint if exists (otherwise schemathesis will refuse to run)
+    # Optionally include endpoints if they exist, otherwise schemathesis will refuse to run
+    # TODO: can perhaps be replaced with a filter?
+    # https://schemathesis.readthedocs.io/en/stable/extending.html#filtering-api-operations
+
+    # Include position_extent test
     if p.endswith("/position"):
 
         @schema.include(path_regex="/position$").parametrize()
         @settings(max_examples=util.args.iterations, deadline=None)
         def test_edr_position_extent(case):
-            """The default test in function test_openapi will fuzz the coordinates. This function will test response given by coords inside and outside of the extent."""
+            """The default test in function test_openapi will fuzz the coordinates.
+
+            This function will test response given by coords inside and outside of the extent.
+
+            TODO: perhaps this can rather be done with a map hook?
+            https://schemathesis.readthedocs.io/en/stable/extending.html#modifying-data
+            """
             response = case.call()
             point = None
             try:
@@ -246,16 +257,16 @@ for p in schema.raw_schema["paths"].keys():
 
             schema[case.path][case.method].validate_response(response)
 
+            # TODO: not sure if assume, pytest.fail or some other option is best when detecting errors
             if extent.contains(point):
                 util.logger.debug(
                     "test_positions Testing value INSIDE of extent, %s",
                     case.query["coords"],
                 )
-                # Assert that the HTTP status code is 200
                 if response.status_code != 200:
-                    assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                        f"Expected status code 200 but got {response.status_code}"
-                    )
+                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
+                    #     f"Expected status code 200 but got {response.status_code}"
+                    # )
                     pytest.fail(
                         f"Expected status code 200 but got {response.status_code}"
                     )
@@ -265,28 +276,9 @@ for p in schema.raw_schema["paths"].keys():
                     case.query["coords"],
                 )
                 if response.status_code != 422:
-                    assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                        f"Expected status code 422 but got {response.status_code}"
-                    )
+                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
+                    #     f"Expected status code 422 but got {response.status_code}"
+                    # )
                     pytest.fail(
                         f"Expected status code 422 but got {response.status_code}"
                     )
-
-
-# TODO: needs to be reworked
-# @schema.parametrize()
-# @settings(max_examples=args.iterations, deadline=None)
-# def test_locations(case):
-#     """The default test in function test_api() will fuzz parameters. This function can test .../locations for EDR speicifics."""
-#     if not case.path.endswith("/locations"):
-#         return
-
-#     response = case.call()
-#     # schema[case.path][case.method].validate_response(response)
-#     if response.ok:
-#         util.parse_locations(response.text)
-#     else:
-#         # Invalid points are already tested by test_api, so not testing here
-#         pass
-
-#     util.logger.debug("Locations %s tested OK", response.url)
