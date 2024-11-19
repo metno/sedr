@@ -14,7 +14,7 @@ edr_version = "1.1"
 args = logger = None
 
 
-def parse_args(version: str = "") -> argparse.Namespace:
+def parse_args(args, version: str = "") -> argparse.Namespace:
     """Parse arguments."""
     parser = argparse.ArgumentParser(description="schemathesis-edr")
     parser.add_argument("-v", "--version", action="version", version=version)
@@ -53,7 +53,7 @@ def parse_args(version: str = "") -> argparse.Namespace:
         help="Use the rodeo profile even though the API doesn't specify it. Default False.",
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     # Parse out base_path for conveience
     args.base_path = urlsplit(args.url).path or "/"
 
