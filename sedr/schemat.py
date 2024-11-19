@@ -9,8 +9,8 @@ import pytest
 import requests
 
 import util
-import edreq12 as edreq
-import rodeoprofile10 as profile
+import edreq11 as edreq
+import rodeoprofile10 as rodeoprofile
 
 
 __author__ = "Lars Falk-Petersen"
@@ -21,7 +21,7 @@ __license__ = "GPL-3.0"
 schema = None
 extents = {}
 collection_ids = {}
-rodeo = False
+use_rodeoprofile = False
 
 
 def set_up_schemathesis(args):
@@ -37,6 +37,7 @@ def set_up_schemathesis(args):
                 "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
             )
         util.logger.info("Found openapi spec: %s", util.args.openapi)
+    util.logger.info("Using EDR version %s", edreq.__edr_version__)
     return schemathesis.from_uri(args.openapi, base_url=args.url)
 
 
@@ -84,15 +85,18 @@ def after_call(context, case, response):
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_conformance(case):
     """Test /conformance endpoint."""
-    global rodeo
+    global use_rodeoprofile
     response = case.call()
     conformance_json = json.loads(response.text)
 
     if (
         util.args.rodeo_profile
-        or profile.conformance_url in conformance_json["conformsTo"]
+        or rodeoprofile.conformance_url in conformance_json["conformsTo"]
     ):
-        rodeo = True
+        use_rodeoprofile = True
+        util.logger.info(
+            "Including tests for Rodeo profile %s", rodeoprofile.conformance_url
+        )
 
     if "conformsTo" not in conformance_json:
         spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
@@ -125,8 +129,8 @@ def test_edr_conformance(case):
     if not requirementA11_1:
         raise AssertionError(requirementA11_1_message)
 
-    if rodeo:
-        requirement7_1, requirement7_1_message = profile.requirement7_1(
+    if use_rodeoprofile:
+        requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
             jsondata=conformance_json["conformsTo"]
         )
         if not requirement7_1:
@@ -155,8 +159,8 @@ def test_edr_landingpage(case):
             "Landing page is not valid JSON, other formats are not tested yet."
         )
 
-    if rodeo:
-        requirement7_2, requirement7_2_message = profile.requirement7_2(
+    if use_rodeoprofile:
+        requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
             jsondata=landingpage_json
         )
         if not requirement7_2:
@@ -211,8 +215,8 @@ def test_edr_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-        if rodeo:
-            requirement7_4, requirement7_4_message = profile.requirement7_4(
+        if use_rodeoprofile:
+            requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
                 jsondata=collection
             )
             if not requirement7_4:
