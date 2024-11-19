@@ -24,8 +24,8 @@ collection_ids = {}
 use_rodeoprofile = False
 
 
-def set_up_schemathesis(args):
-    """Set up schemathesis."""
+def set_up_schemathesis(args, file_path=""):
+    """Set up schemathesis. file_path is only used for testing."""
     if args.openapi_version == "3.1":
         schemathesis.experimental.OPEN_API_3_1.enable()
 
@@ -38,7 +38,9 @@ def set_up_schemathesis(args):
             )
         util.logger.info("Found openapi spec: %s", util.args.openapi)
     util.logger.info("Using EDR version %s", edreq.__edr_version__)
-    return schemathesis.from_uri(args.openapi, base_url=args.url)
+    if not file_path:
+        return schemathesis.from_uri(uri=args.openapi, base_url=args.url)
+    return schemathesis.from_path(path=file_path)
 
 
 try:
