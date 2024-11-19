@@ -4,6 +4,7 @@ __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 __version__ = "v0.7.5"
 
+import sys
 import pytest
 import util
 
@@ -14,7 +15,7 @@ def main():
 
 
 # Handle --version and --help
-util.args = util.parse_args(__version__)
+util.args = util.parse_args(sys.argv[1:], __version__)
 util.logger = util.set_up_logging(
     args=util.args, logfile=util.args.log_file, version=__version__
 )
