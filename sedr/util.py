@@ -9,7 +9,6 @@ from urllib.parse import urlsplit
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
-edr_version = "1.1"
 
 args = logger = None
 
@@ -54,9 +53,8 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
     )
 
     args = parser.parse_args(args)
-    # Parse out base_path for conveience
+    # Parse out base_path for convenience
     args.base_path = urlsplit(args.url).path or "/"
-
     return args
 
 
@@ -144,7 +142,7 @@ def test_conformance_links(jsondata):  # pylint: disable=unused-argument
 
 
 def parse_landing_json(jsondata) -> tuple[bool, str]:
-    """Parse landing page if it is valid JSON. TODO: move to edreq11.py and link to standard."""
+    """Parse landing page if it is valid JSON. TODO: move to edreq.py and link to standard."""
     # See https://github.com/metno/sedr/issues/6
     if "title" not in jsondata:
         return False, "Landing page does not contain a title."
