@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import schemathesis
+from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from hypothesis import settings, assume
 import shapely
 from shapely.wkt import loads as wkt_loads
@@ -24,7 +25,7 @@ collection_ids = {}
 use_rodeoprofile = False
 
 
-def set_up_schemathesis(args, file_path=""):
+def set_up_schemathesis(args) -> BaseOpenAPISchema:
     """Set up schemathesis. file_path is only used for testing."""
     if args.openapi_version == "3.1":
         schemathesis.experimental.OPEN_API_3_1.enable()
@@ -37,10 +38,16 @@ def set_up_schemathesis(args, file_path=""):
                 "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
             )
         util.logger.info("Found openapi spec: %s", util.args.openapi)
+
     util.logger.info("Using EDR version %s", edreq.__edr_version__)
-    if not file_path:
+
+    if args.openapi.startswith("http"):
         return schemathesis.from_uri(uri=args.openapi, base_url=args.url)
-    return schemathesis.from_path(path=file_path)
+
+    util.logger.info(
+        "openapi <%s> doesn't seem to be a URL, opening as path.", util.args.openapi
+    )
+    return schemathesis.from_path(path=util.args.openapi, base_url=args.url)
 
 
 try:
@@ -174,7 +181,9 @@ def test_edr_landingpage(case):
 ).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
-    """The default testing in function test_api() will fuzz the collections. This function will test that collections contain EDR spesifics. It will also require /collections to exist, in accordance with Requirement A.2.2 A.9
+    """The default testing in function test_api() will fuzz the collections.
+    This function will test that collections contain EDR spesifics. It will
+    also require /collections to exist, in accordance with Requirement A.2.2 A.9
     <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
     """
     global collection_ids, extents
