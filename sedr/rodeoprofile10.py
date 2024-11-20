@@ -35,7 +35,11 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
             if openapi_type not in link["type"]:
                 return (
                     False,
-                    f"OpenAPI link service-desc should identify the content as openAPI and include version. Example <application/vnd.oai.openapi+json;version=3.0>. Found: <{link['type']}> See <{spec_url}> and <{spec_base_url}#_openapi_2> for more info.",
+                    f"OpenAPI link service-desc should identify the content as "
+                    "openAPI and include version. Example "
+                    "<application/vnd.oai.openapi+json;version=3.0>. Found: "
+                    f"<{link['type']}> See <{spec_url}> and <{spec_base_url}"
+                    "#_openapi_2> for more info.",
                 )
             break
     else:
