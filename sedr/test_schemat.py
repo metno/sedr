@@ -17,5 +17,6 @@ class TestInit(unittest.TestCase):
             args=util.args, logfile=util.args.log_file, version=__version__
         )
         import schemat
+
         schemat.schema = schemat.set_up_schemathesis(util.args)
         self.assertTrue(schemat.schema)

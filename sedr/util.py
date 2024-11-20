@@ -23,9 +23,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         help="URL or path to openapi spec for API",
         default="",
     )
-    parser.add_argument(
-        "--url", type=str, help="URL to API", default=""
-    )
+    parser.add_argument("--url", type=str, help="URL to API", default="")
     parser.add_argument(
         "--iterations",
         type=int,
