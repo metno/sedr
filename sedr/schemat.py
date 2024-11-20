@@ -42,11 +42,10 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
     util.logger.info("Using EDR version %s", edreq.__edr_version__)
 
     if args.openapi.startswith("http"):
+        util.logger.info("Testing site %s using OpenAPI spec <%s>", args.url, args.openapi)
         return schemathesis.from_uri(uri=args.openapi, base_url=args.url)
 
-    util.logger.info(
-        "openapi <%s> doesn't seem to be a URL, opening as path.", util.args.openapi
-    )
+    util.logger.info("Testing site %s using local OpenAPI spec at path <%s>", args.url, args.openapi)
     return schemathesis.from_path(path=util.args.openapi, base_url=args.url)
 
 

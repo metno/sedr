@@ -10,8 +10,7 @@ from urllib.parse import urlsplit
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 
-args = None
-logger = logging.getLogger(__file__)
+args = logger = None
 
 
 def parse_args(args, version: str = "") -> argparse.Namespace:
@@ -25,7 +24,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         default="",
     )
     parser.add_argument(
-        "--url", type=str, help="URL to API", default="https://edrisobaric.k8s.met.no"
+        "--url", type=str, help="URL to API", default=""
     )
     parser.add_argument(
         "--iterations",

@@ -12,7 +12,6 @@ import util
 def main() -> None:
     # show-capture=no means hide stdout/stderr. Should change debug output instead.
     pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
-    # pytest.main(["-rA", "./sedr/schemat.py"])
 
 
 # Handle --version and --help
