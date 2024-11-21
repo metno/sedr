@@ -87,6 +87,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
         "",
     )
 
+
 def requirement7_5(jsondata: str) -> tuple[bool, str]:
     """Check collection license. Can't test D."""
     spec_url = f"{spec_base_url}#_collection_license"

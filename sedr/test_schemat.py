@@ -10,7 +10,7 @@ class TestInit(unittest.TestCase):
         """Test set_up_schemathesis."""
         __version__ = "testversion"
 
-        util.args = util.parse_args([], __version__)
+        util.args = util.parse_args(["--url", "https://edrisobaric.k8s.met.no/"], __version__)
         util.args.openapi_version == "3.1"
 
         util.logger = util.set_up_logging(
