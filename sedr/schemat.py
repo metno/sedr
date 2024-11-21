@@ -236,6 +236,12 @@ def test_edr_collections(case):
             if not requirement7_4:
                 raise AssertionError(requirement7_4_message)
 
+            requirement7_5, requirement7_5_message = rodeoprofile.requirement7_5(
+                jsondata=collection
+            )
+            if not requirement7_5:
+                raise AssertionError(requirement7_5_message)
+
 
 for p in schema.raw_schema["paths"].keys():
     # Optionally include endpoints if they exist, otherwise schemathesis will refuse to run

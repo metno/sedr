@@ -86,3 +86,25 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
         True,
         "",
     )
+
+def requirement7_5(jsondata: str) -> tuple[bool, str]:
+    """Check collection license. Can't test D."""
+    spec_url = f"{spec_base_url}#_collection_license"
+    # A, B
+    for link in jsondata["links"]:
+        if link["rel"] == "license":
+            if not link["type"] == "text/html":
+                return (
+                    False,
+                    f"Collection <{jsondata['id']}> license link should have type='text/html'. See <{spec_url}> C for more info.",
+                )
+            break
+    else:
+        return (
+            False,
+            f"Collection <{jsondata['id']}> is missing a license link with rel='license'. See <{spec_url}> A, B for more info.",
+        )
+    return (
+        True,
+        "",
+    )
