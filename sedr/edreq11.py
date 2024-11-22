@@ -40,7 +40,12 @@ def requirementA2_2_A7(version: int) -> tuple[bool, str]:
 
 
 def requirementA11_1(jsondata: str) -> tuple[bool, str]:
-    """Check if the conformance page contains openapi classes, and that they match our version."""
+    """
+    OGC API - Environmental Data Retrieval Standard
+    Version: 1.1
+    Requirement A11.1
+
+    Check if the conformance page contains openapi classes, and that they match our version."""
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_cc7dd5e3-1d54-41ff-b5ba-c5fcb99fa663"
 
     for url in jsondata:
@@ -64,8 +69,15 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
 
 
 def requirement9_1(jsondata) -> tuple[bool, str]:
-    """Test that the landing page contains required elements.
-    TODO: See https://github.com/metno/sedr/issues/6 """
+    """
+    OGC API - Common - Part 1: Core
+    Version: 1.0.0
+    Requirement 9.1
+
+    Test that the landing page contains required elements.
+
+    TODO: See https://github.com/metno/sedr/issues/6
+    """
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
 
     if "title" not in jsondata:
