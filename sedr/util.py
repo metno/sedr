@@ -49,6 +49,12 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         default=False,
         help="Use the rodeo profile even though the API doesn't specify it. Default False.",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        default=False,
+        help="Treat SHOULD in any profile as SHALL. Default False.",
+    )
 
     args = parser.parse_args(args)
     # Parse out base_path for convenience

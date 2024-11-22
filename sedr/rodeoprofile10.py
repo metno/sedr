@@ -67,7 +67,7 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
 
 def requirement7_3(jsondata) -> tuple[bool, str]:
     """Check collection identifier. Can only test B, C.
-    This should only be tested if --strict is set."""
+    Should only be tested if --strict is set."""
     spec_url = f"{spec_base_url}#_collection_identifier"
     approved_data_types = [
         "insitu-observations",
@@ -116,7 +116,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
         # A
         return (
             False,
-            f"Collection must have a title. Error {err}. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
+            f"Collection must have a title, but it seems to be missing. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
     return (
         True,
