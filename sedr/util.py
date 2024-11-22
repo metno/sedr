@@ -55,6 +55,12 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         default=False,
         help="Treat SHOULD in any profile as SHALL. Default False.",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=10,
+        help="Set timeout for requests. Default 10.",
+    )
 
     args = parser.parse_args(args)
     # Parse out base_path for convenience
@@ -142,25 +148,6 @@ def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unu
     #     assert (
     #         resp.status_code < 400
     #     ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
-    return True, ""
-
-
-def parse_landing_json(jsondata) -> tuple[bool, str]:
-    """Parse landing page if it is valid JSON. TODO: move to edreq.py and link to standard."""
-    # See https://github.com/metno/sedr/issues/6
-    if "title" not in jsondata:
-        return False, "Landing page does not contain a title."
-    if "description" not in jsondata:
-        logger.warning("Landing page does not contain a description.")
-    if "links" not in jsondata:
-        return False, "Landing page does not contain links."
-    for link in jsondata["links"]:
-        if not isinstance(link, dict):
-            return False, f"Link {link} is not a dictionary."
-        if "href" not in link:
-            return False, f"Link {link} does not have a href attribute."
-        if "rel" not in link:
-            return False, f"Link {link} does not have a rel attribute."
     return True, ""
 
 
