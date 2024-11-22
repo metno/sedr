@@ -61,3 +61,24 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
         False,
         f"Conformance page /conformance does not contain an openapi class. See <{spec_url}> for more info.",
     )
+
+
+def requirement9_1(jsondata) -> tuple[bool, str]:
+    """Test that the landing page contains required elements.
+    TODO: See https://github.com/metno/sedr/issues/6 """
+    spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
+
+    if "title" not in jsondata:
+        return False, "Landing page does not contain a title."
+    if "description" not in jsondata:
+        return False, "Landing page does not contain a description."
+    if "links" not in jsondata:
+        return False, "Landing page does not contain links."
+    for link in jsondata["links"]:
+        if not isinstance(link, dict):
+            return False, f"Link {link} is not a dictionary."
+        if "href" not in link:
+            return False, f"Link {link} does not have a href attribute."
+        if "rel" not in link:
+            return False, f"Link {link} does not have a rel attribute."
+    return True, ""

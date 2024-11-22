@@ -151,34 +151,6 @@ def test_edr_conformance(case):
     util.logger.debug("Conformance %s tested OK", response.url)
 
 
-@schema.include(path_regex="^" + util.args.base_path + "$").parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
-def test_edr_landingpage(case):
-    """Test that the landing page contains required elements."""
-    spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
-    landingpage_json = None
-    response = case.call()
-    try:
-        landingpage_json = json.loads(response.text)
-        landing, landing_message = util.parse_landing_json(landingpage_json)
-        if not landing:
-            raise AssertionError(
-                f"Landing page is missing required elements. See <{spec_ref}> for more info. {landing_message}"
-            )
-
-        util.logger.debug("Landingpage %s tested OK", response.url)
-    except json.decoder.JSONDecodeError:
-        util.logger.warning("Landing page is not valid JSON.")
-        raise AssertionError("Landing page is not valid JSON")
-
-    if use_rodeoprofile:
-        requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
-            jsondata=landingpage_json
-        )
-        if not requirement7_2:
-            raise AssertionError(requirement7_2_message)
-
-
 @schema.include(
     path_regex="^" + os.path.join(util.args.base_path, "collections$")
 ).parametrize()
