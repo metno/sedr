@@ -65,6 +65,42 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
     return True, ""
 
 
+def requirement7_3(jsondata) -> tuple[bool, str]:
+    """Check collection identifier. Can only test B, C.
+    This should only be tested if --strict is set."""
+    spec_url = f"{spec_base_url}#_collection_identifier"
+    approved_data_types = [
+        "insitu-observations",
+        "climate_data",
+        "radar_observations",
+        "weather_warnings",
+        "weather_forecast",
+    ]
+
+    # B
+    try:
+        for t in approved_data_types:
+            if jsondata["id"].startswith(t):
+                break
+        else:
+            return (
+                False,
+                f"Collection id SHOULD be from the following list of values: "
+                f"{', '.join(approved_data_types)}. A postfix can be added. "
+                f"Found: <{jsondata['id']}>. See <{spec_url}> for more info.",
+            )
+    except (json.JSONDecodeError, KeyError) as err:
+        return (
+            False,
+            f"Collection must have an id. None found in collection <{jsondata}>."
+            f"Error {err}.",
+        )
+    return (
+        True,
+        "",
+    )
+
+
 def requirement7_4(jsondata: str) -> tuple[bool, str]:
     """Check collection title. Can only test A, B."""
     spec_url = f"{spec_base_url}#_collection_title"
