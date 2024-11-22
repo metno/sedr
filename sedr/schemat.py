@@ -69,7 +69,7 @@ def test_openapi(case):
     except schemathesis.exceptions.CheckFailed as err:
         # raise AssertionError(
         causes = None
-        if err is not None and len(err.causes) > 0:
+        if err is not None and err.causes is not None:
             causes = ", ".join(err.causes[0].args)
         else:
             pass
@@ -156,6 +156,7 @@ def test_edr_conformance(case):
 def test_edr_landingpage(case):
     """Test that the landing page contains required elements."""
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
+    landingpage_json = None
     response = case.call()
     try:
         landingpage_json = json.loads(response.text)
@@ -167,9 +168,8 @@ def test_edr_landingpage(case):
 
         util.logger.debug("Landingpage %s tested OK", response.url)
     except json.decoder.JSONDecodeError:
-        util.logger.warning(
-            "Landing page is not valid JSON, other formats are not tested yet."
-        )
+        util.logger.warning("Landing page is not valid JSON.")
+        raise AssertionError("Landing page is not valid JSON")
 
     if use_rodeoprofile:
         requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
@@ -230,6 +230,12 @@ def test_edr_collections(case):
                 ) from err
 
         if use_rodeoprofile:
+            requirement7_3, requirement7_3_message = rodeoprofile.requirement7_3(
+                jsondata=collection
+            )
+            if not requirement7_3:
+                raise AssertionError(requirement7_3_message)
+
             requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
                 jsondata=collection
             )
