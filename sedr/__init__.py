@@ -7,11 +7,22 @@ __version__ = "v0.7.5"
 import sys
 import pytest
 import util
+import preflight
+
+
+def run_schemat() -> None:
+    # show-capture=no means hide stdout/stderr. Should change debug output instead.
+    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
 
 
 def main() -> None:
-    # show-capture=no means hide stdout/stderr. Should change debug output instead.
-    pytest.main(["-rA", "--show-capture=no", "./sedr/schemat.py"])
+    """Run the main program."""
+    if preflight.main():
+        util.logger.info("Preflight checks passed. Running schemathesis.")
+        run_schemat()
+    else:
+        util.logger.error("Preflight checks did not pass.")
+        sys.exit(1)
 
 
 # Handle --version and --help
