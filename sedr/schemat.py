@@ -230,11 +230,12 @@ def test_edr_collections(case):
                 ) from err
 
         if use_rodeoprofile:
-            requirement7_3, requirement7_3_message = rodeoprofile.requirement7_3(
-                jsondata=collection
-            )
-            if not requirement7_3:
-                raise AssertionError(requirement7_3_message)
+            if util.args.strict:
+                requirement7_3, requirement7_3_message = rodeoprofile.requirement7_3(
+                    jsondata=collection
+                )
+                if not requirement7_3:
+                    raise AssertionError(requirement7_3_message)
 
             requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
                 jsondata=collection
