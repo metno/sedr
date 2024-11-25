@@ -6,7 +6,6 @@ import argparse
 import json
 from urllib.parse import urlsplit
 
-
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 
@@ -55,6 +54,12 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         default=False,
         help="Treat SHOULD in any profile as SHALL. Default False.",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=10,
+        help="Set timeout for requests. Default 10.",
+    )
 
     args = parser.parse_args(args)
     # Parse out base_path for convenience
@@ -64,7 +69,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
 
 def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
-    loglevel = logging.WARNING
+    loglevel = logging.DEBUG
 
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
@@ -129,38 +134,19 @@ def parse_locations(jsondata) -> None:
 def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unused-argument
     """Test that all conformance links are valid and resolves.
 
-    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so postponing this.
+    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so not erroring out.
     """
-    # for link in conformance_json["conformsTo"]:
-    #     resp = None
-    #     try:
-    #         resp = requests.head(url=link, timeout=10)
-    #     except requests.exceptions.MissingSchema as error:
-    #         raise AssertionError(
-    #             f"Link <{link}> from /conformance is malformed: {error})."
-    #         ) from error
-    #     assert (
-    #         resp.status_code < 400
-    #     ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
-    return True, ""
-
-
-def parse_landing_json(jsondata) -> tuple[bool, str]:
-    """Parse landing page if it is valid JSON. TODO: move to edreq.py and link to standard."""
-    # See https://github.com/metno/sedr/issues/6
-    if "title" not in jsondata:
-        return False, "Landing page does not contain a title."
-    if "description" not in jsondata:
-        logger.warning("Landing page does not contain a description.")
-    if "links" not in jsondata:
-        return False, "Landing page does not contain links."
-    for link in jsondata["links"]:
-        if not isinstance(link, dict):
-            return False, f"Link {link} is not a dictionary."
-        if "href" not in link:
-            return False, f"Link {link} does not have a href attribute."
-        if "rel" not in link:
-            return False, f"Link {link} does not have a rel attribute."
+    msg = ""
+    for link in jsondata["conformsTo"]:
+        resp = None
+        try:
+            resp = requests.head(url=link, timeout=10)
+        except requests.exceptions.MissingSchema as error:
+            msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
+        if not resp.status_code < 400:
+            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {resp.status_code}). "
+    if msg:
+        return False, msg
     return True, ""
 
 

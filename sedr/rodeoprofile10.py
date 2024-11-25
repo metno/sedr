@@ -1,6 +1,7 @@
 """rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
+import util
 
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
 spec_base_url = (
@@ -9,17 +10,14 @@ spec_base_url = (
 
 
 def requirement7_1(jsondata: str) -> tuple[bool, str]:
-    """Check if the conformance page contains the required EDR classes.
-
-    jsondata should be the "conformsTo"-part of the conformance page.
-    """
+    """Check if the conformance page contains the required EDR classes."""
     spec_url = f"{spec_base_url}#_requirements_class_core"
-    if conformance_url not in jsondata:
+    if conformance_url not in jsondata["conformsTo"]:
         return (
             False,
             f"Conformance page /conformance does not contain the profile class {conformance_url}. See <{spec_url}> for more info.",
         )
-
+    util.logger.debug("Rodeoprofile Requirement 7.1 OK")
     return True, ""
 
 
@@ -62,6 +60,7 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
             False,
             f"Landing page should linkt to service-doc, with type {servicedoc_type}. See <{spec_url}> for more info.",
         )
+    util.logger.debug("Rodeoprofile Requirement 7.2 OK")
     return True, ""
 
 
@@ -95,6 +94,7 @@ def requirement7_3(jsondata) -> tuple[bool, str]:
             f"Collection must have an id. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
+    util.logger.debug("Rodeoprofile Requirement 7.3 OK")
     return (
         True,
         "",
@@ -112,12 +112,13 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
                 False,
                 f"Collection title should not exceed 50 chars. See <{spec_url}> for more info.",
             )
-    except (json.JSONDecodeError, KeyError) as err:
+    except (json.JSONDecodeError, KeyError):
         # A
         return (
             False,
             f"Collection must have a title, but it seems to be missing. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
+    util.logger.debug("Rodeoprofile Requirement 7.4 OK")
     return (
         True,
         "",
@@ -141,6 +142,7 @@ def requirement7_5(jsondata: str) -> tuple[bool, str]:
             False,
             f"Collection <{jsondata['id']}> is missing a license link with rel='license'. See <{spec_url}> A, B for more info.",
         )
+    util.logger.debug("Rodeoprofile Requirement 7.5 OK")
     return (
         True,
         "",
