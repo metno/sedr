@@ -20,9 +20,9 @@ def test_site_response(url: str, timeout=10) -> bool:
     return True
 
 
-def parse_landing(url, timeout=10) -> bool:
+def parse_landing(url, timeout=10) -> tuple[bool, dict]:
     """Test that the landing page contains required elements."""
-    landing_json = None
+    landing_json = {}
     response = requests.get(url, timeout=timeout)
 
     try:
@@ -48,7 +48,7 @@ def parse_landing(url, timeout=10) -> bool:
 
 def parse_conformance(url: str, timeout: int, landing_json) -> bool:
     """Test that the conformance page contains required elements."""
-    conformance_json = None
+    conformance_json = {}
     response = requests.get(url, timeout=timeout)
 
     try:
@@ -98,7 +98,7 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
                 return False
 
         requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
-            jsondata=landing_json
+            jsondata=landing_json, timeout=util.args.timeout
         )
         if not requirement7_2:
             util.logger.error(requirement7_2_message)
