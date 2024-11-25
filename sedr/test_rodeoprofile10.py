@@ -8,7 +8,7 @@ import rodeoprofile10 as profile
 
 class TestRodeoprofile(unittest.TestCase):
     __version__ = "testversion"
-    util.args = util.parse_args([], __version__)
+    util.args = util.parse_args(["--url", "https://example.com/"], __version__)
     util.logger = util.set_up_logging(
         args=util.args, logfile=util.args.log_file, version=__version__
     )

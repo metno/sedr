@@ -121,5 +121,9 @@ def main():
     if not parse_conformance(conformance_url, util.args.timeout, landing_json):
         return False
 
-    util.logger.info("Preflight checks passed.")
+    util.logger.info("Preflight checks done.")
     return True
+
+
+if __name__ == "__main__":
+    main()
