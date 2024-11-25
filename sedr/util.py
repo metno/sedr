@@ -22,7 +22,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         help="URL or path to openapi spec for API",
         default="",
     )
-    parser.add_argument("--url", type=str, help="URL to API", default="")
+    parser.add_argument("--url", type=str, help="URL to API", required=True)
     parser.add_argument(
         "--iterations",
         type=int,
@@ -77,12 +77,8 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     # File
     if logfile is not None:
         try:
-            with open(file=logfile, mode="w", encoding="utf-8") as f:
-                f.write(
-                    f"SEDR version {version} on python {sys.version}, schemathesis "
-                    + f"{schemathesis.__version__} \nTesting url {args.url}, openapi {args.openapi}, "
-                    + f"openapi-version {args.openapi_version}.\n\n"
-                )
+            with open(file=logfile, mode="w", encoding="utf-8") as _:
+                pass  # Touch file
         except PermissionError as err:
             print(
                 f"Could not write to logfile {logfile}: {err}\nIf you're running this as a docker "
@@ -94,6 +90,11 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
         fh = logging.FileHandler(mode="a", filename=logfile)
         fh.setLevel(logging.DEBUG)
         logger.addHandler(fh)
+        logger.debug(
+            f"SEDR version {version} on python {sys.version}, schemathesis "
+            + f"{schemathesis.__version__} \nTesting url <{args.url}>, openapi url <{args.openapi}>, "
+            + f"openapi-version {args.openapi_version}.\n\n"
+        )
 
     # Console
     stdout_handler = logging.StreamHandler()
