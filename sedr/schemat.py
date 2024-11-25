@@ -32,7 +32,7 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
 
     if args.openapi == "":
         # Attempt to find schema URL automatically
-        args.openapi = util.locate_openapi_url(args.url)
+        args.openapi = util.locate_openapi_url(args.url, timeout=util.args.timeout)
         if len(args.openapi) == 0:
             raise AssertionError(
                 "Unable to find openapi spec for API. Please supply manually with --openapi <url>"

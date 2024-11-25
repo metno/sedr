@@ -131,28 +131,33 @@ def parse_locations(jsondata) -> None:
     #         )
 
 
-def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unused-argument
-    """Test that all conformance links are valid and resolves.
-
-    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so not erroring out.
-    """
+def test_conformance_links(jsondata: dict, timeout: int) -> tuple[bool, str]:
+    """Test that all conformance links are valid and resolves."""
     msg = ""
     for link in jsondata["conformsTo"]:
-        resp = None
+        if link in [
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/conformance",
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
+            "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
+        ]:
+            # TODO: These links are part of the standard but doesn't work, so skipping for now.
+            msg += f"test_conformance_links Link {link} doesn't resolv, but that is a known issue. "
+            continue
+        response = requests.Response()
         try:
-            resp = requests.head(url=link, timeout=10)
+            response = requests.head(url=link, timeout=timeout)
         except requests.exceptions.MissingSchema as error:
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
-        if not resp.status_code < 400:
-            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {resp.status_code}). "
+        if not response.status_code < 400:
+            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
     if msg:
         return False, msg
     return True, ""
 
 
-def locate_openapi_url(url: str) -> str:
+def locate_openapi_url(url: str, timeout: int) -> str:
     """Locate the OpenAPI URL based on main URL."""
-    request = requests.get(url, timeout=10)
+    request = requests.get(url, timeout=timeout)
 
     # Json
     # See https://github.com/metno/sedr/issues/6

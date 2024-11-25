@@ -14,7 +14,7 @@ openapi_conformance_urls = [
 ]
 
 
-def requirementA2_2_A5(jsondata: str, siteurl="") -> tuple[bool, str]:
+def requirementA2_2_A5(jsondata: dict, siteurl="") -> tuple[bool, str]:
     """
     OGC API - Environmental Data Retrieval Standard
     Version: 1.1
@@ -58,7 +58,7 @@ def requirementA2_2_A7(version: int) -> tuple[bool, str]:
     return False, f"HTTP version 1.1 was not used. See <{spec_url}> for more info."
 
 
-def requirementA11_1(jsondata: str) -> tuple[bool, str]:
+def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
     """
     OGC API - Environmental Data Retrieval Standard
     Version: 1.1
@@ -88,7 +88,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
     )
 
 
-def requirement9_1(jsondata) -> tuple[bool, str]:
+def requirement9_1(jsondata: dict) -> tuple[bool, str]:
     """
     OGC API - Common - Part 1: Core
     Version: 1.0.0
@@ -115,6 +115,8 @@ def requirement9_1(jsondata) -> tuple[bool, str]:
             False,
             "Landing page does not contain links. See <{spec_ref}> for more info.",
         )
+
+    service_desc = ""
     for link in jsondata["links"]:
         if not isinstance(link, dict):
             return (
@@ -131,5 +133,12 @@ def requirement9_1(jsondata) -> tuple[bool, str]:
                 False,
                 f"Link {link} does not have a rel attribute. See <{spec_ref}> for more info.",
             )
+        if link["rel"] == "service-desc":
+            service_desc = link["href"]
+    if not service_desc:
+        return (
+            False,
+            f"Landing page does not contain a service-desc link. See <{spec_ref}> for more info.",
+        )
     util.logger.debug("requirement9_1 Landing page contains required elements.")
     return True, ""

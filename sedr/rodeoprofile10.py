@@ -1,6 +1,7 @@
 """rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
+import requests
 import util
 
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
@@ -9,7 +10,7 @@ spec_base_url = (
 )
 
 
-def requirement7_1(jsondata: str) -> tuple[bool, str]:
+def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     """Check if the conformance page contains the required EDR classes."""
     spec_url = f"{spec_base_url}#_requirements_class_core"
     if conformance_url not in jsondata["conformsTo"]:
@@ -21,34 +22,69 @@ def requirement7_1(jsondata: str) -> tuple[bool, str]:
     return True, ""
 
 
-def requirement7_2(jsondata: str) -> tuple[bool, str]:
-    """Check OpenAPI."""
+def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+
+    7.2. OpenAPI
+
+    jsondata should be a valid landing page json dict.
+    """
     spec_url = f"{spec_base_url}#_openapi"
     openapi_type = "application/vnd.oai.openapi+json;version="  # 3.0"
     servicedoc_type = "text/html"
 
-    # A, B, C
+    service_desc_link = ""
+    service_desc_type = ""
     for link in jsondata["links"]:
         if link["rel"] == "service-desc":
-            if openapi_type not in link["type"]:
-                return (
-                    False,
-                    f"OpenAPI link service-desc should identify the content as "
-                    "openAPI and include version. Example "
-                    "<application/vnd.oai.openapi+json;version=3.0>. Found: "
-                    f"<{link['type']}> See <{spec_url}> and <{spec_base_url}"
-                    "#_openapi_2> for more info.",
-                )
+            service_desc_link = link["href"]
+            service_desc_type = link["type"]
             break
-    else:
+
+    if not service_desc_link:
         return (
             False,
             f"No service-desc link found. See <{spec_url}> for more info.",
         )
 
-    # D
+    # C - relation type
+    if openapi_type not in service_desc_type:
+        return (
+            False,
+            f"OpenAPI link service-desc should identify the content as "
+            "openAPI and include version. Example "
+            "<application/vnd.oai.openapi+json;version=3.0>. Found: "
+            f"<{service_desc_type}> See <{spec_url}> and <{spec_base_url}"
+            "#_openapi_2> for more info.",
+        )
+
+    # A - described using an OpenAPI document
+    response = requests.get(service_desc_link, timeout=timeout)
+    if not response.status_code < 400:
+        return (
+            False,
+            f"OpenAPI link service-desc <{service_desc_link}> doesn't respond properly. "
+            f"Status code: {response.status_code}.",
+        )
+
+    # B - encoded as JSON
+    try:
+        _ = response.json()
+    except (json.JSONDecodeError, TypeError) as err:
+        return (
+            False,
+            f"OpenAPI link service-desc <{service_desc_link}> does not contain valid JSON.\n"
+            f"Error: {err}",
+        )
+
+    # D API documentation
+    service_doc_link = ""
     for link in jsondata["links"]:
         if link["rel"] == "service-doc":
+            service_doc_link = link["href"]
+
             if servicedoc_type not in link["type"]:
                 return (
                     False,
@@ -58,13 +94,22 @@ def requirement7_2(jsondata: str) -> tuple[bool, str]:
     else:
         return (
             False,
-            f"Landing page should linkt to service-doc, with type {servicedoc_type}. See <{spec_url}> for more info.",
+            f"Landing page should link to service-doc. See <{spec_url}> for more info.",
         )
+
+    response = requests.get(service_doc_link, timeout=timeout)
+    if not response.status_code < 400:
+        return (
+            False,
+            f"OpenAPI link service-desc <{link["href"]}> doesn't respond properly. "
+            f"Status code: {response.status_code}. See <{spec_url}> for more info.",
+        )
+
     util.logger.debug("Rodeoprofile Requirement 7.2 OK")
     return True, ""
 
 
-def requirement7_3(jsondata) -> tuple[bool, str]:
+def requirement7_3(jsondata: dict) -> tuple[bool, str]:
     """Check collection identifier. Can only test B, C.
     Should only be tested if --strict is set."""
     spec_url = f"{spec_base_url}#_collection_identifier"
@@ -101,7 +146,7 @@ def requirement7_3(jsondata) -> tuple[bool, str]:
     )
 
 
-def requirement7_4(jsondata: str) -> tuple[bool, str]:
+def requirement7_4(jsondata: dict) -> tuple[bool, str]:
     """Check collection title. Can only test A, B."""
     spec_url = f"{spec_base_url}#_collection_title"
 
@@ -125,7 +170,7 @@ def requirement7_4(jsondata: str) -> tuple[bool, str]:
     )
 
 
-def requirement7_5(jsondata: str) -> tuple[bool, str]:
+def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     """Check collection license. Can't test D."""
     spec_url = f"{spec_base_url}#_collection_license"
     # A, B
