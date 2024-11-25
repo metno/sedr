@@ -4,7 +4,8 @@ import util
 import requests
 import json
 from urllib.parse import urljoin
-import edreq11 as edreq
+import edreq12 as edreq
+import ogcapi10 as ogcapi
 import rodeoprofile10 as rodeoprofile
 
 
@@ -31,7 +32,7 @@ def parse_landing(url, timeout=10) -> tuple[bool, dict]:
         util.logger.warning("Landing page <%s> is not valid JSON.", url)
         return False, landing_json
 
-    landing, requirement9_1_message = edreq.requirement9_1(landing_json)
+    landing, requirement9_1_message = ogcapi.requirement9_1(landing_json)
     if not landing:
         util.logger.error(requirement9_1_message)
         return False, landing_json
