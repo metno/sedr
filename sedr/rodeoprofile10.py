@@ -10,11 +10,9 @@ spec_base_url = (
 
 def requirement7_1(jsondata: str) -> tuple[bool, str]:
     """Check if the conformance page contains the required EDR classes.
-
-    jsondata should be the "conformsTo"-part of the conformance page.
     """
     spec_url = f"{spec_base_url}#_requirements_class_core"
-    if conformance_url not in jsondata:
+    if conformance_url not in jsondata["conformsTo"]:
         return (
             False,
             f"Conformance page /conformance does not contain the profile class {conformance_url}. See <{spec_url}> for more info.",
