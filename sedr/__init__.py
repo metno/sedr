@@ -2,7 +2,7 @@
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
-__version__ = "v0.7.5"
+__version__ = "v0.8.0"
 
 import sys
 import pytest

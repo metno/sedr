@@ -134,20 +134,19 @@ def parse_locations(jsondata) -> None:
 def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unused-argument
     """Test that all conformance links are valid and resolves.
 
-    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so postponing this.
+    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so not erroring out.
     """
-    # for link in conformance_json["conformsTo"]:
-    #     resp = None
-    #     try:
-    #         resp = requests.head(url=link, timeout=10)
-    #     except requests.exceptions.MissingSchema as error:
-    #         raise AssertionError(
-    #             f"Link <{link}> from /conformance is malformed: {error})."
-    #         ) from error
-    #     assert (
-    #         resp.status_code < 400
-    #     ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
-    logger.debug("test_conformance_links is NOOP")
+    msg = ""
+    for link in jsondata["conformsTo"]:
+        resp = None
+        try:
+            resp = requests.head(url=link, timeout=10)
+        except requests.exceptions.MissingSchema as error:
+            msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
+        if not resp.status_code < 400:
+            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {resp.status_code}). "
+    if msg:
+        return False, msg
     return True, ""
 
 

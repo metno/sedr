@@ -2,17 +2,19 @@
 
 import util
 import requests
+import json
 from urllib.parse import urljoin
 import edreq11 as edreq
 import rodeoprofile10 as rodeoprofile
 
 
 def test_site_response(url: str, timeout=10) -> bool:
-    """Check basic response."""
+    """Check basic http response."""
     response = requests.get(url, timeout=timeout)
     if not response.status_code < 400:
         util.logger.error(
-            "Landing page doesn't respond correctly: status code: %s", response.status_code
+            "Landing page doesn't respond correctly: status code: %s",
+            response.status_code,
         )
         return False
     return True
@@ -41,11 +43,6 @@ def parse_landing(url, timeout=10) -> bool:
         util.logger.error(requirementA2_2_A7_message)
         return False
 
-    resolves, resolves_message = util.test_conformance_links(jsondata=landing_json)
-    if not resolves:
-        util.logger.error(resolves_message)
-        return False
-
     return True, landing_json
 
 
@@ -59,6 +56,12 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
     except json.decoder.JSONDecodeError:
         util.logger.warning("Conformance page <%s> is not valid JSON.", url)
         return False
+
+    resolves, resolves_message = util.test_conformance_links(jsondata=conformance_json)
+    util.logger.error(resolves_message)
+    # TODO: reenable when all conformance links resolves
+    # if not resolves and util.args.strict:
+    #     return False
 
     requirementA2_2_A5, requirementA2_2_A5_message = edreq.requirementA2_2_A5(
         jsondata=conformance_json, siteurl=util.args.url

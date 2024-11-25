@@ -101,17 +101,35 @@ def requirement9_1(jsondata) -> tuple[bool, str]:
     spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_7c772474-7037-41c9-88ca-5c7e95235389"
 
     if "title" not in jsondata:
-        return False, "Landing page does not contain a title. See <{spec_ref}> for more info."
+        return (
+            False,
+            "Landing page does not contain a title. See <{spec_ref}> for more info.",
+        )
     if "description" not in jsondata:
-        return False, "Landing page does not contain a description. See <{spec_ref}> for more info."
+        return (
+            False,
+            "Landing page does not contain a description. See <{spec_ref}> for more info.",
+        )
     if "links" not in jsondata:
-        return False, "Landing page does not contain links. See <{spec_ref}> for more info."
+        return (
+            False,
+            "Landing page does not contain links. See <{spec_ref}> for more info.",
+        )
     for link in jsondata["links"]:
         if not isinstance(link, dict):
-            return False, f"Link {link} is not a dictionary. See <{spec_ref}> for more info."
+            return (
+                False,
+                f"Link {link} is not a dictionary. See <{spec_ref}> for more info.",
+            )
         if "href" not in link:
-            return False, f"Link {link} does not have a href attribute. See <{spec_ref}> for more info."
+            return (
+                False,
+                f"Link {link} does not have a href attribute. See <{spec_ref}> for more info.",
+            )
         if "rel" not in link:
-            return False, f"Link {link} does not have a rel attribute. See <{spec_ref}> for more info."
+            return (
+                False,
+                f"Link {link} does not have a rel attribute. See <{spec_ref}> for more info.",
+            )
     util.logger.debug("requirement9_1 Landing page contains required elements.")
     return True, ""
