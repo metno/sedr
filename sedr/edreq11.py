@@ -15,13 +15,22 @@ openapi_conformance_urls = [
 
 
 def requirementA2_2_A5(jsondata: str, siteurl="") -> tuple[bool, str]:
-    """Check if the conformance page contains the required EDR classes.
+    """
+    OGC API - Environmental Data Retrieval Standard
+    Version: 1.1
+    Requirement Annex A2.2 A5
 
+    Check if the conformance page contains the required EDR classes.
     jsondata should be the "conformsTo"-part of the conformance page.
     """
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_c9401fee-54b9-d116-8365-af0f85a8243d"
+    if "conformsTo" not in jsondata:
+        return (
+            False,
+            f"Conformance page <{siteurl}conformance> does not contain a conformsTo attribute. See <{spec_url}> for more info.",
+        )
     for url in conformance_urls:
-        if url not in jsondata:
+        if url not in jsondata["conformsTo"]:
             return (
                 False,
                 f"Conformance page <{siteurl}conformance> does not contain the core edr class {url}. See <{spec_url}> for more info.",
@@ -31,7 +40,13 @@ def requirementA2_2_A5(jsondata: str, siteurl="") -> tuple[bool, str]:
 
 
 def requirementA2_2_A7(version: int) -> tuple[bool, str]:
-    """Check if HTTP1.1 was used."""
+    """
+    OGC API - Environmental Data Retrieval Standard
+    Version: 1.1
+    Requirement Annex A2.2 A7
+
+    Check if HTTP1.1 was used.
+    """
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_0d0c25a0-850f-2aa5-9acb-06efcc04d452"
     if version == 11:
         return True, ""
@@ -48,7 +63,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
     Check if the conformance page contains openapi classes, and that they match our version."""
     spec_url = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_cc7dd5e3-1d54-41ff-b5ba-c5fcb99fa663"
 
-    for url in jsondata:
+    for url in jsondata["conformsTo"]:
         if url in openapi_conformance_urls:
             if (
                 util.args.openapi_version == "3.1"
