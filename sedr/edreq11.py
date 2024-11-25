@@ -14,7 +14,7 @@ openapi_conformance_urls = [
 ]
 
 
-def requirementA2_2_A5(jsondata: str, siteurl="") -> tuple[bool, str]:
+def requirementA2_2_A5(jsondata: dict, siteurl="") -> tuple[bool, str]:
     """
     OGC API - Environmental Data Retrieval Standard
     Version: 1.1
@@ -58,7 +58,7 @@ def requirementA2_2_A7(version: int) -> tuple[bool, str]:
     return False, f"HTTP version 1.1 was not used. See <{spec_url}> for more info."
 
 
-def requirementA11_1(jsondata: str) -> tuple[bool, str]:
+def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
     """
     OGC API - Environmental Data Retrieval Standard
     Version: 1.1
@@ -88,7 +88,7 @@ def requirementA11_1(jsondata: str) -> tuple[bool, str]:
     )
 
 
-def requirement9_1(jsondata) -> tuple[bool, str]:
+def requirement9_1(jsondata: dict) -> tuple[bool, str]:
     """
     OGC API - Common - Part 1: Core
     Version: 1.0.0
