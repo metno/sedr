@@ -57,7 +57,9 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
         util.logger.warning("Conformance page <%s> is not valid JSON.", url)
         return False
 
-    resolves, resolves_message = util.test_conformance_links(jsondata=conformance_json, timeout=util.args.timeout)
+    resolves, resolves_message = util.test_conformance_links(
+        jsondata=conformance_json, timeout=util.args.timeout
+    )
     if not resolves and util.args.strict:
         util.logger.error(resolves_message)
         if util.args.strict:

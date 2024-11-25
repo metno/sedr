@@ -13,7 +13,7 @@ spec_base_url = (
 def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     """
     Check if the conformance page contains the required EDR classes.
-    
+
     jsondata should be a valid conformance page json dict.
     """
     spec_url = f"{spec_base_url}#_requirements_class_core"

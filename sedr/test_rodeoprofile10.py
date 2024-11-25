@@ -22,7 +22,9 @@ class TestRodeoprofile(unittest.TestCase):
         self.assertTrue(ok)
 
         # Bad tests
-        with open("testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8") as f:
+        with open(
+            "testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8"
+        ) as f:
             landing_json = json.load(f)
         ok, _ = profile.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)
