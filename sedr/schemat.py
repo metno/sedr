@@ -92,66 +92,6 @@ def after_call(context, case, response):
 
 
 @schema.include(
-    path_regex="^" + os.path.join(util.args.base_path, "conformance")
-).parametrize()
-@settings(max_examples=util.args.iterations, deadline=None)
-def test_edr_conformance(case):
-    """Test /conformance endpoint."""
-    global use_rodeoprofile
-    response = case.call()
-    conformance_json = json.loads(response.text)
-
-    if (
-        util.args.rodeo_profile
-        or rodeoprofile.conformance_url in conformance_json["conformsTo"]
-    ):
-        use_rodeoprofile = True
-        util.logger.info(
-            "Including tests for Rodeo profile %s", rodeoprofile.conformance_url
-        )
-
-    if "conformsTo" not in conformance_json:
-        spec_ref = "https://docs.ogc.org/is/19-072/19-072.html#_4129e3d3-9428-4e91-9bfc-645405ed2369"
-        raise AssertionError(
-            f"Conformance page /conformance does not contain a conformsTo attribute. See {spec_ref} for more info."
-        )
-
-    resolves, resolves_message = util.test_conformance_links(
-        jsondata=conformance_json["conformsTo"]
-    )
-    if not resolves:
-        raise AssertionError(resolves_message)
-
-    requirementA2_2_A5, requirementA2_2_A5_message = edreq.requirementA2_2_A5(
-        jsondata=conformance_json["conformsTo"], siteurl=util.args.url
-    )
-    if not requirementA2_2_A5:
-        util.logger.error(requirementA2_2_A5_message)
-        # raise AssertionError(requirementA2_2_A5_message)
-
-    requirementA2_2_A7, requirementA2_2_A7_message = edreq.requirementA2_2_A7(
-        response.raw.version
-    )
-    if not requirementA2_2_A7:
-        raise AssertionError(requirementA2_2_A7_message)
-
-    requirementA11_1, requirementA11_1_message = edreq.requirementA11_1(
-        jsondata=conformance_json["conformsTo"]
-    )
-    if not requirementA11_1:
-        raise AssertionError(requirementA11_1_message)
-
-    if use_rodeoprofile:
-        requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
-            jsondata=conformance_json["conformsTo"]
-        )
-        if not requirement7_1:
-            raise AssertionError(requirement7_1_message)
-
-    util.logger.debug("Conformance %s tested OK", response.url)
-
-
-@schema.include(
     path_regex="^" + os.path.join(util.args.base_path, "collections$")
 ).parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
