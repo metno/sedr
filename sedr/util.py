@@ -131,13 +131,18 @@ def parse_locations(jsondata) -> None:
     #         )
 
 
-def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unused-argument
-    """Test that all conformance links are valid and resolves.
-
-    TODO: http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections doesn't work, so not erroring out.
-    """
+def test_conformance_links(jsondata) -> tuple[bool, str]:
+    """Test that all conformance links are valid and resolves."""
     msg = ""
     for link in jsondata["conformsTo"]:
+        if link in [
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/conformance",
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
+            "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
+        ]:
+            # TODO: These links are part of the standard but doesn't work, so skipping for now.
+            msg += f"test_conformance_links Link {link} doesn't resolv, but that is a known issue. "
+            continue
         resp = None
         try:
             resp = requests.head(url=link, timeout=10)

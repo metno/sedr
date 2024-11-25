@@ -29,19 +29,19 @@ def parse_landing(url, timeout=10) -> bool:
         landing_json = response.json()
     except json.decoder.JSONDecodeError:
         util.logger.warning("Landing page <%s> is not valid JSON.", url)
-        return False
+        return False, landing_json
 
     landing, requirement9_1_message = edreq.requirement9_1(landing_json)
     if not landing:
         util.logger.error(requirement9_1_message)
-        return False
+        return False, landing_json
 
     requirementA2_2_A7, requirementA2_2_A7_message = edreq.requirementA2_2_A7(
         response.raw.version
     )
     if not requirementA2_2_A7:
         util.logger.error(requirementA2_2_A7_message)
-        return False
+        return False, landing_json
 
     return True, landing_json
 
@@ -58,24 +58,26 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
         return False
 
     resolves, resolves_message = util.test_conformance_links(jsondata=conformance_json)
-    util.logger.error(resolves_message)
-    # TODO: reenable when all conformance links resolves
-    # if not resolves and util.args.strict:
-    #     return False
+    if not resolves and util.args.strict:
+        util.logger.error(resolves_message)
+        if util.args.strict:
+            return False
 
     requirementA2_2_A5, requirementA2_2_A5_message = edreq.requirementA2_2_A5(
         jsondata=conformance_json, siteurl=util.args.url
     )
     if not requirementA2_2_A5:
         util.logger.error(requirementA2_2_A5_message)
-        return False
+        if util.args.strict:
+            return False
 
     requirementA11_1, requirementA11_1_message = edreq.requirementA11_1(
         jsondata=conformance_json
     )
     if not requirementA11_1:
         util.logger.error(requirementA11_1_message)
-        return False
+        if util.args.strict:
+            return False
 
     # Rodeo profile
 
@@ -87,19 +89,21 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
             "Including tests for Rodeo profile %s", rodeoprofile.conformance_url
         )
 
-        requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
-            jsondata=landing_json
-        )
-        if not requirement7_2:
-            util.logger.error(requirement7_2_message)
-            return False
-
         requirement7_1, requirement7_1_message = rodeoprofile.requirement7_1(
             jsondata=conformance_json
         )
         if not requirement7_1:
             util.logger.error(requirement7_1_message)
-            return False
+            if util.args.strict:
+                return False
+
+        requirement7_2, requirement7_2_message = rodeoprofile.requirement7_2(
+            jsondata=landing_json
+        )
+        if not requirement7_2:
+            util.logger.error(requirement7_2_message)
+            if util.args.strict:
+                return False
 
     return True
 

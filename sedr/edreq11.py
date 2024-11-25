@@ -115,6 +115,8 @@ def requirement9_1(jsondata) -> tuple[bool, str]:
             False,
             "Landing page does not contain links. See <{spec_ref}> for more info.",
         )
+
+    service_desc = ""
     for link in jsondata["links"]:
         if not isinstance(link, dict):
             return (
@@ -131,5 +133,12 @@ def requirement9_1(jsondata) -> tuple[bool, str]:
                 False,
                 f"Link {link} does not have a rel attribute. See <{spec_ref}> for more info.",
             )
+        if link["rel"] == "service-desc":
+            service_desc = link["href"]
+    if not service_desc:
+        return (
+            False,
+            f"Landing page does not contain a service-desc link. See <{spec_ref}> for more info.",
+        )
     util.logger.debug("requirement9_1 Landing page contains required elements.")
     return True, ""
