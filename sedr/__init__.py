@@ -18,10 +18,8 @@ def run_schemat() -> None:
 def main() -> None:
     """Run the main program."""
     if preflight.main():
-        util.logger.info("Preflight checks passed. Running schemathesis.")
         run_schemat()
     else:
-        util.logger.error("Preflight checks did not pass.")
         sys.exit(1)
 
 
