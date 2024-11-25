@@ -10,7 +10,7 @@ import pytest
 import requests
 
 import util
-import edreq11 as edreq
+import edreq12 as edreq
 import rodeoprofile10 as rodeoprofile
 
 
@@ -38,7 +38,7 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
             )
         util.logger.info("Found openapi spec: %s", util.args.openapi)
 
-    util.logger.info("Using EDR version %s", edreq.__edr_version__)
+    util.logger.info("Using EDR version %s", edreq.edr_version)
 
     if args.openapi.startswith("http"):
         util.logger.info(
