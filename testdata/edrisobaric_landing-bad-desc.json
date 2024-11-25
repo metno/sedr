@@ -1,0 +1,48 @@
+{
+  "title": "EDR isobaric from Grib",
+  "description": "An EDR API for isobaric data from Grib files",
+  "links": [
+    {
+      "href": "https://edrisobaric.k8s.met.no/",
+      "rel": "self",
+      "type": "application/json",
+      "title": "Landing Page"
+    },
+    {
+      "href": "https://edrisobaric.k8s.met.no/api",
+      "rel": "service-desc",
+      "type": "application/openapi",
+      "title": "OpenAPI document"
+    },
+    {
+      "href": "https://edrisobaric.k8s.met.no/docs",
+      "rel": "service-doc",
+      "type": "text/html",
+      "title": "OpenAPI document"
+    },
+    {
+      "href": "https://edrisobaric.k8s.met.no/conformance",
+      "rel": "conformance",
+      "type": "application/json",
+      "title": "Conformance document"
+    },
+    {
+      "href": "https://edrisobaric.k8s.met.no/collections",
+      "rel": "data",
+      "type": "application/json",
+      "title": "Collections metadata in JSON"
+    }
+  ],
+  "provider": {
+    "name": "Meteorologisk institutt / The Norwegian Meteorological Institute",
+    "url": "https://api.met.no/"
+  },
+  "contact": {
+    "email": "weatherapi-adm@met.no",
+    "phone": "+47.22963000",
+    "address": "Henrik Mohns plass 1",
+    "postalCode": "0313",
+    "city": "Oslo",
+    "country": "Norway"
+  }
+}

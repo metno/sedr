@@ -1,6 +1,7 @@
 """Unit tests for rodeoprofile10.py."""
 
 import unittest
+import json
 import util
 import rodeoprofile10 as profile
 
@@ -13,72 +14,17 @@ class TestRodeoprofile(unittest.TestCase):
     )
 
     def test_requirement7_2(self):
-        landing_json_good = {
-            "title": "EDR isobaric from Grib",
-            "description": "An EDR API for isobaric data from Grib files",
-            "links": [
-                {
-                    "href": "https://edrisobaric.k8s.met.no/",
-                    "rel": "self",
-                    "type": "application/json",
-                    "title": "Landing Page",
-                },
-                {
-                    "href": "https://edrisobaric.k8s.met.no/api",
-                    "rel": "service-desc",
-                    "type": "application/vnd.oai.openapi+json;version=3.1",
-                    "title": "OpenAPI document",
-                },
-                {
-                    "href": "https://edrisobaric.k8s.met.no/docs",
-                    "rel": "service-doc",
-                    "type": "text/html",
-                    "title": "OpenAPI document",
-                },
-                {
-                    "href": "https://edrisobaric.k8s.met.no/conformance",
-                    "rel": "conformance",
-                    "type": "application/json",
-                    "title": "Conformance document",
-                },
-                {
-                    "href": "https://edrisobaric.k8s.met.no/collections",
-                    "rel": "data",
-                    "type": "application/json",
-                    "title": "Collections metadata in JSON",
-                },
-            ],
-            "provider": {
-                "name": "Meteorologisk institutt / The Norwegian Meteorological Institute",
-                "url": "https://api.met.no/",
-            },
-            "contact": {
-                "email": "weatherapi-adm@met.no",
-                "phone": "+47.22963000",
-                "address": "Henrik Mohns plass 1",
-                "postalCode": "0313",
-                "city": "Oslo",
-                "country": "Norway",
-            },
-        }
-
-        ok, _ = profile.requirement7_2(landing_json_good, timeout=10)
+        # Good tests
+        landing_json = {}
+        with open("testdata/edrisobaric_landing.json", "r", encoding="utf-8") as f:
+            landing_json = json.load(f)
+        ok, _ = profile.requirement7_2(landing_json, timeout=10)
         self.assertTrue(ok)
 
-        landing_json_bad = {
-            "title": "EDR isobaric from Grib",
-            "description": "An EDR API for isobaric data from Grib files",
-            "links": [
-                {
-                    "href": "https://edrisobaric.k8s.met.no/",
-                    "rel": "self",
-                    "type": "application/json",
-                    "title": "Landing Page",
-                },
-            ],
-        }
-
-        ok, _ = profile.requirement7_2(landing_json_bad, timeout=10)
+        # Bad tests
+        with open("testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8") as f:
+            landing_json = json.load(f)
+        ok, _ = profile.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)
 
 
