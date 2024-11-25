@@ -22,7 +22,6 @@ __license__ = "GPL-3.0"
 schema = None
 extents = {}
 collection_ids = {}
-use_rodeoprofile = False
 
 
 def set_up_schemathesis(args) -> BaseOpenAPISchema:
@@ -141,7 +140,7 @@ def test_edr_collections(case):
                     f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
                 ) from err
 
-        if use_rodeoprofile:
+        if util.args.rodeo_profile:
             if util.args.strict:
                 requirement7_3, requirement7_3_message = rodeoprofile.requirement7_3(
                     jsondata=collection

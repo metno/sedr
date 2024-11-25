@@ -82,11 +82,9 @@ def parse_conformance(url: str, timeout: int, landing_json) -> bool:
             return False
 
     # Rodeo profile
-
-    if (
-        util.args.rodeo_profile
-        or rodeoprofile.conformance_url in conformance_json["conformsTo"]
-    ):
+    if rodeoprofile.conformance_url in conformance_json["conformsTo"]:
+        util.args.rodeo_profile = True
+    if util.args.rodeo_profile:
         util.logger.info(
             "Including tests for Rodeo profile %s", rodeoprofile.conformance_url
         )
