@@ -2,7 +2,6 @@
 
 import unittest
 import util
-import pytest
 
 
 class TestInit(unittest.TestCase):

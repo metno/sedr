@@ -6,7 +6,6 @@ import argparse
 import json
 from urllib.parse import urlsplit
 
-
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 
@@ -70,7 +69,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
 
 def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
-    loglevel = logging.WARNING
+    loglevel = logging.DEBUG
 
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
@@ -148,6 +147,7 @@ def test_conformance_links(jsondata) -> tuple[bool, str]:  # pylint: disable=unu
     #     assert (
     #         resp.status_code < 400
     #     ), f"Link {link} from /conformance is broken (gives status code {resp.status_code})."
+    logger.debug("test_conformance_links is NOOP")
     return True, ""
 
 
