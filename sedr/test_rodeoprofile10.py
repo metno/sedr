@@ -62,7 +62,7 @@ class TestRodeoprofile(unittest.TestCase):
             },
         }
 
-        ok, msg = profile.requirement7_2(landing_json_good, timeout=10)
+        ok, _ = profile.requirement7_2(landing_json_good, timeout=10)
         self.assertTrue(ok)
 
         landing_json_bad = {
