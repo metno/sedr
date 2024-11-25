@@ -8,7 +8,7 @@ ogc_api_common_url = "https://docs.ogc.org/is/19-072/19-072.html"
 conformance_urls = [
     "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/core",
     "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
-    f"http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",  # Assume this will be changed to edr_version
+    "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",  # Assume this will be changed to edr_version
 ]
 openapi_conformance_urls = [
     "http://www.opengis.net/spec/ogcapi-edr-1/1.1/req/oas30",  # Assume this will be changed to oas31
