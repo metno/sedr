@@ -137,6 +137,7 @@ def parse_locations(jsondata) -> None:
 def test_conformance_links(jsondata: dict, timeout: int) -> tuple[bool, str]:
     """Test that all conformance links are valid and resolves."""
     msg = ""
+    valid = True
     for link in jsondata["conformsTo"]:
         if link in [
             "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/conformance",
@@ -150,12 +151,12 @@ def test_conformance_links(jsondata: dict, timeout: int) -> tuple[bool, str]:
         try:
             response = requests.head(url=link, timeout=timeout)
         except requests.exceptions.MissingSchema as error:
+            valid = False
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
         if not response.status_code < 400:
+            valid = False
             msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
-    if msg:
-        return False, msg
-    return True, ""
+    return valid, msg
 
 
 def locate_openapi_url(url: str, timeout: int) -> str:
