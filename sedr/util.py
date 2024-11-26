@@ -81,19 +81,21 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
                 pass  # Touch file
         except PermissionError as err:
             print(
-                f"Could not write to logfile {logfile}: {err}\nIf you're running this as a docker "
-                + "container, make sure you mount the log dir (docker run -v host-dir:container-dir) "
-                + "and give log option to sedr using the container-dir (--log-file /container-dir/debug.log)."
+                f"Could not write to logfile {logfile}: {err}\nIf you're "
+                f"running this as a docker container, make sure you mount "
+                f"the log dir (docker run -v host-dir:container-dir) and give "
+                f"log option to sedr using the container-dir "
+                f"(--log-file /container-dir/debug.log)."
             )
             sys.exit(1)
 
         fh = logging.FileHandler(mode="a", filename=logfile)
         fh.setLevel(logging.DEBUG)
         logger.addHandler(fh)
-        logger.debug(
+        logger.debug(  # noqa: pylint: disable=logging-not-lazy
             f"SEDR version {version} on python {sys.version}, schemathesis "
-            + f"{schemathesis.__version__} \nTesting url <{args.url}>, openapi url <{args.openapi}>, "
-            + f"openapi-version {args.openapi_version}.\n\n"
+            f"{schemathesis.__version__} \nTesting url <{args.url}>, openapi "
+            f"url <{args.openapi}>, openapi-version {args.openapi_version}.\n"
         )
 
     # Console
