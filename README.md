@@ -4,7 +4,7 @@
 
 ## What is sedr?
 
-An experimental validator for OGC EDR APIs using schemathesis.
+An experimental validator for OGC EDR APIs using schemathesis. Main focus will be on the Rodeo Profile, which is a subset of the OGC EDR API.
 
 ## Who is responsible?
 
