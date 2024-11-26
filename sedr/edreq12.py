@@ -29,13 +29,15 @@ def requirementA2_2_A5(jsondata: dict, siteurl="") -> tuple[bool, str]:
     if "conformsTo" not in jsondata:
         return (
             False,
-            f"Conformance page <{siteurl}conformance> does not contain a conformsTo attribute. See <{spec_url}> for more info.",
+            f"Conformance page <{siteurl}conformance> does not contain a "
+            f"conformsTo attribute. See <{spec_url}> for more info.",
         )
     for url in conformance_urls:
         if url not in jsondata["conformsTo"]:
             return (
                 False,
-                f"Conformance page <{siteurl}conformance> does not contain the core edr class {url}. See <{spec_url}> for more info.",
+                f"Conformance page <{siteurl}conformance> does not contain "
+                f"the core edr class {url}. See <{spec_url}> for more info.",
             )
 
     util.logger.debug(
@@ -66,25 +68,25 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
     Version: 1.1
     Requirement A11.1
 
-    Check if the conformance page contains openapi classes, and that they match our version."""
+    Check if the conformance page contains openapi classes,
+    and that they match our version."""
     spec_url = f"{edr_root_url}#_requirements_class_openapi_3_0"
 
     for url in jsondata["conformsTo"]:
         if url in openapi_conformance_urls:
             if (
-                util.args.openapi_version == "3.1"
-                and "oas31" in url
-                or util.args.openapi_version == "3.0"
-                and "oas30" in url
+                "oas31" in url or "oas30" in url  # TODO: oas30 should be removed
             ):
                 util.logger.debug("requirementA11_1 Found openapi class <%s>", url)
                 return True, url
             return (
                 False,
-                f"OpenAPI version {util.args.openapi_version} and version in conformance {url} doesn't match. See <{spec_url}> for more info.",
+                f"OpenAPI version {util.args.openapi_version} and version in "
+                f"conformance {url} doesn't match. See <{spec_url}> for more info.",
             )
 
     return (
         False,
-        f"Conformance page /conformance does not contain an openapi class. See <{spec_url}> for more info.",
+        f"Conformance page /conformance does not contain an openapi class. "
+        f"See <{spec_url}> for more info.",
     )

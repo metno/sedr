@@ -20,7 +20,8 @@ def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     if conformance_url not in jsondata["conformsTo"]:
         return (
             False,
-            f"Conformance page /conformance does not contain the profile class {conformance_url}. See <{spec_url}> for more info.",
+            f"Conformance page /conformance does not contain the profile "
+            f"class {conformance_url}. See <{spec_url}> for more info.",
         )
     util.logger.debug("Rodeoprofile Requirement 7.1 OK")
     return True, ""
@@ -36,7 +37,7 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
     jsondata should be a valid landing page json dict.
     """
     spec_url = f"{spec_base_url}#_openapi"
-    openapi_type = "application/vnd.oai.openapi+json;version="  # 3.0"
+    openapi_type = "application/vnd.oai.openapi+json;version=3.1"
     servicedoc_type = "text/html"
 
     service_desc_link = ""
@@ -58,9 +59,8 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
         return (
             False,
             f"OpenAPI link service-desc should identify the content as "
-            "openAPI and include version. Example "
-            "<application/vnd.oai.openapi+json;version=3.0>. Found: "
-            f"<{service_desc_type}> See <{spec_url}> and <{spec_base_url}"
+            f"openAPI and include version. Example <{openapi_type}>. Found: "
+            f"<{service_desc_type}>. See <{spec_url}> and <{spec_base_url}"
             "#_openapi_2> for more info.",
         )
 
@@ -79,8 +79,8 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
     except (json.JSONDecodeError, TypeError) as err:
         return (
             False,
-            f"OpenAPI link service-desc <{service_desc_link}> does not contain valid JSON.\n"
-            f"Error: {err}",
+            f"OpenAPI link service-desc <{service_desc_link}> does not "
+            f"contain valid JSON.\nError: {err}",
         )
 
     # D API documentation
@@ -92,7 +92,8 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
             if servicedoc_type not in link["type"]:
                 return (
                     False,
-                    f"Service-doc should have type <{servicedoc_type}>. Found <{link['type']}> See <{spec_url}> for more info.",
+                    f"Service-doc should have type <{servicedoc_type}>. Found "
+                    f"<{link['type']}> See <{spec_url}> for more info.",
                 )
             break
     else:
@@ -159,13 +160,15 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
         if len(jsondata["title"]) > 50:
             return (
                 False,
-                f"Collection title should not exceed 50 chars. See <{spec_url}> for more info.",
+                f"Collection title should not exceed 50 chars. See "
+                f"<{spec_url}> for more info.",
             )
     except (json.JSONDecodeError, KeyError):
         # A
         return (
             False,
-            f"Collection must have a title, but it seems to be missing. See <{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
+            f"Collection must have a title, but it seems to be missing. See "
+            f"<{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
     util.logger.debug("Rodeoprofile Requirement 7.4 OK")
     return (
@@ -177,19 +180,23 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
 def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     """Check collection license. Can't test D."""
     spec_url = f"{spec_base_url}#_collection_license"
+    wanted_type = "text/html"
+    wanted_rel = "license"
     # A, B
     for link in jsondata["links"]:
-        if link["rel"] == "license":
-            if not link["type"] == "text/html":
+        if link["rel"] == wanted_rel:
+            if not link["type"] == wanted_type:
                 return (
                     False,
-                    f"Collection <{jsondata['id']}> license link should have type='text/html'. See <{spec_url}> C for more info.",
+                    f"Collection <{jsondata['id']}> license link should have "
+                    f"type='{wanted_type}'. See <{spec_url}> C for more info.",
                 )
             break
     else:
         return (
             False,
-            f"Collection <{jsondata['id']}> is missing a license link with rel='license'. See <{spec_url}> A, B for more info.",
+            f"Collection <{jsondata['id']}> is missing a license link with "
+            f"rel='{wanted_rel}'. See <{spec_url}> A, B for more info.",
         )
     util.logger.debug("Rodeoprofile Requirement 7.5 OK")
     return (

@@ -80,11 +80,11 @@ def test_openapi(case):
 
 
 @schemathesis.hook
-def after_call(context, case, response):
+def after_call(context, case, response):  # noqa: pylint: disable=unused-argument
     """Hook runs after any call to the API, used for logging."""
     if response.request:
         # Log calls with status
-        util.logger.debug(
+        util.logger.debug(  # noqa: pylint: disable=logging-not-lazy
             f"after_call {'OK' if response.ok else 'ERR'} "
             + f"{response.request.path_url} {response.text[0:150]}"
         )
@@ -100,7 +100,7 @@ def test_edr_collections(case):
     also require /collections to exist, in accordance with Requirement A.2.2 A.9
     <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
     """
-    global collection_ids, extents
+    global collection_ids, extents  # noqa: pylint: disable=global-variable-not-assigned
 
     response = case.call()
     spec_ref = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_ed0b4d0d-f90a-4a7d-a123-17a1d7849b2d"
