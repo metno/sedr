@@ -1,6 +1,7 @@
 """OGC API Common requirements."""
 
-import util
+from collections.abc import Callable
+import requests
 
 ogc_api_common_version = "1.0"
 ogc_api_common_url = "https://docs.ogc.org/is/19-072/19-072.html"
@@ -58,5 +59,34 @@ def requirement9_1(jsondata: dict) -> tuple[bool, str]:
             False,
             f"Landing page does not contain a service-desc link. See <{spec_ref}> for more info.",
         )
-    util.logger.debug("requirement9_1 Landing page contains required elements.")
-    return True, ""
+    return True, "Landing page contains required elements. "
+
+
+def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
+    """Test that all conformance links are valid and resolves."""
+    msg = ""
+    valid = True
+    for link in jsondata["conformsTo"]:
+        if link in [
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/conformance",
+            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
+            "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
+        ]:
+            # TODO: These links are part of the standard but doesn't work, so skipping for now.
+            msg += f"test_conformance_links Link {link} doesn't resolv, but that is a known issue. "
+            continue
+        response = requests.Response()
+        try:
+            response = requests.head(url=link, timeout=timeout)
+        except requests.exceptions.MissingSchema as error:
+            valid = False
+            msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
+        if not response.status_code < 400:
+            valid = False
+            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
+    return valid, msg
+
+
+tests_landing = [requirement9_1]
+tests_conformance = [test_conformance_links]
+tests_collections: list[Callable[[dict], tuple[bool, str]]] = []

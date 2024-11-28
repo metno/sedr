@@ -1,5 +1,6 @@
 """EDR requirements."""
 
+from collections.abc import Callable
 import util
 
 edr_version = "1.2"
@@ -16,7 +17,7 @@ openapi_conformance_urls = [
 ]
 
 
-def requirementA2_2_A5(jsondata: dict, siteurl="") -> tuple[bool, str]:
+def requirementA2_2_A5(jsondata: dict) -> tuple[bool, str]:
     """
     OGC API - Environmental Data Retrieval Standard
     Version: 1.2
@@ -26,40 +27,21 @@ def requirementA2_2_A5(jsondata: dict, siteurl="") -> tuple[bool, str]:
     jsondata should be the "conformsTo"-part of the conformance page.
     """
     spec_url = f"{edr_root_url}#req_core_conformance"
+
     if "conformsTo" not in jsondata:
-        return (
-            False,
-            f"Conformance page <{siteurl}conformance> does not contain a "
-            f"conformsTo attribute. See <{spec_url}> for more info.",
+        return False, (
+            f"Conformance page does not contain a "
+            f"conformsTo attribute. See <{spec_url}> for more info."
         )
+
     for url in conformance_urls:
         if url not in jsondata["conformsTo"]:
-            return (
-                False,
-                f"Conformance page <{siteurl}conformance> does not contain "
-                f"the core edr class {url}. See <{spec_url}> for more info.",
+            return False, (
+                f"Conformance page does not contain "
+                f"the core edr class {url}. See <{spec_url}> for more info."
             )
 
-    util.logger.debug(
-        "requirementA2_2_A5: conformance page contains the required EDR classes."
-    )
-    return True, ""
-
-
-def requirementA2_2_A7(version: int) -> tuple[bool, str]:
-    """
-    OGC API - Environmental Data Retrieval Standard
-    Version: 1.2
-    Requirement Annex A2.2 A7
-
-    Check if HTTP1.1 was used.
-    """
-    spec_url = f"{edr_root_url}#_req_core_http"
-    if version == 11:
-        util.logger.debug("requirementA2_2_A7 HTTP version 1.1 was used.")
-        return True, ""
-
-    return False, f"HTTP version 1.1 was not used. See <{spec_url}> for more info."
+    return True, "Conformance page contains the required EDR classes."
 
 
 def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
@@ -77,8 +59,7 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
             if (
                 "oas31" in url or "oas30" in url  # TODO: oas30 should be removed
             ):
-                util.logger.debug("requirementA11_1 Found openapi class <%s>", url)
-                return True, url
+                return True, f"Found openapi class <{url}>. "
             return (
                 False,
                 f"OpenAPI version {util.args.openapi_version} and version in "
@@ -90,3 +71,8 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
         f"Conformance page /conformance does not contain an openapi class. "
         f"See <{spec_url}> for more info.",
     )
+
+
+tests_landing: list[Callable[[dict], tuple[bool, str]]] = []
+tests_conformance = [requirementA2_2_A5, requirementA11_1]
+tests_collection: list[Callable[[dict], tuple[bool, str]]] = []
