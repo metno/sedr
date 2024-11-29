@@ -12,8 +12,11 @@ spec_base_url = (
 
 def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     """
-    Check if the conformance page contains the required EDR classes.
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.1. Requirements Class "Core"
 
+    Check if the conformance page contains the required EDR classes.
     jsondata should be a valid conformance page json dict.
     """
     spec_url = f"{spec_base_url}#_requirements_class_core"
@@ -30,7 +33,6 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     """
     RODEO EDR Profile
     Version: 0.1.0
-
     7.2. OpenAPI
 
     jsondata should be a valid landing page json dict.
@@ -118,10 +120,9 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
     """
     RODEO EDR Profile
     Version: 0.1.0
-
     7.3. Collection identifier
-    Check collection identifier. Can only test B, C.
 
+    Check collection identifier. Can only test B, C.
     Should only be tested if --strict is set.
     """
     spec_url = f"{spec_base_url}#_collection_identifier"
@@ -158,7 +159,13 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
 
 
 def requirement7_4(jsondata: dict) -> tuple[bool, str]:
-    """Check collection title. Can only test A, B."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.4. Collection title
+
+    Check collection title. Can only test A, B.
+    """
     spec_url = f"{spec_base_url}#_collection_title"
 
     # B
@@ -183,7 +190,13 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
 
 
 def requirement7_5(jsondata: dict) -> tuple[bool, str]:
-    """Check collection license. Can't test D."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.5. Collection license
+
+    Check collection license. Can't test D.
+    """
     spec_url = f"{spec_base_url}#_collection_license"
     wanted_type = "text/html"
     wanted_rel = "license"
