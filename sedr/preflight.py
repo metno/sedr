@@ -51,12 +51,12 @@ def main():
         return False
 
     # Run tests for landing
-    for f in util.test_functions["landing"]:
-        status, msg = f(landing_json)
+    for test_func in util.test_functions["landing"]:
+        status, msg = test_func(jsondata=landing_json)
         if not status:
-            util.logger.error("Test %s failed with message: %s", f.__name__, msg)
+            util.logger.error("Test %s failed with message: %s", test_func.__name__, msg)
         else:
-            util.logger.info("Test %s passed. (%s)", f.__name__, msg)
+            util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
     # Get conformance
     conformance_is_reachable, conformance_json = fetch_conformance(
@@ -66,12 +66,12 @@ def main():
         return False
 
     # Run tests for conformance page
-    for f in util.test_functions["conformance"]:
-        status, msg = f(conformance_json)
+    for test_func in util.test_functions["conformance"]:
+        status, msg = test_func(conformance_json)
         if not status:
-            util.logger.error("Test %s failed with message: %s", f.__name__, msg)
+            util.logger.error("Test %s failed with message: %s", test_func.__name__, msg)
         else:
-            util.logger.debug("Test %s passed. (%s)", f.__name__, msg)
+            util.logger.debug("Test %s passed. (%s)", test_func.__name__, msg)
 
     util.logger.info("Preflight checks done.")
     return True
