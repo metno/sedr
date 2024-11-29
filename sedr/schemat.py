@@ -11,7 +11,6 @@ import requests
 
 import util
 import edreq12 as edreq
-import rodeoprofile10 as rodeoprofile
 
 
 __author__ = "Lars Falk-Petersen"
@@ -96,69 +95,41 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
-    This function will test that collections contain EDR spesifics. It will
-    also require /collections to exist, in accordance with Requirement A.2.2 A.9
-    <https://docs.ogc.org/is/19-086r6/19-086r6.html#_26b5ceeb-1127-4dc1-b88e-89a32d73ade9>
+    This function will test that collections contain EDR spesifics.
     """
     global collection_ids, extents  # noqa: pylint: disable=global-variable-not-assigned
 
     response = case.call()
-    spec_ref = "https://docs.ogc.org/is/19-086r6/19-086r6.html#_ed0b4d0d-f90a-4a7d-a123-17a1d7849b2d"
+    spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
 
     assert (
         "collections" in json.loads(response.text)
     ), f"/collections does not contain a collections attribute. See {spec_ref} for more info."
 
-    for collection in json.loads(response.text)["collections"]:
+    for collection_json in json.loads(response.text)["collections"]:
         # Use url as key for extents. Remove trailing slash from url.
-        collection_url = collection["links"][0]["href"].rstrip("/")
+        collection_url = util.parse_collection_url(collection_json)
 
-        collection_ids[collection_url] = collection["id"]
-        util.logger.debug("test_collections found collection id %s", collection["id"])
+        collection_ids[collection_url] = collection_json["id"]
+        util.logger.debug(
+            "test_collections found collection id %s", collection_json["id"]
+        )
 
-        extent = None
-        try:
-            extent = collection["extent"]["spatial"]["bbox"][
-                0
-            ]  # TODO: assuming only one extent
-
-            # Make sure bbox contains a list of extents, not just an extent
-            assert isinstance(
-                extent, list
-            ), f"Extent→spatial→bbox should be a list of bboxes, not a single bbox. \
-                Example [[1, 2, 3, 4], [5, 6, 7, 8]]. Was <{collection['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
-            extents[collection_url] = tuple(extent)
-
-            util.logger.debug(
-                "test_collections found extent for %s: %s", collection_url, extent
-            )
-        except AttributeError:
-            pass
-        except KeyError as err:
-            if err.args[0] == "extent":
-                raise AssertionError(
-                    f"Unable to find extent for collection ID {collection['id']}. Found [{', '.join(collection.keys())}]. See {spec_ref} for more info."
-                ) from err
-
-        if util.args.rodeo_profile:
-            if util.args.strict:
-                requirement7_3, requirement7_3_message = rodeoprofile.requirement7_3(
-                    jsondata=collection
+        # Run edr, ogc, profile tests
+        for test_func in util.test_functions["collection"]:
+            status, msg = test_func(jsondata=collection_json)
+            if not status:
+                util.logger.error(
+                    "Test %s failed with message: %s", test_func.__name__, msg
                 )
-                if not requirement7_3:
-                    raise AssertionError(requirement7_3_message)
+                raise AssertionError(
+                    f"Test {test_func.__name__} failed with message: {msg}"
+                )
+            util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
-            requirement7_4, requirement7_4_message = rodeoprofile.requirement7_4(
-                jsondata=collection
-            )
-            if not requirement7_4:
-                raise AssertionError(requirement7_4_message)
-
-            requirement7_5, requirement7_5_message = rodeoprofile.requirement7_5(
-                jsondata=collection
-            )
-            if not requirement7_5:
-                raise AssertionError(requirement7_5_message)
+        # Validation of spatial_bbox done above
+        extent = util.parse_spatial_bbox(collection_json)
+        extents[collection_url] = tuple(extent[0])
 
 
 for p in schema.raw_schema["paths"].keys():

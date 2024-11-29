@@ -12,8 +12,11 @@ spec_base_url = (
 
 def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     """
-    Check if the conformance page contains the required EDR classes.
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.1. Requirements Class "Core"
 
+    Check if the conformance page contains the required EDR classes.
     jsondata should be a valid conformance page json dict.
     """
     spec_url = f"{spec_base_url}#_requirements_class_core"
@@ -23,18 +26,18 @@ def requirement7_1(jsondata: dict) -> tuple[bool, str]:
             f"Conformance page /conformance does not contain the profile "
             f"class {conformance_url}. See <{spec_url}> for more info.",
         )
-    util.logger.debug("Rodeoprofile Requirement 7.1 OK")
-    return True, ""
+    return True, "Conformance contains conformsTo with required EDR classes."
 
 
-def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
+def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     """
     RODEO EDR Profile
     Version: 0.1.0
-
     7.2. OpenAPI
 
     jsondata should be a valid landing page json dict.
+
+    returns status: bool, message
     """
     spec_url = f"{spec_base_url}#_openapi"
     openapi_type = "application/vnd.oai.openapi+json;version=3.1"
@@ -58,8 +61,8 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
     if openapi_type not in service_desc_type:
         return (
             False,
-            f"OpenAPI link service-desc should identify the content as "
-            f"openAPI and include version. Example <{openapi_type}>. Found: "
+            "OpenAPI link service-desc should identify the content as openAPI "
+            f"and include version. Example <{openapi_type}>. Found: "
             f"<{service_desc_type}>. See <{spec_url}> and <{spec_base_url}"
             "#_openapi_2> for more info.",
         )
@@ -110,13 +113,18 @@ def requirement7_2(jsondata: dict, timeout: int) -> tuple[bool, str]:
             f"Status code: {response.status_code}. See <{spec_url}> for more info.",
         )
 
-    util.logger.debug("Rodeoprofile Requirement 7.2 OK")
-    return True, ""
+    return True, f"{__name__} Landing openapi OK. "
 
 
 def requirement7_3(jsondata: dict) -> tuple[bool, str]:
-    """Check collection identifier. Can only test B, C.
-    Should only be tested if --strict is set."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.3. Collection identifier
+
+    Check collection identifier. Can only test B, C.
+    Should only be tested if --strict is set.
+    """
     spec_url = f"{spec_base_url}#_collection_identifier"
     approved_data_types = [
         "insitu-observations",
@@ -126,33 +134,38 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
         "weather_forecast",
     ]
 
-    # B
+    # B, C
     try:
         for t in approved_data_types:
             if jsondata["id"].startswith(t):
                 break
         else:
             return (
-                False,
+                not util.args.strict,
                 f"Collection id SHOULD be from the following list of values: "
                 f"{', '.join(approved_data_types)}. A postfix can be added. "
                 f"Found: <{jsondata['id']}>. See <{spec_url}> for more info.",
             )
     except (json.JSONDecodeError, KeyError) as err:
         return (
-            False,
+            not util.args.strict,
             f"Collection must have an id. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
-    util.logger.debug("Rodeoprofile Requirement 7.3 OK")
     return (
         True,
-        "",
+        "Collection id OK. ",
     )
 
 
 def requirement7_4(jsondata: dict) -> tuple[bool, str]:
-    """Check collection title. Can only test A, B."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.4. Collection title
+
+    Check collection title. Can only test A, B.
+    """
     spec_url = f"{spec_base_url}#_collection_title"
 
     # B
@@ -170,18 +183,24 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
             f"Collection must have a title, but it seems to be missing. See "
             f"<{spec_url}> and {spec_base_url}#_collection_title_2 for more info.",
         )
-    util.logger.debug("Rodeoprofile Requirement 7.4 OK")
     return (
         True,
-        "",
+        "Collection title OK. ",
     )
 
 
 def requirement7_5(jsondata: dict) -> tuple[bool, str]:
-    """Check collection license. Can't test D."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+    7.5. Collection license
+
+    Check collection license. Can't test D.
+    """
     spec_url = f"{spec_base_url}#_collection_license"
     wanted_type = "text/html"
     wanted_rel = "license"
+    license_count = 0
     # A, B
     for link in jsondata["links"]:
         if link["rel"] == wanted_rel:
@@ -191,15 +210,26 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
                     f"Collection <{jsondata['id']}> license link should have "
                     f"type='{wanted_type}'. See <{spec_url}> C for more info.",
                 )
-            break
-    else:
+            license_count += 1
+
+    if license_count > 1:
+        return (
+            not util.args.strict,
+            f"Collection <{jsondata['id']}> has more than one license link.",
+        )
+    if license_count < 1:
         return (
             False,
             f"Collection <{jsondata['id']}> is missing a license link with "
             f"rel='{wanted_rel}'. See <{spec_url}> A, B for more info.",
         )
-    util.logger.debug("Rodeoprofile Requirement 7.5 OK")
+
     return (
         True,
-        "",
+        "Collection license OK.",
     )
+
+
+tests_landing = [requirement7_2]
+tests_conformance = [requirement7_1]
+tests_collection = [requirement7_3, requirement7_4, requirement7_5]

@@ -4,12 +4,19 @@ import requests
 import schemathesis
 import argparse
 import json
-from urllib.parse import urlsplit
+from typing import List, Callable, Dict
+from urllib.parse import urljoin, urlsplit
+from rich.logging import RichHandler
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-3.0"
 
 args = logger = None
+test_functions: Dict[str, List[Callable]] = {
+    "landing": [],
+    "conformance": [],
+    "collection": [],
+}
 
 
 def parse_args(args, version: str = "") -> argparse.Namespace:
@@ -69,10 +76,10 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
 
 def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
-    loglevel = logging.DEBUG
-
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
+    FORMAT = "%(asctime)s - %(message)s"
+    logging.getLogger("requests").setLevel(logging.WARNING)
 
     # File
     if logfile is not None:
@@ -91,6 +98,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
 
         fh = logging.FileHandler(mode="a", filename=logfile)
         fh.setLevel(logging.DEBUG)
+        fh.setFormatter(logging.Formatter(FORMAT, datefmt="[%X]"))
         logger.addHandler(fh)
         logger.debug(  # noqa: pylint: disable=logging-not-lazy
             f"SEDR version {version} on python {sys.version}, schemathesis "
@@ -99,10 +107,9 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
         )
 
     # Console
-    stdout_handler = logging.StreamHandler()
-    stdout_handler.setLevel(loglevel)
+    stdout_handler = RichHandler(level=logging.INFO)
+    stdout_handler.setFormatter(logging.Formatter(FORMAT, datefmt="[%X]"))
     logger.addHandler(stdout_handler)
-
     return logger
 
 
@@ -134,31 +141,6 @@ def parse_locations(jsondata) -> None:
     #         )
 
 
-def test_conformance_links(jsondata: dict, timeout: int) -> tuple[bool, str]:
-    """Test that all conformance links are valid and resolves."""
-    msg = ""
-    valid = True
-    for link in jsondata["conformsTo"]:
-        if link in [
-            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/conformance",
-            "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
-            "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
-        ]:
-            # TODO: These links are part of the standard but doesn't work, so skipping for now.
-            msg += f"test_conformance_links Link {link} doesn't resolv, but that is a known issue. "
-            continue
-        response = requests.Response()
-        try:
-            response = requests.head(url=link, timeout=timeout)
-        except requests.exceptions.MissingSchema as error:
-            valid = False
-            msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
-        if not response.status_code < 400:
-            valid = False
-            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
-    return valid, msg
-
-
 def locate_openapi_url(url: str, timeout: int) -> str:
     """Locate the OpenAPI URL based on main URL."""
     request = requests.get(url, timeout=timeout)
@@ -178,3 +160,19 @@ def locate_openapi_url(url: str, timeout: int) -> str:
     # Yaml
     # Xml
     return ""
+
+
+def build_conformance_url(url: str) -> str:
+    """Build the conformance URL based on main URL."""
+    return urljoin(url, "/conformance")
+
+
+def parse_collection_url(jsondata: dict) -> str:
+    return jsondata["links"][0]["href"].rstrip("/")
+
+
+def parse_spatial_bbox(jsondata: dict) -> list:
+    try:
+        return jsondata["extent"]["spatial"]["bbox"]
+    except (AttributeError, KeyError) as err:
+        return []
