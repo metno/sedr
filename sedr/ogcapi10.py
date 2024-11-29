@@ -63,7 +63,13 @@ def requirement9_1(jsondata: dict) -> tuple[bool, str]:
 
 
 def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
-    """Test that all conformance links are valid and resolves."""
+    """
+    OGC API - Common - Part 1: Core
+    Version: 1.0.0
+
+    Test that all conformance links are valid and resolves. Not belonging to
+    any spesific requirement, so not failing unless --strict.
+    """
     msg = ""
     valid = True
     for link in jsondata["conformsTo"]:
@@ -79,10 +85,10 @@ def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str
         try:
             response = requests.head(url=link, timeout=timeout)
         except requests.exceptions.MissingSchema as error:
-            valid = False
+            valid = not util.args.strict
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
         if not response.status_code < 400:
-            valid = False
+            valid = not util.args.strict
             msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
     return valid, msg
 
