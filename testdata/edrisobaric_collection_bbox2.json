@@ -1,0 +1,141 @@
+{
+  "id": "weather_forecast",
+  "title": "IsobaricGRIB - GRIB files",
+  "description": "These files are used by Avinor ATM systems but possibly also of interest to others. They contain temperature and wind forecasts for a set of isobaric layers (i.e. altitudes having the same pressure). The files are (normally) produced every 6 hours. You can check the time when generated using the Last-Modified header or the `updated` key in `available`. These files are in GRIB2 format (filetype BIN) for the following regions: southern_norway    Area 64.25N -1.45W 55.35S 14.51E, resolution .1 degrees? (km?) FIXME    It includes every odd-numbered isobaric layer from 1 to 137 (in hundreds of feet?)",
+  "keywords": [
+    "position",
+    "data",
+    "api",
+    "temperature",
+    "wind",
+    "forecast",
+    "isobaric",
+    "weather_forecast"
+  ],
+  "links": [
+    {
+      "href": "https://edrisobaric.k8s.met.no/collections/weather_forecast/",
+      "rel": "data"
+    },
+    {
+      "href": "https://data.norge.no/nlod/en/2.0/",
+      "rel": "license",
+      "type": "text/html"
+    },
+    {
+      "href": "https://creativecommons.org/licenses/by/4.0/",
+      "rel": "license",
+      "type": "text/html"
+    }
+  ],
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -1.4499999999999886,
+          55.35,
+          14.45,
+          64.25,
+          1,
+          2
+        ]
+      ],
+      "crs": "GEOGCS[\"Unknown\", DATUM[\"Unknown\", SPHEROID[\"WGS_1984\", 6378137.0, 298.257223563]], PRIMEM[\"Greenwich\",0], UNIT[\"degree\", 0.017453], AXIS[\"Lon\", EAST], AXIS[\"Lat\", NORTH]]"
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2024-11-28T18:00:00Z",
+          "2024-11-29T06:00:00Z"
+        ]
+      ],
+      "values": [
+        "2024-11-28T18:00:00+00:00"
+      ],
+      "trs": "TIMECRS[\"DateTime\",TDATUM[\"Gregorian Calendar\"],CS[TemporalDateTime,1],AXIS[\"Time (T)\",future]"
+    },
+    "vertical": {
+      "interval": [
+        [
+          "850.0"
+        ],
+        [
+          "100.0"
+        ]
+      ],
+      "values": [
+        "850.0",
+        "750.0",
+        "700.0",
+        "600.0",
+        "500.0",
+        "450.0",
+        "400.0",
+        "350.0",
+        "300.0",
+        "275.0",
+        "250.0",
+        "225.0",
+        "200.0",
+        "150.0",
+        "100.0"
+      ],
+      "vrs": "Vertical Reference System: PressureLevel"
+    }
+  },
+  "data_queries": {
+    "position": {
+      "link": {
+        "href": "https://edrisobaric.k8s.met.no/collections/weather_forecast/position",
+        "rel": "data",
+        "variables": {
+          "query_type": "position",
+          "output_formats": [
+            "CoverageJSON"
+          ],
+          "default_output_format": "CoverageJSON"
+        }
+      }
+    }
+  },
+  "crs": [
+    "CRS:84"
+  ],
+  "parameter_names": {
+    "wind_from_direction": {
+      "type": "Parameter",
+      "id": "wind_from_direction",
+      "unit": {
+        "symbol": {
+          "value": "˚",
+          "type": "https://codes.wmo.int/common/unit/_degree_(angle)"
+        }
+      },
+      "observedProperty": {
+        "id": "http://vocab.met.no/CFSTDN/en/page/wind_from_direction",
+        "label": "Wind from direction"
+      }
+    },
+    "wind_speed": {
+      "type": "Parameter",
+      "observedProperty": {
+        "id": "http://vocab.met.no/CFSTDN/en/page/wind_speed",
+        "label": "Wind speed"
+      }
+    },
+    "Air temperature": {
+      "type": "Parameter",
+      "id": "Temperature",
+      "unit": {
+        "symbol": {
+          "value": "˚C",
+          "type": "https://codes.wmo.int/common/unit/_Cel"
+        }
+      },
+      "observedProperty": {
+        "id": "http://vocab.met.no/CFSTDN/en/page/air_temperature",
+        "label": "Air temperature"
+      }
+    }
+  }
+}

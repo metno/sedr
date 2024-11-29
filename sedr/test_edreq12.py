@@ -14,12 +14,14 @@ class TestEDR(unittest.TestCase):
     )
 
     def test_requrementA5_2(self):
+        """ Test extent spatial bbox """
         # Good tests
-        jsondata = {}
-        with open("testdata/edrisobaric_collection.json", "r", encoding="utf-8") as f:
-            jsondata = json.load(f)
-        ok, _ = edreq.requrementA5_2(jsondata)
-        self.assertTrue(ok)
+        for test_file in ["edrisobaric_collection.json", "edrisobaric_collection_bbox2.json"]:
+            jsondata = {}
+            with open(f"testdata/{test_file}", "r", encoding="utf-8") as f:
+                jsondata = json.load(f)
+            ok, _ = edreq.requrementA5_2(jsondata)
+            self.assertTrue(ok)
 
         # Bad tests
         jsondata = {}
