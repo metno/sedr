@@ -1,5 +1,8 @@
 """rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-2.0"
+
 import json
 import requests
 import util

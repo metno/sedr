@@ -1,3 +1,6 @@
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-2.0"
+
 import os
 import sys
 import json
@@ -14,7 +17,7 @@ import edreq12 as edreq
 
 
 __author__ = "Lars Falk-Petersen"
-__license__ = "GPL-3.0"
+__license__ = "GPL-2.0"
 
 
 # Globals

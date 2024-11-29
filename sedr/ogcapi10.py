@@ -1,5 +1,8 @@
 """OGC API Common requirements."""
 
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-2.0"
+
 from collections.abc import Callable
 import requests
 import util

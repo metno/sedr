@@ -1,3 +1,6 @@
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-2.0"
+
 import sys
 import logging
 import requests
@@ -9,7 +12,7 @@ from urllib.parse import urljoin, urlsplit
 from rich.logging import RichHandler
 
 __author__ = "Lars Falk-Petersen"
-__license__ = "GPL-3.0"
+__license__ = "GPL-2.0"
 
 args = logger = None
 test_functions: Dict[str, List[Callable]] = {

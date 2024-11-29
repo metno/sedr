@@ -1,5 +1,8 @@
 """Run a series of simple preflight checks before invoking schemathesis."""
 
+__author__ = "Lars Falk-Petersen"
+__license__ = "GPL-2.0"
+
 import util
 import requests
 import json
