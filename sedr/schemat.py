@@ -108,39 +108,16 @@ def test_edr_collections(case):
 
     for collection_json in json.loads(response.text)["collections"]:
         # Use url as key for extents. Remove trailing slash from url.
-        collection_url = collection_json["links"][0]["href"].rstrip("/")
+        collection_url = util.parse_collection_url(collection_json)
 
         collection_ids[collection_url] = collection_json["id"]
         util.logger.debug(
             "test_collections found collection id %s", collection_json["id"]
         )
 
-        extent = None
-        try:
-            extent = collection_json["extent"]["spatial"]["bbox"][
-                0
-            ]  # TODO: assuming only one extent
-
-            # Make sure bbox contains a list of extents, not just an extent
-            assert isinstance(
-                extent, list
-            ), f"Extent→spatial→bbox should be a list of bboxes with one bbox in, not a single bbox. \
-                Example [[1, 2, 3, 4]]. Was <{collection_json['extent']['spatial']['bbox']}>. See {spec_ref} for more info."
-            extents[collection_url] = tuple(extent)
-
-            util.logger.debug(
-                "test_collections found extent for %s: %s", collection_url, extent
-            )
-        except AttributeError:
-            pass
-        except KeyError as err:
-            if err.args[0] == "extent":
-                raise AssertionError(
-                    f"Unable to find extent for collection ID "
-                    f"{collection_json['id']}. Found "
-                    f"[{', '.join(collection_json.keys())}]. "
-                    f"See {spec_ref} for more info."
-                ) from err
+        # Validation done in requrementA5_2
+        extent = util.parse_spatial_bbox(collection_json)
+        extents[collection_url] = tuple(extent[0])
 
         # Run edr, ogc, profile tests
         for f in util.test_functions["collection"]:

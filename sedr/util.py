@@ -165,3 +165,14 @@ def locate_openapi_url(url: str, timeout: int) -> str:
 def build_conformance_url(url: str) -> str:
     """Build the conformance URL based on main URL."""
     return urljoin(url, "/conformance")
+
+
+def parse_collection_url(jsondata: dict) -> str:
+    return jsondata["links"][0]["href"].rstrip("/")
+
+
+def parse_spatial_bbox(jsondata: dict) -> list:
+    try:
+        return jsondata["extent"]["spatial"]["bbox"]
+    except (AttributeError, KeyError) as err:
+        return None

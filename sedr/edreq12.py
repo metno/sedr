@@ -73,6 +73,30 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
     )
 
 
+def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
+    """
+    OGC API - Environmental Data Retrieval Standard
+    Version: 1.2
+    Requirement A5.2
+
+    Check extent spatial bbox
+    """
+
+    spec_url = f"{edr_root_url}#req_core_rc-bbox-definition"
+    collection_url = util.parse_collection_url(jsondata)
+
+    extent = None
+    extent = util.parse_spatial_bbox(jsondata)
+    if extent is None or len(extent) > 1 or not isinstance(extent, list):
+        return (
+            False,
+            f"Extent→spatial→bbox should be a list of bboxes with exactly "
+            f"one bbox in, found {len(extent)} in collection "
+            f"<{jsondata['id']}>. See {spec_url} for more info."
+        )
+    return True, f"Extent→spatial→bbox for collection is {extent}"
+
+
 tests_landing: list[Callable[[dict], tuple[bool, str]]] = []
 tests_conformance = [requirementA2_2_A5, requirementA11_1]
-tests_collection: list[Callable[[dict], tuple[bool, str]]] = []
+tests_collection = [requrementA5_2]

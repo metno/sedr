@@ -39,7 +39,7 @@ def main() -> None:
         util.test_functions["conformance"] += rodeoprofile.tests_conformance
         util.test_functions["collection"] += rodeoprofile.tests_collection
 
-    # TODO: include profile tests based on conformance_url
+    # TODO: include profile tests based on conformance_url, https://github.com/metno/sedr/issues/32
     # if rodeoprofile.conformance_url in conformance_json["conformsTo"]:
     #     util.args.rodeo_profile = True
 
