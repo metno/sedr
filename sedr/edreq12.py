@@ -86,7 +86,7 @@ def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
 
     extent = None
     extent = util.parse_spatial_bbox(jsondata)
-    if extent is None or len(extent) > 1 or not isinstance(extent, list):
+    if extent == [] or len(extent) > 1 or not isinstance(extent, list):
         return (
             False,
             f"Extent→spatial→bbox should be a list of bboxes with exactly "

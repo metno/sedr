@@ -175,4 +175,4 @@ def parse_spatial_bbox(jsondata: dict) -> list:
     try:
         return jsondata["extent"]["spatial"]["bbox"]
     except (AttributeError, KeyError) as err:
-        return None
+        return []
