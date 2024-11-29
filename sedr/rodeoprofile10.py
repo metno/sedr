@@ -217,7 +217,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
             not util.args.strict,
             f"Collection <{jsondata['id']}> has more than one license link.",
         )
-    elif license_count < 1:
+    if license_count < 1:
         return (
             False,
             f"Collection <{jsondata['id']}> is missing a license link with "

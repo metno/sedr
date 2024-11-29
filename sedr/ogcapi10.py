@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 import requests
+import util
 
 ogc_api_common_version = "1.0"
 ogc_api_common_url = "https://docs.ogc.org/is/19-072/19-072.html"
