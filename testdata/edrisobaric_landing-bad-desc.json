@@ -1,6 +1,5 @@
 {
   "title": "EDR isobaric from Grib",
-  "description": "An EDR API for isobaric data from Grib files",
   "links": [
     {
       "href": "https://edrisobaric.k8s.met.no/",
