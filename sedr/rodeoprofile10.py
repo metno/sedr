@@ -2,6 +2,7 @@
 
 import json
 import requests
+import util
 
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
 spec_base_url = (
@@ -114,8 +115,15 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
 
 
 def requirement7_3(jsondata: dict) -> tuple[bool, str]:
-    """Check collection identifier. Can only test B, C.
-    Should only be tested if --strict is set."""
+    """
+    RODEO EDR Profile
+    Version: 0.1.0
+
+    7.3. Collection identifier
+    Check collection identifier. Can only test B, C.
+
+    Should only be tested if --strict is set.
+    """
     spec_url = f"{spec_base_url}#_collection_identifier"
     approved_data_types = [
         "insitu-observations",
@@ -125,21 +133,21 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
         "weather_forecast",
     ]
 
-    # B
+    # B, C
     try:
         for t in approved_data_types:
             if jsondata["id"].startswith(t):
                 break
         else:
             return (
-                False,
+                False if util.args.strict else True,
                 f"Collection id SHOULD be from the following list of values: "
                 f"{', '.join(approved_data_types)}. A postfix can be added. "
                 f"Found: <{jsondata['id']}>. See <{spec_url}> for more info.",
             )
     except (json.JSONDecodeError, KeyError) as err:
         return (
-            False,
+            False if util.args.strict else True,
             f"Collection must have an id. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
