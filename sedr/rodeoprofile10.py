@@ -200,6 +200,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     spec_url = f"{spec_base_url}#_collection_license"
     wanted_type = "text/html"
     wanted_rel = "license"
+    license_count = 0
     # A, B
     for link in jsondata["links"]:
         if link["rel"] == wanted_rel:
@@ -209,13 +210,20 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
                     f"Collection <{jsondata['id']}> license link should have "
                     f"type='{wanted_type}'. See <{spec_url}> C for more info.",
                 )
-            break
-    else:
+            license_count += 1
+
+    if license_count > 1:
+        return (
+            not util.args.strict,
+            f"Collection <{jsondata['id']}> has more than one license link.",
+        )
+    elif license_count < 1:
         return (
             False,
             f"Collection <{jsondata['id']}> is missing a license link with "
             f"rel='{wanted_rel}'. See <{spec_url}> A, B for more info.",
         )
+
     return (
         True,
         "Collection license OK.",
