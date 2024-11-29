@@ -4,7 +4,7 @@
 
 ## What is sedr?
 
-An experimental validator for OGC EDR APIs using schemathesis. Main focus will be on the Rodeo Profile, which is a subset of the OGC EDR API.
+An experimental validator for OGC EDR APIs. Main focus will be on the Rodeo Profile, which is a subset of the OGC EDR API.
 
 ## Who is responsible?
 
@@ -40,6 +40,10 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 
 ## Overview of architecture
 
+- __init__ includes tests from ogcapi, edrreq and rodeoprofile at startup. Tests are categorized as landing, conformance and collection.
+- Landing and conformance tests are run first, in the preflight phase.
+- Then schemathesis will validate the OpenAPI spec and run lots of automatic tests, including fuzzing of query parameters. Collection tests are run during this phase.
+
 ## Documentation
 
 ### Limitations
@@ -48,9 +52,13 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - Assuming OGC EDR API version 1.2 (draft)
 - Few, basic tests for now
 - Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> than the full EDR spec.
-- Use --rodeo-profile to force a test against the profile (will happen automatically if conformance includes the profile)
+- Use --rodeo-profile to force a test against the profile
 
-### Understanding errors
+### Testing the sedr code to look for regressions
+
+For development, source a venv and run `tox p` to run all tests.
+
+### Understanding errors from schemathesis
 
 For each "FAILED" line, you can scroll back to see the full error and, if relevant, with a curl-example to reproduce it.
 
@@ -96,7 +104,7 @@ ERROR sedr/schemat.py - schemathesis.exceptions.SchemaError: Failed to load sche
 
 #### Wrong API version / missing conformance link
 
-Sedr supports EDR 1.1, but the API is EDR 1.0.
+Sedr wants EDR 1.1, but the API is EDR 1.0.
 
 ```python
         if not requirementA2_2_A5:

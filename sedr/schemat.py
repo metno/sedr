@@ -115,10 +115,6 @@ def test_edr_collections(case):
             "test_collections found collection id %s", collection_json["id"]
         )
 
-        # Validation done in requrementA5_2
-        extent = util.parse_spatial_bbox(collection_json)
-        extents[collection_url] = tuple(extent[0])
-
         # Run edr, ogc, profile tests
         for f in util.test_functions["collection"]:
             status, msg = f(collection_json)
@@ -126,6 +122,10 @@ def test_edr_collections(case):
                 util.logger.error("Test %s failed with message: %s", f.__name__, msg)
                 raise AssertionError(f"Test {f.__name__} failed with message: {msg}")
             util.logger.info("Test %s passed. (%s)", f.__name__, msg)
+
+        # Validation of spatial_bbox done above
+        extent = util.parse_spatial_bbox(collection_json)
+        extents[collection_url] = tuple(extent[0])
 
 
 for p in schema.raw_schema["paths"].keys():
