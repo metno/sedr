@@ -140,14 +140,14 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
                 break
         else:
             return (
-                False if util.args.strict else True,
+                not util.args.strict,
                 f"Collection id SHOULD be from the following list of values: "
                 f"{', '.join(approved_data_types)}. A postfix can be added. "
                 f"Found: <{jsondata['id']}>. See <{spec_url}> for more info.",
             )
     except (json.JSONDecodeError, KeyError) as err:
         return (
-            False if util.args.strict else True,
+            not util.args.strict,
             f"Collection must have an id. None found in collection <{jsondata}>."
             f"Error {err}.",
         )

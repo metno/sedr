@@ -54,7 +54,9 @@ def main():
     for test_func in util.test_functions["landing"]:
         status, msg = test_func(jsondata=landing_json)
         if not status:
-            util.logger.error("Test %s failed with message: %s", test_func.__name__, msg)
+            util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
         else:
             util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
@@ -69,7 +71,9 @@ def main():
     for test_func in util.test_functions["conformance"]:
         status, msg = test_func(conformance_json)
         if not status:
-            util.logger.error("Test %s failed with message: %s", test_func.__name__, msg)
+            util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
         else:
             util.logger.debug("Test %s passed. (%s)", test_func.__name__, msg)
 
