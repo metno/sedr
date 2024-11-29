@@ -4,5 +4,5 @@ prospector
 bandit
 pymarkdownlnt
 mypy
-types-requests
+types-requests~=2.32.0
 ruff
