@@ -14,13 +14,11 @@ def fetch_landing(url: str, timeout: int) -> tuple[bool, dict]:
         response = requests.get(url, timeout=timeout)
         landing_json = response.json()
     except requests.exceptions.ConnectionError as err:
-        util.logger.error(
-            f"Unable to get landing page <%s>.\n%s", url, err
-        )
+        util.logger.error("Unable to get landing page <%s>.\n%s", url, err)
         return False, landing_json
     except json.decoder.JSONDecodeError as err:
         util.logger.error(
-            f"fetch_landing Landing page <%s> is not valid JSON.\n%s", url, err
+            "fetch_landing Landing page <%s> is not valid JSON.\n%s", url, err
         )
         return False, landing_json
     return True, landing_json
@@ -36,9 +34,7 @@ def fetch_conformance(url: str, timeout: int) -> tuple[bool, dict]:
         response = requests.get(conformance_url, timeout=timeout)
         conformance_json = response.json()
     except requests.exceptions.ConnectionError as err:
-        util.logger.error(
-            f"Unable to get conformance <%s>.\n%s", url, err
-        )
+        util.logger.error("Unable to get conformance <%s>.\n%s", url, err)
         return False, conformance_json
     except json.decoder.JSONDecodeError as err:
         util.logger.error(

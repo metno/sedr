@@ -83,7 +83,6 @@ def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
     """
 
     spec_url = f"{edr_root_url}#req_core_rc-bbox-definition"
-    collection_url = util.parse_collection_url(jsondata)
 
     extent = None
     extent = util.parse_spatial_bbox(jsondata)
@@ -92,7 +91,7 @@ def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
             False,
             f"Extent→spatial→bbox should be a list of bboxes with exactly "
             f"one bbox in, found {len(extent)} in collection "
-            f"<{jsondata['id']}>. See {spec_url} for more info."
+            f"<{jsondata['id']}>. See {spec_url} for more info.",
         )
     return True, f"Extent→spatial→bbox for collection is {extent}"
 
