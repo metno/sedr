@@ -55,7 +55,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
     parser.add_argument(
         "--rodeo-profile",
         action="store_true",
-        default=False,
+        default=True,
         help="Use the rodeo profile even though the API doesn't specify it. Default False.",
     )
     parser.add_argument(
