@@ -14,7 +14,7 @@ spec_base_url = (
 
 def requirement8_2(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Insitu observations
     Version: 0.1.0
     8.2. Collection data queries
 
