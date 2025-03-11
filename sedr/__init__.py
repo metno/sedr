@@ -11,7 +11,8 @@ import util
 import preflight
 import edreq12 as edreq
 import ogcapi10 as ogcapi
-import rodeoprofile10 as rodeoprofile
+import rodeoprofilecore10 as rodeoprofilecore
+import rodeoprofileinsituobservations10 as rodeoprofileinsituobservations
 
 
 def run_schemat() -> None:
@@ -31,13 +32,23 @@ def main() -> None:
     util.test_functions["collection"] += (
         edreq.tests_collection + ogcapi.tests_collections
     )
-    if util.args.rodeo_profile:
+    if util.args.rodeo_profile_core:
         util.logger.info(
-            "Including tests for Rodeo profile %s", rodeoprofile.conformance_url
+            "Including tests for Rodeo profile core %s",
+            rodeoprofilecore.conformance_url,
         )
-        util.test_functions["landing"] += rodeoprofile.tests_landing
-        util.test_functions["conformance"] += rodeoprofile.tests_conformance
-        util.test_functions["collection"] += rodeoprofile.tests_collection
+        util.test_functions["landing"] += rodeoprofilecore.tests_landing
+        util.test_functions["conformance"] += rodeoprofilecore.tests_conformance
+        util.test_functions["collection"] += rodeoprofilecore.tests_collection
+
+    if util.args.rodeo_profile_insitu_observations:
+        util.logger.info(
+            "Including tests for Rodeo profile insitu observations %s",
+            rodeoprofileinsituobservations.conformance_url,
+        )
+        util.test_functions["collection"] += (
+            rodeoprofileinsituobservations.tests_collection
+        )
 
     # TODO: include profile tests based on conformance_url, https://github.com/metno/sedr/issues/32
     # if rodeoprofile.conformance_url in conformance_json["conformsTo"]:

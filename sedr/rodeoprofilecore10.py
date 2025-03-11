@@ -1,4 +1,4 @@
-"""rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
+"""rodeo-edr-profile core requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
@@ -15,7 +15,7 @@ spec_base_url = (
 
 def requirement7_1(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Core
     Version: 0.1.0
     7.1. Requirements Class "Core"
 
@@ -34,7 +34,7 @@ def requirement7_1(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Core
     Version: 0.1.0
     7.2. OpenAPI
 
@@ -112,7 +112,7 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     if not response.status_code < 400:
         return (
             False,
-            f"OpenAPI link service-desc <{link["href"]}> doesn't respond properly. "
+            f"OpenAPI link service-desc <{link['href']}> doesn't respond properly. "
             f"Status code: {response.status_code}. See <{spec_url}> for more info.",
         )
 
@@ -121,7 +121,7 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
 
 def requirement7_3(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Core
     Version: 0.1.0
     7.3. Collection identifier
 
@@ -163,7 +163,7 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_4(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Core
     Version: 0.1.0
     7.4. Collection title
 
@@ -194,7 +194,7 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile
+    RODEO EDR Profile Core
     Version: 0.1.0
     7.5. Collection license
 

@@ -6,7 +6,7 @@ __license__ = "GPL-2.0"
 import unittest
 import json
 import util
-import rodeoprofile10 as profile
+import rodeoprofilecore10 as profilecore
 
 
 class TestRodeoprofile(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestRodeoprofile(unittest.TestCase):
         landing_json = {}
         with open("testdata/edrisobaric_landing.json", "r", encoding="utf-8") as f:
             landing_json = json.load(f)
-        ok, _ = profile.requirement7_2(landing_json, timeout=10)
+        ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertTrue(ok)
 
         # Bad tests
@@ -29,7 +29,7 @@ class TestRodeoprofile(unittest.TestCase):
             "testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8"
         ) as f:
             landing_json = json.load(f)
-        ok, _ = profile.requirement7_2(landing_json, timeout=10)
+        ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)
 
 
