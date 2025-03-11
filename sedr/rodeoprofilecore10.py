@@ -1,4 +1,4 @@
-"""rodeo-edr-profile requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
+"""rodeo-edr-profile core requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"

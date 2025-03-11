@@ -53,10 +53,16 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         help=f"Choose openapi version used in API. Default 3.1. Options are: {openapi_version_choices}",
     )
     parser.add_argument(
-        "--rodeo-profile",
+        "--rodeo-profile-core",
         action="store_true",
         default=True,
-        help="Use the rodeo profile even though the API doesn't specify it. Default False.",
+        help="Use the rodeo profile core conformance class even though the API doesn't specify it. Default False.",
+    )
+    parser.add_argument(
+        "--rodeo-profile-insitu-observations",
+        action="store_true",
+        default=True,
+        help="Use the rodeo profile core conformance class even though the API doesn't specify it. Default False.",
     )
     parser.add_argument(
         "--strict",
