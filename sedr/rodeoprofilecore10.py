@@ -232,7 +232,163 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
         "Collection license OK.",
     )
 
+def requirement7_6(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.6. Collection temporal extent
+
+    Check that extent.temporal.trs is set correctly.
+    """
+
+    #A
+    if jsondata["extent"]["temporal"]["trs"] != "Gregorian":
+        return (
+            False,
+            "Collection temporal extent shall have trs set to 'Gregorian'.",
+        )
+
+    return (
+        True,
+        "Collection temporal extent OK.",
+    )
+
+def requirement7_7(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.7. Collection spatial extent
+
+    Check that spatial metadata in collection is set correctly.
+    """
+
+    try:
+        # A
+        if jsondata["extent"]["spatial"]["crs"] != "OGC:CRS84":
+            return (
+                False,
+                "Collection extent.spatial.crs shall be set to 'OGC:CRS84'.",
+            )
+        # B
+        if "OGC:CRS84" not in jsondata["crs"]:
+            return (
+                False,
+                "Collection crs shall include 'OGC:CRS84'.",
+            )
+
+        #C
+        for q in jsondata["data_queries"]:
+            if "crs_details" in q:
+                if not any(crs_detail["crs"] == "OGC:CRS84" for crs_detail in q["crs_details"]):
+                    return (
+                        False,
+                        "If crs_details is specified there SHALL be an object with crs set to 'OGC:CRS84'.",
+                    )
+
+        #D
+        for q in jsondata["data_queries"]:
+            if "crs_details" in q and util.args.strict:
+                for crs_detail in q["crs_details"]:
+                    if crs_detail["crs"] != "OGC:CRS84" and not crs_detail["crs"].startswith("EPSG:"):
+                        return (
+                            False,
+                            "crs in crs_details should be either 'OGC:CRS84' or 'EPSG:<code>'.",
+                        )
+    except (json.JSONDecodeError, KeyError) as error:
+        return (
+            False,
+            f"Collection spatial metadata is missing required properties: {error}.",
+        )
+
+    return (
+        True,
+        "Collection spatial extent OK.",
+    )
+
+def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.9. Collection vertical extent
+
+    Check that vertical extent in collection is set correctly.
+    """
+
+    allowed_vrs = [
+        "Pressure level in hPa",
+        "Geopotential height in gpm",
+        "Geometrical altitude above mean sea level in meters",
+        "Height above ground in meters",
+        "Flight level"
+    ]
+
+    #A
+    if "vertical" in jsondata["extent"] and util.args.strict:
+        if jsondata["extent"]["vertical"]["vrs"] not in allowed_vrs:
+            return (
+                False,
+                f"Collection extent.vertical.vrs should be one of the following: {', '.join(allowed_vrs)}.",
+            )
+
+    return (
+        True,
+        "Collection vertical extent OK.",
+    )
+
+def requirement7_10(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.10. Collection parameter names
+
+    Check that collection parameter names are specified correctly.
+    """
+
+    #A not tested
+    try:
+        for p in jsondata["parameter_names"]:
+            #B
+            if not all(key in p for key in ["label", "description", "unit"]):
+                return (
+                    False,
+                    "Each parameter in parameter_names SHALL include keys 'label', 'description' and 'unit'.",
+                )
+            #C
+            if p["label"].length > 50:
+                return (
+                    False,
+                    "Value for 'label' for an object in 'parameter_names' SHALL not exceed 50 characters.",
+                )
+
+            #D no tested
+
+            #E
+            if not p["unit"]["symbol"]["type"].startsWith("https://qudt.org/vocab/unit/"):
+                return (
+                    False,
+                    "Value of unit.symbol.type SHALL be on the format 'https://qudt.org/vocab/unit/<unit>'. "
+                    "Unit.symbol.value SHALL be set to the value of 'qudt:symbol'.",
+                )
+            #F
+            if util.args.strict and not p["observedProperty"]["id"].startswith("https://vocab.nerc.ac.uk/standard_name/"):
+                return (
+                    False,
+                    "Value of observedProperty SHALL be on the format 'https://vocab.nerc.ac.uk/standard_name/<name>' "
+                    "if a suitable CF-convention value exists.",
+                )
+    except (json.JSONDecodeError, KeyError) as error:
+        return (
+            False,
+            f"Collection parameter_names object is missing required properties: {error}.",
+        )
+
+    return (
+        True,
+        "Collection parameter names OK.",
+    )
+
 
 tests_landing = [requirement7_2]
 tests_conformance = [requirement7_1]
-tests_collection = [requirement7_3, requirement7_4, requirement7_5]
+tests_collection = [requirement7_3, requirement7_4, requirement7_5, requirement7_6,
+                    requirement7_7, recommendation7_9, requirement7_10]
