@@ -232,6 +232,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
         "Collection license OK.",
     )
 
+
 def requirement7_6(jsondata: dict) -> tuple[bool, str]:
     """
     RODEO EDR Profile Core
@@ -241,7 +242,7 @@ def requirement7_6(jsondata: dict) -> tuple[bool, str]:
     Check that extent.temporal.trs is set correctly.
     """
 
-    #A
+    # A
     if jsondata["extent"]["temporal"]["trs"] != "Gregorian":
         return (
             False,
@@ -252,6 +253,7 @@ def requirement7_6(jsondata: dict) -> tuple[bool, str]:
         True,
         "Collection temporal extent OK.",
     )
+
 
 def requirement7_7(jsondata: dict) -> tuple[bool, str]:
     """
@@ -276,20 +278,24 @@ def requirement7_7(jsondata: dict) -> tuple[bool, str]:
                 "Collection crs shall include 'OGC:CRS84'.",
             )
 
-        #C
+        # C
         for q in jsondata["data_queries"]:
             if "crs_details" in q:
-                if not any(crs_detail["crs"] == "OGC:CRS84" for crs_detail in q["crs_details"]):
+                if not any(
+                    crs_detail["crs"] == "OGC:CRS84" for crs_detail in q["crs_details"]
+                ):
                     return (
                         False,
                         "If crs_details is specified there SHALL be an object with crs set to 'OGC:CRS84'.",
                     )
 
-        #D
+        # D
         for q in jsondata["data_queries"]:
             if "crs_details" in q and util.args.strict:
                 for crs_detail in q["crs_details"]:
-                    if crs_detail["crs"] != "OGC:CRS84" and not crs_detail["crs"].startswith("EPSG:"):
+                    if crs_detail["crs"] != "OGC:CRS84" and not crs_detail[
+                        "crs"
+                    ].startswith("EPSG:"):
                         return (
                             False,
                             "crs in crs_details should be either 'OGC:CRS84' or 'EPSG:<code>'.",
@@ -305,6 +311,7 @@ def requirement7_7(jsondata: dict) -> tuple[bool, str]:
         "Collection spatial extent OK.",
     )
 
+
 def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
     """
     RODEO EDR Profile Core
@@ -319,10 +326,10 @@ def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
         "Geopotential height in gpm",
         "Geometrical altitude above mean sea level in meters",
         "Height above ground in meters",
-        "Flight level"
+        "Flight level",
     ]
 
-    #A
+    # A
     if "vertical" in jsondata["extent"] and util.args.strict:
         if jsondata["extent"]["vertical"]["vrs"] not in allowed_vrs:
             return (
@@ -335,6 +342,7 @@ def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
         "Collection vertical extent OK.",
     )
 
+
 def requirement7_10(jsondata: dict) -> tuple[bool, str]:
     """
     RODEO EDR Profile Core
@@ -344,33 +352,37 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
     Check that collection parameter names are specified correctly.
     """
 
-    #A not tested
+    # A not tested
     try:
         for p in jsondata["parameter_names"]:
-            #B
+            # B
             if not all(key in p for key in ["label", "description", "unit"]):
                 return (
                     False,
                     "Each parameter in parameter_names SHALL include keys 'label', 'description' and 'unit'.",
                 )
-            #C
+            # C
             if p["label"].length > 50:
                 return (
                     False,
                     "Value for 'label' for an object in 'parameter_names' SHALL not exceed 50 characters.",
                 )
 
-            #D no tested
+            # D no tested
 
-            #E
-            if not p["unit"]["symbol"]["type"].startsWith("https://qudt.org/vocab/unit/"):
+            # E
+            if not p["unit"]["symbol"]["type"].startsWith(
+                "https://qudt.org/vocab/unit/"
+            ):
                 return (
                     False,
                     "Value of unit.symbol.type SHALL be on the format 'https://qudt.org/vocab/unit/<unit>'. "
                     "Unit.symbol.value SHALL be set to the value of 'qudt:symbol'.",
                 )
-            #F
-            if util.args.strict and not p["observedProperty"]["id"].startswith("https://vocab.nerc.ac.uk/standard_name/"):
+            # F
+            if util.args.strict and not p["observedProperty"]["id"].startswith(
+                "https://vocab.nerc.ac.uk/standard_name/"
+            ):
                 return (
                     False,
                     "Value of observedProperty SHALL be on the format 'https://vocab.nerc.ac.uk/standard_name/<name>' "
@@ -390,5 +402,12 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
 
 tests_landing = [requirement7_2]
 tests_conformance = [requirement7_1]
-tests_collection = [requirement7_3, requirement7_4, requirement7_5, requirement7_6,
-                    requirement7_7, recommendation7_9, requirement7_10]
+tests_collection = [
+    requirement7_3,
+    requirement7_4,
+    requirement7_5,
+    requirement7_6,
+    requirement7_7,
+    recommendation7_9,
+    requirement7_10,
+]
