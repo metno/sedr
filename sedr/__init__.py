@@ -34,7 +34,8 @@ def main() -> None:
     )
     if util.args.rodeo_profile_core:
         util.logger.info(
-            "Including tests for Rodeo profile core %s", rodeoprofilecore.conformance_url
+            "Including tests for Rodeo profile core %s",
+            rodeoprofilecore.conformance_url,
         )
         util.test_functions["landing"] += rodeoprofilecore.tests_landing
         util.test_functions["conformance"] += rodeoprofilecore.tests_conformance
@@ -42,9 +43,12 @@ def main() -> None:
 
     if util.args.rodeo_profile_insitu_observations:
         util.logger.info(
-            "Including tests for Rodeo profile insitu observations %s", rodeoprofileinsituobservations.conformance_url
+            "Including tests for Rodeo profile insitu observations %s",
+            rodeoprofileinsituobservations.conformance_url,
         )
-        util.test_functions["collection"] += rodeoprofileinsituobservations.tests_collection
+        util.test_functions["collection"] += (
+            rodeoprofileinsituobservations.tests_collection
+        )
 
     # TODO: include profile tests based on conformance_url, https://github.com/metno/sedr/issues/32
     # if rodeoprofile.conformance_url in conformance_json["conformsTo"]:

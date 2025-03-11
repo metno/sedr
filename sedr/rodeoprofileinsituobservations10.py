@@ -4,13 +4,15 @@ __author__ = "MET Norway"
 __license__ = "GPL-2.0"
 
 import json
-import requests
 import util
 
-conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/insitu-observations"
+conformance_url = (
+    "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/insitu-observations"
+)
 spec_base_url = (
     "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
 )
+
 
 def requirement8_2(jsondata: dict) -> tuple[bool, str]:
     """
@@ -38,10 +40,11 @@ def requirement8_2(jsondata: dict) -> tuple[bool, str]:
             f"Collection must have a data_queries object. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
-        
+
     return (
         True,
         "Collection data queries OK. ",
     )
 
-tests_collection = [requirement8_2] 
+
+tests_collection = [requirement8_2]

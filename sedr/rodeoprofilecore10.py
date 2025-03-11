@@ -112,7 +112,7 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     if not response.status_code < 400:
         return (
             False,
-            f"OpenAPI link service-desc <{link["href"]}> doesn't respond properly. "
+            f"OpenAPI link service-desc <{link['href']}> doesn't respond properly. "
             f"Status code: {response.status_code}. See <{spec_url}> for more info.",
         )
 

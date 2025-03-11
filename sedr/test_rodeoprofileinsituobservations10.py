@@ -18,9 +18,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
 
     def test_requirement8_2(self):
         # Bad tests
-        with open(
-            "testdata/edrisobaric_collection.json", "r", encoding="utf-8"
-        ) as f:
+        with open("testdata/edrisobaric_collection.json", "r", encoding="utf-8") as f:
             collection_json = json.load(f)
         ok, _ = profileinsitu.requirement8_2(collection_json)
         self.assertFalse(ok)

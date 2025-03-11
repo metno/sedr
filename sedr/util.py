@@ -183,5 +183,5 @@ def parse_collection_url(jsondata: dict) -> str:
 def parse_spatial_bbox(jsondata: dict) -> list:
     try:
         return jsondata["extent"]["spatial"]["bbox"]
-    except (AttributeError, KeyError) as err:
+    except (AttributeError, KeyError):
         return []

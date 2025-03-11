@@ -6,7 +6,7 @@ import sys
 import json
 import schemathesis
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
-from hypothesis import settings, assume
+from hypothesis import settings
 import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
@@ -105,9 +105,9 @@ def test_edr_collections(case):
     response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
 
-    assert (
-        "collections" in json.loads(response.text)
-    ), f"/collections does not contain a collections attribute. See {spec_ref} for more info."
+    assert "collections" in json.loads(response.text), (
+        f"/collections does not contain a collections attribute. See {spec_ref} for more info."
+    )
 
     for collection_json in json.loads(response.text)["collections"]:
         # Use url as key for extents. Remove trailing slash from url.
