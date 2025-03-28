@@ -1,4 +1,4 @@
-"""rodeo-edr-profile core requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
+"""rodeo-edr-profile core requirements. See <https://github.com/EUMETNET/rodeo-edr-profile/>."""
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
@@ -7,6 +7,7 @@ import json
 import requests
 import util
 
+# These links aren't active yet. See link at start of this file for now.
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
 spec_base_url = (
     "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
@@ -354,39 +355,39 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
 
     # A not tested
     try:
-        for p in jsondata["parameter_names"]:
+        for param, items in jsondata["parameter_names"].items():
             # B
-            if not all(key in p for key in ["label", "description", "unit"]):
+            if not all(key in items for key in ["label", "description", "unit"]):
                 return (
                     False,
-                    "Each parameter in parameter_names SHALL include keys 'label', 'description' and 'unit'.",
+                    f"Each parameter in parameter_names SHALL include keys 'label', 'description' and 'unit'. Error testing <{param}>.",
                 )
             # C
-            if p["label"].length > 50:
+            if len(items["label"]) > 50:
                 return (
                     False,
                     "Value for 'label' for an object in 'parameter_names' SHALL not exceed 50 characters.",
                 )
 
-            # D no tested
+            # D not tested
 
             # E
-            if not p["unit"]["symbol"]["type"].startsWith(
+            if not items["unit"]["symbol"]["type"].startswith(
                 "https://qudt.org/vocab/unit/"
             ):
                 return (
                     False,
                     "Value of unit.symbol.type SHALL be on the format 'https://qudt.org/vocab/unit/<unit>'. "
-                    "Unit.symbol.value SHALL be set to the value of 'qudt:symbol'.",
+                    f"Unit.symbol.value SHALL be set to the value of 'qudt:symbol'. Error testing <{param}>.",
                 )
             # F
-            if util.args.strict and not p["observedProperty"]["id"].startswith(
+            if util.args.strict and not items["observedProperty"]["id"].startswith(
                 "https://vocab.nerc.ac.uk/standard_name/"
             ):
                 return (
                     False,
                     "Value of observedProperty SHALL be on the format 'https://vocab.nerc.ac.uk/standard_name/<name>' "
-                    "if a suitable CF-convention value exists.",
+                    f"if a suitable CF-convention value exists. Error testing <{param}>.",
                 )
     except (json.JSONDecodeError, KeyError) as error:
         return (
