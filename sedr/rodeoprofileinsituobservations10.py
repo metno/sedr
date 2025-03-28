@@ -59,7 +59,12 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
         for p in jsondata["parameter_names"]:
             # A, B, C
             if not all(
-                key in p for key in ["metocean:standard_name", "metocean:level", "measurementType"]
+                key in p
+                for key in [
+                    "metocean:standard_name",
+                    "metocean:level",
+                    "measurementType",
+                ]
             ):
                 return (
                     False,
@@ -115,9 +120,9 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         # A, C
         if not any(
             custom_dim["id"] == "standard_names"
-                and custom_dim["reference"].startsWith(
+            and custom_dim["reference"].startsWith(
                 "https://vocab.nerc.ac.uk/standard_name"
-                )
+            )
             for custom_dim in jsondata["extent"]["custom"]
         ):
             return (
@@ -130,7 +135,8 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         # D
         if not any(
             custom_dim["id"] == "levels"
-                and custom_dim["reference"] == "Height of measurement above ground level in meters"
+            and custom_dim["reference"]
+            == "Height of measurement above ground level in meters"
             for custom_dim in jsondata["extent"]["custom"]
         ):
             return (
