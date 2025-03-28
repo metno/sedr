@@ -59,9 +59,7 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
 
     for url in jsondata["conformsTo"]:
         if url in openapi_conformance_urls:
-            if (
-                "oas31" in url or "oas30" in url  # TODO: oas30 should be removed
-            ):
+            if "oas31" in url or "oas30" in url:  # TODO: oas30 should be removed
                 return True, f"Found openapi class <{url}>. "
             return (
                 False,
