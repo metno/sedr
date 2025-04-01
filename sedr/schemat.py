@@ -94,7 +94,7 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
 
 @schema.include(
     path_regex="^" + os.path.join(util.args.base_path, "collections$")
-).parametrize()
+).include(method="GET").parametrize()
 @settings(max_examples=util.args.iterations, deadline=None)
 def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
@@ -143,7 +143,7 @@ for p in schema.raw_schema["paths"].keys():
     # Include position_extent test
     if p.endswith("/position"):
 
-        @schema.include(path_regex="/position$").parametrize()
+        @schema.include(path_regex="/position$").include(method="GET").parametrize()
         @settings(max_examples=util.args.iterations, deadline=None)
         def test_edr_position_extent(case):
             """The default test in function test_openapi will fuzz the coordinates.
