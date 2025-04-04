@@ -102,7 +102,7 @@ def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
-    global collection_ids, extents  # noqa: pylint: disable=global-variable-not-assigned
+    global collection_ids, extents  # NOQA
 
     response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
