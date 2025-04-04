@@ -10,7 +10,7 @@ import util
 # These links aren't active yet. See link at start of this file for now.
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
 spec_base_url = (
-    "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
+    "https://eumetnet.github.io/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
 )
 
 

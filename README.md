@@ -56,7 +56,7 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - Assuming Openapi 3.1
 - Assuming OGC EDR API version 1.2 (draft)
 - Few, basic tests for now
-- Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EURODEO/rodeo-edr-profile> than the full EDR spec.
+- Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EUMETNET/rodeo-edr-profile> than the full EDR spec.
 
 ### Testing the sedr code to look for regressions
 
