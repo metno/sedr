@@ -11,6 +11,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
+from urllib.parse import urljoin
 
 import util
 import edreq12 as edreq
@@ -24,6 +25,7 @@ __license__ = "GPL-2.0"
 schema = None
 extents = {}
 collection_ids = {}
+collections = []
 
 
 def set_up_schemathesis(args) -> BaseOpenAPISchema:
@@ -102,7 +104,7 @@ def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
-    global collection_ids, extents  # noqa: pylint: disable=global-variable-not-assigned
+    global collection_ids, extents, collections  # noqa: pylint: disable=global-variable-not-assigned
 
     response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
@@ -134,6 +136,11 @@ def test_edr_collections(case):
 
         # Validation of spatial_bbox done above
         extent = util.parse_spatial_bbox(collection_json)
+        collections.append({
+            "doc": collection_json,
+            "extent": extent
+        })
+
         extents[collection_url] = tuple(extent[0])
 
 
@@ -158,7 +165,10 @@ for p in schema.raw_schema["paths"].keys():
             response = case.call()
             point = None
             try:
-                point = wkt_loads(case.query["coords"])
+                pytest.fail(
+                    f"Expected good coords; got {case.query["coords"]}"
+                )
+                #point = wkt_loads(case.query["coords"])
             except shapely.errors.GEOSException:
                 return  # Invalid points are already tested by test_api, so not testing here
 
@@ -200,3 +210,52 @@ for p in schema.raw_schema["paths"].keys():
                     pytest.fail(
                         f"Expected status code 422 but got {response.status_code}"
                     )
+    
+def test_data_query_response():
+    global collections  # noqa: pylint: disable=global-variable-not-assigned
+
+    for collection in collections:
+        doc = ollection["doc"]
+        base_url = collection_url(doc["links"])
+
+        url = ""
+        for query_type in doc["data_queries"]:
+            match query_type:
+                case "position":
+                    url = position_query_url(collection_url, collection["extent"], doc["data_queries"]["position"])
+            match query_type:
+                case "radius":
+                    url = radius_query_url(collection_url, collection["extent"], doc["data_queries"]["position"])
+
+            response = requests.get(url)
+            if response.status_code != 200:
+                pytest.fail(
+                    f"Expected status code 200 for query {url} but got {response.status_code}"
+                )
+
+            for test_func in util.test_functions["data_query_response"]:
+                status, msg = test_func(jsondata=collection_json)
+                if not status:
+                    util.logger.error(
+                        "Test %s failed with message: %s", test_func.__name__, msg
+                    )
+                    raise AssertionError(
+                        f"Test {test_func.__name__} failed with message: {msg}"
+                    )
+                util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+
+
+def position_query_url(base_url, extent, data_query_json):
+    long = 10
+    lat = 60
+    url = urljoin(base_url,"position") + f"coords=POINT({long} {lat})"
+    return url
+
+def collection_url(links):
+    collection_link = next((x for x in links if x["rel"] == "data"), None)
+    
+    if collection_link is None:
+        pytest.fail(f"Expected link with rel=self to be present: {links}")
+
+    return collection_link["href"]
