@@ -223,9 +223,10 @@ def test_data_query_response():
             match query_type:
                 case "position":
                     url = position_query_url(base_url, extent, collection_json["data_queries"]["position"])
-            match query_type:
                 case "radius":
                     url = radius_query_url(base_url, extent, collection_json["data_queries"]["radius"])
+                case "area":
+                    url = area_query_url(base_url, extent, collection_json["data_queries"]["area"])
 
             response = requests.get(url)
             if response.status_code != 200:
@@ -250,9 +251,7 @@ def position_query_url(base_url, extent, data_query_json):
     long = (extent[2] - extent[0])/2 + extent[0]
     lat = (extent[3] - extent[1])/2 + extent[1]
     
-    url = urljoin(base_url,"position") + f"?coords=POINT({long} {lat})"
-
-    return url
+    return urljoin(base_url,"position") + f"?coords=POINT({long} {lat})"
 
 def radius_query_url(base_url, extent, data_query_json):
     long = (extent[2] - extent[0])/2 + extent[0]
@@ -263,9 +262,24 @@ def radius_query_url(base_url, extent, data_query_json):
         'within': "1000",
         'within_units': 'm',
     }
-    url = urljoin(base_url, "position") + "?" + urlencode(query_params)
+    
+    return urljoin(base_url, "position") + "?" + urlencode(query_params)
 
-    return url
+def area_query_url(base_url, extent):
+    polygon = ""
+    points = 4
+
+    long_step = (extent[2] - extent[0]) / (points + 1)
+    lat_step = (extent[3] - extent[1]) / (points + 1)
+    for point in range(points):
+        long = extent[0] + long_step*point
+        lat += extent[1] + lat_step*point
+
+        polygon += f"{long} {lat}"
+        if point != points:
+            polygon += ","
+    
+    return urljoin(base_url, "area") + "?" + "coords=POLYGON(f{polygon})"
 
 def collection_url(links):
     collection_link = next((x for x in links if x["rel"] == "data"), None)
