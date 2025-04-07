@@ -162,10 +162,8 @@ for p in schema.raw_schema["paths"].keys():
             response = case.call()
             point = None
             try:
-                pytest.fail(
-                    f"Expected good coords; got {case.query["coords"]}"
-                )
-                #point = wkt_loads(case.query["coords"])
+                pytest.fail(f"Expected good coords; got {case.query['coords']}")
+                # point = wkt_loads(case.query["coords"])
             except shapely.errors.GEOSException:
                 return  # Invalid points are already tested by test_api, so not testing here
 
@@ -207,7 +205,8 @@ for p in schema.raw_schema["paths"].keys():
                     pytest.fail(
                         f"Expected status code 422 but got {response.status_code}"
                     )
-    
+
+
 def test_data_query_response():
     """Perform one data query request per data_queries type specified in each collection.
     Check that you get a valid response.
@@ -222,11 +221,17 @@ def test_data_query_response():
         for query_type in collection_json["data_queries"]:
             match query_type:
                 case "position":
-                    url = position_query_url(base_url, extent, collection_json["data_queries"]["position"])
+                    url = position_query_url(
+                        base_url, extent, collection_json["data_queries"]["position"]
+                    )
                 case "radius":
-                    url = radius_query_url(base_url, extent, collection_json["data_queries"]["radius"])
+                    url = radius_query_url(
+                        base_url, extent, collection_json["data_queries"]["radius"]
+                    )
                 case "area":
-                    url = area_query_url(base_url, extent, collection_json["data_queries"]["area"])
+                    url = area_query_url(
+                        base_url, extent, collection_json["data_queries"]["area"]
+                    )
 
             response = requests.get(url)
             if response.status_code != 200:
@@ -246,24 +251,25 @@ def test_data_query_response():
                 util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
 
-
 def position_query_url(base_url, extent, data_query_json):
-    long = (extent[2] - extent[0])/2 + extent[0]
-    lat = (extent[3] - extent[1])/2 + extent[1]
-    
-    return urljoin(base_url,"position") + f"?coords=POINT({long} {lat})"
+    long = (extent[2] - extent[0]) / 2 + extent[0]
+    lat = (extent[3] - extent[1]) / 2 + extent[1]
+
+    return urljoin(base_url, "position") + f"?coords=POINT({long} {lat})"
+
 
 def radius_query_url(base_url, extent, data_query_json):
-    long = (extent[2] - extent[0])/2 + extent[0]
-    lat = (extent[3] - extent[1])/2 + extent[1]
+    long = (extent[2] - extent[0]) / 2 + extent[0]
+    lat = (extent[3] - extent[1]) / 2 + extent[1]
 
     query_params = {
-        'coords': f"POINT({long} {lat})",
-        'within': "1000",
-        'within_units': 'm',
+        "coords": f"POINT({long} {lat})",
+        "within": "1000",
+        "within_units": "m",
     }
-    
+
     return urljoin(base_url, "position") + "?" + urlencode(query_params)
+
 
 def area_query_url(base_url, extent):
     polygon = ""
@@ -272,18 +278,19 @@ def area_query_url(base_url, extent):
     long_step = (extent[2] - extent[0]) / (points + 1)
     lat_step = (extent[3] - extent[1]) / (points + 1)
     for point in range(points):
-        long = extent[0] + long_step*point
-        lat += extent[1] + lat_step*point
+        long = extent[0] + long_step * point
+        lat += extent[1] + lat_step * point
 
         polygon += f"{long} {lat}"
         if point != points:
             polygon += ","
-    
+
     return urljoin(base_url, "area") + "?" + "coords=POLYGON(f{polygon})"
+
 
 def collection_url(links):
     collection_link = next((x for x in links if x["rel"] == "data"), None)
-    
+
     if collection_link is None:
         pytest.fail(f"Expected link with rel=self to be present: {links}")
 
