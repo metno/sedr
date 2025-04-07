@@ -32,6 +32,8 @@ def main() -> None:
     util.test_functions["collection"] += (
         edreq.tests_collection + ogcapi.tests_collections
     )
+    util.test_functions["data_query_response"] = []
+
     if util.args.rodeo_profile_core:
         util.logger.info(
             "Including tests for Rodeo profile core %s",

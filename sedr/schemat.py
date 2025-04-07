@@ -11,7 +11,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
 import util
 import edreq12 as edreq
@@ -136,10 +136,7 @@ def test_edr_collections(case):
 
         # Validation of spatial_bbox done above
         extent = util.parse_spatial_bbox(collection_json)
-        collections.append({
-            "doc": collection_json,
-            "extent": extent
-        })
+        collections.append(collection_json)
 
         extents[collection_url] = tuple(extent[0])
 
@@ -212,25 +209,28 @@ for p in schema.raw_schema["paths"].keys():
                     )
     
 def test_data_query_response():
+    """Perform one data query request per data_queries type specified in each collection.
+    Check that you get a valid response.
+    """
     global collections  # noqa: pylint: disable=global-variable-not-assigned
 
-    for collection in collections:
-        doc = ollection["doc"]
-        base_url = collection_url(doc["links"])
+    for collection_json in collections:
+        extent = util.parse_spatial_bbox(collection_json)[0]
+        base_url = collection_url(collection_json["links"])
 
         url = ""
-        for query_type in doc["data_queries"]:
+        for query_type in collection_json["data_queries"]:
             match query_type:
                 case "position":
-                    url = position_query_url(collection_url, collection["extent"], doc["data_queries"]["position"])
+                    url = position_query_url(base_url, extent, collection_json["data_queries"]["position"])
             match query_type:
                 case "radius":
-                    url = radius_query_url(collection_url, collection["extent"], doc["data_queries"]["position"])
+                    url = radius_query_url(base_url, extent, collection_json["data_queries"]["radius"])
 
             response = requests.get(url)
             if response.status_code != 200:
                 pytest.fail(
-                    f"Expected status code 200 for query {url} but got {response.status_code}"
+                    f"Expected status code 200 for query {url}; Got {response.status_code}"
                 )
 
             for test_func in util.test_functions["data_query_response"]:
@@ -247,9 +247,24 @@ def test_data_query_response():
 
 
 def position_query_url(base_url, extent, data_query_json):
-    long = 10
-    lat = 60
-    url = urljoin(base_url,"position") + f"coords=POINT({long} {lat})"
+    long = (extent[2] - extent[0])/2 + extent[0]
+    lat = (extent[3] - extent[1])/2 + extent[1]
+    
+    url = urljoin(base_url,"position") + f"?coords=POINT({long} {lat})"
+
+    return url
+
+def radius_query_url(base_url, extent, data_query_json):
+    long = (extent[2] - extent[0])/2 + extent[0]
+    lat = (extent[3] - extent[1])/2 + extent[1]
+
+    query_params = {
+        'coords': f"POINT({long} {lat})",
+        'within': "1000",
+        'within_units': 'm',
+    }
+    url = urljoin(base_url, "position") + "?" + urlencode(query_params)
+
     return url
 
 def collection_url(links):
