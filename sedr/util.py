@@ -109,7 +109,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(logging.Formatter(FORMAT, datefmt="[%X]"))
         logger.addHandler(fh)
-        logger.debug(  # noqa: pylint: disable=logging-not-lazy
+        logger.debug(  # pylint:disable=logging-fstring-interpolation,logging-not-lazy
             f"SEDR version {version} on python {sys.version}, schemathesis "
             f"{schemathesis.__version__} \nTesting url <{args.url}>, openapi "
             f"url <{args.openapi}>, openapi-version {args.openapi_version}.\n"

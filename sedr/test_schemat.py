@@ -15,12 +15,12 @@ class TestInit(unittest.TestCase):
         util.args = util.parse_args(
             ["--url", "https://edrisobaric.k8s.met.no/"], __version__
         )
-        util.args.openapi_version == "3.1"
+        util.args.openapi_version == "3.1"  # pylint:disable=pointless-statement
 
         util.logger = util.set_up_logging(
             args=util.args, logfile=util.args.log_file, version=__version__
         )
-        import schemat
+        import schemat  # pylint:disable=import-outside-toplevel
 
         schemat.schema = schemat.set_up_schemathesis(util.args)
         self.assertTrue(schemat.schema)
