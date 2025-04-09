@@ -16,6 +16,7 @@ from urllib.parse import urljoin, urlencode
 import util
 import edreq12 as edreq
 
+import data_queries as dq
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
@@ -23,8 +24,6 @@ __license__ = "GPL-2.0"
 
 # Globals
 schema = None
-extents = {}
-collection_ids = {}
 collections = []
 
 
@@ -104,7 +103,7 @@ def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
-    global collection_ids, extents, collections  # NOQA
+    global collections  # NOQA
 
     response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
@@ -116,11 +115,6 @@ def test_edr_collections(case):
     for collection_json in json.loads(response.text)["collections"]:
         # Use url as key for extents. Remove trailing slash from url.
         collection_url = util.parse_collection_url(collection_json)
-
-        collection_ids[collection_url] = collection_json["id"]
-        util.logger.debug(
-            "test_collections found collection id %s", collection_json["id"]
-        )
 
         # Run edr, ogc, profile tests
         for test_func in util.test_functions["collection"]:
@@ -134,82 +128,13 @@ def test_edr_collections(case):
                 )
             util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
-        # Validation of spatial_bbox done above
-        extent = util.parse_spatial_bbox(collection_json)
         collections.append(collection_json)
-
-        extents[collection_url] = tuple(extent[0])
-
-
-for p in schema.raw_schema["paths"].keys():
-    # Optionally include endpoints if they exist, otherwise schemathesis will refuse to run
-    # TODO: can perhaps be replaced with a filter?
-    # https://schemathesis.readthedocs.io/en/stable/extending.html#filtering-api-operations
-
-    # Include position_extent test
-    if p.endswith("/position"):
-
-        @schema.include(path_regex="/position$").include(method="GET").parametrize()
-        @settings(max_examples=util.args.iterations, deadline=None)
-        def test_edr_position_extent(case):
-            """The default test in function test_openapi will fuzz the coordinates.
-
-            This function will test response given by coords inside and outside of the extent.
-
-            TODO: perhaps this can rather be done with a map hook?
-            https://schemathesis.readthedocs.io/en/stable/extending.html#modifying-data
-            """
-            response = case.call()
-            point = None
-            try:
-                pytest.fail(f"Expected good coords; got {case.query['coords']}")
-                # point = wkt_loads(case.query["coords"])
-            except shapely.errors.GEOSException:
-                return  # Invalid points are already tested by test_api, so not testing here
-
-            extent_path = case.base_url + str(case.path).removesuffix("/position")
-            extent_coords = extents[extent_path]
-            extent = shapely.geometry.Polygon(
-                [
-                    (extent_coords[0], extent_coords[1]),
-                    (extent_coords[0], extent_coords[3]),
-                    (extent_coords[2], extent_coords[3]),
-                    (extent_coords[2], extent_coords[1]),
-                ]
-            )
-
-            schema[case.path][case.method].validate_response(response)
-
-            # TODO: not sure if assume, pytest.fail or some other option is best when detecting errors
-            if extent.contains(point):
-                util.logger.debug(
-                    "test_positions Testing value INSIDE of extent, %s",
-                    case.query["coords"],
-                )
-                if response.status_code != 200:
-                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                    #     f"Expected status code 200 but got {response.status_code}"
-                    # )
-                    pytest.fail(
-                        f"Expected status code 200 but got {response.status_code}"
-                    )
-            else:
-                util.logger.debug(
-                    "test_positions Testing value OUTSIDE of extent, %s",
-                    case.query["coords"],
-                )
-                if response.status_code != 422:
-                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                    #     f"Expected status code 422 but got {response.status_code}"
-                    # )
-                    pytest.fail(
-                        f"Expected status code 422 but got {response.status_code}"
-                    )
 
 
 def test_data_query_response():
-    """Perform one data query request per data_queries type specified in each collection.
-    Check that you get a valid response.
+    """Test that data queries work as expected and that the response is correct.
+    For each data query type in each collection, perform one query inside spatial extent
+    and one query outside spatial extent.
     """
     global collections  # noqa: pylint: disable=global-variable-not-assigned
 
@@ -217,30 +142,46 @@ def test_data_query_response():
         extent = util.parse_spatial_bbox(collection_json)[0]
         base_url = collection_url(collection_json["links"])
 
-        url = ""
-        for query_type in collection_json["data_queries"]:
+        for query_type, query_metadata in collection_json["data_queries"].items():
+            queries = None
             match query_type:
                 case "position":
-                    url = position_query_url(
-                        base_url, extent, collection_json["data_queries"]["position"]
+                    queries = dq.position_queries(
+                        base_url, extent, query_metadata
                     )
                 case "radius":
-                    url = radius_query_url(
-                        base_url, extent, collection_json["data_queries"]["radius"]
+                    queries = dq.radius_queries(
+                        base_url, extent, query_metadata
                     )
                 case "area":
-                    url = area_query_url(
-                        base_url, extent, collection_json["data_queries"]["area"]
+                    queries = dq.area_queries(
+                        base_url, extent, query_metadata
+                    )
+                case "trajectory":
+                    queries = dq.trajectory_queries(
+                        base_url, extent, query_metadata
                     )
 
-            response = requests.get(url)
+            if queries is None:
+                pytest.fail(
+                    f"Unknown data query type {query_type} in collection {collection_json['id']}"
+                )
+
+            if queries.outside != "":
+                response = requests.get(queries.outside)
+                if response.status_code < 400 or response.status_code >= 500:
+                    pytest.fail(
+                        f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
+                    )
+
+            response = requests.get(queries.inside)
             if response.status_code != 200:
                 pytest.fail(
-                    f"Expected status code 200 for query {url}; Got {response.status_code}"
+                    f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
                 )
 
             for test_func in util.test_functions["data_query_response"]:
-                status, msg = test_func(jsondata=collection_json)
+                status, msg = test_func(jsondata=response.json())
                 if not status:
                     util.logger.error(
                         "Test %s failed with message: %s", test_func.__name__, msg
@@ -251,47 +192,14 @@ def test_data_query_response():
                 util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
 
-def position_query_url(base_url, extent, data_query_json):
-    long = (extent[2] - extent[0]) / 2 + extent[0]
-    lat = (extent[3] - extent[1]) / 2 + extent[1]
-
-    return urljoin(base_url, "position") + f"?coords=POINT({long} {lat})"
-
-
-def radius_query_url(base_url, extent, data_query_json):
-    long = (extent[2] - extent[0]) / 2 + extent[0]
-    lat = (extent[3] - extent[1]) / 2 + extent[1]
-
-    query_params = {
-        "coords": f"POINT({long} {lat})",
-        "within": "1000",
-        "within_units": "m",
-    }
-
-    return urljoin(base_url, "position") + "?" + urlencode(query_params)
-
-
-def area_query_url(base_url, extent):
-    polygon = ""
-    points = 4
-
-    long_step = (extent[2] - extent[0]) / (points + 1)
-    lat_step = (extent[3] - extent[1]) / (points + 1)
-    for point in range(points):
-        long = extent[0] + long_step * point
-        lat += extent[1] + lat_step * point
-
-        polygon += f"{long} {lat}"
-        if point != points:
-            polygon += ","
-
-    return urljoin(base_url, "area") + "?" + "coords=POLYGON(f{polygon})"
-
-
 def collection_url(links):
     collection_link = next((x for x in links if x["rel"] == "data"), None)
 
     if collection_link is None:
         pytest.fail(f"Expected link with rel=self to be present: {links}")
 
-    return collection_link["href"]
+    url = collection_link["href"]
+    if str.endswith("/", url):
+        return url
+
+    return url +  "/"
