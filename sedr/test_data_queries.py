@@ -36,7 +36,7 @@ class TestDataQueries(unittest.TestCase):
                     )
                 ]
             )
-            == 4, 
+            == 4,
             f"Expected 10 points; Got {len(points)}",
         )
 
