@@ -142,25 +142,17 @@ def test_data_query_response():
         extent = util.parse_spatial_bbox(collection_json)[0]
         base_url = collection_url(collection_json["links"])
 
-        for query_type, query_metadata in collection_json["data_queries"].items():
+        for query_type in collection_json["data_queries"]:
             queries = None
             match query_type:
                 case "position":
-                    queries = dq.position_queries(
-                        base_url, extent, query_metadata
-                    )
+                    queries = dq.position_queries(base_url, extent)
                 case "radius":
-                    queries = dq.radius_queries(
-                        base_url, extent, query_metadata
-                    )
+                    queries = dq.radius_queries(base_url, extent)
                 case "area":
-                    queries = dq.area_queries(
-                        base_url, extent, query_metadata
-                    )
+                    queries = dq.area_queries(base_url, extent)
                 case "trajectory":
-                    queries = dq.trajectory_queries(
-                        base_url, extent, query_metadata
-                    )
+                    queries = dq.trajectory_queries(base_url, extent)
 
             if queries is None:
                 pytest.fail(
@@ -202,4 +194,4 @@ def collection_url(links):
     if str.endswith("/", url):
         return url
 
-    return url +  "/"
+    return url + "/"
