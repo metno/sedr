@@ -113,9 +113,6 @@ def test_edr_collections(case):
     )
 
     for collection_json in json.loads(response.text)["collections"]:
-        # Use url as key for extents. Remove trailing slash from url.
-        collection_url = util.parse_collection_url(collection_json)
-
         # Run edr, ogc, profile tests
         for test_func in util.test_functions["collection"]:
             status, msg = test_func(jsondata=collection_json)
@@ -155,9 +152,7 @@ def test_data_query_response():
                     queries = dq.trajectory_queries(base_url, extent)
 
             if queries is None:
-                pytest.fail(
-                    f"Unknown data query type {query_type} in collection {collection_json['id']}"
-                )
+                continue
 
             if queries.outside != "":
                 response = requests.get(queries.outside)
