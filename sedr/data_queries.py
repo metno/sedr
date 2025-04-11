@@ -1,4 +1,3 @@
-
 from collections import namedtuple
 from urllib.parse import urljoin, urlencode
 

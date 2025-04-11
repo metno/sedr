@@ -154,14 +154,18 @@ def test_data_query_response():
             if queries is None:
                 continue
 
-            if queries.outside != "":
-                response = requests.get(queries.outside)
-                if response.status_code < 400 or response.status_code >= 500:
-                    pytest.fail(
-                        f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
-                    )
+            try:
+                if queries.outside != "":
+                    response = requests.get(queries.outside)
+                    if response.status_code < 400 or response.status_code >= 500:
+                        pytest.fail(
+                            f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
+                        )
 
-            response = requests.get(queries.inside)
+                response = requests.get(queries.inside)
+            except requests.exceptions.RequestException as err:
+                pytest.fail(f"Request for {err.request.url} failed: {err}")
+
             if response.status_code != 200:
                 pytest.fail(
                     f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
