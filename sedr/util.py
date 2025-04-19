@@ -78,8 +78,10 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
     )
 
     args = parser.parse_args(args)
-    # Parse out base_path for convenience
-    args.base_path = urlsplit(args.url).path or "/"
+    # Set base_path and base_url for convenience. Ensure they end with /.
+    # Use these to build URLs for requests.
+    args.base_path = urlsplit(args.url).path.rstrip("/") + "/"
+    args.base_url = args.url.rstrip("/") + "/"
     return args
 
 

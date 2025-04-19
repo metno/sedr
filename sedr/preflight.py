@@ -65,7 +65,7 @@ def main():
 
     # Get conformance
     conformance_is_reachable, conformance_json = fetch_conformance(
-        util.args.url, util.args.timeout
+        util.args.base_url, util.args.timeout
     )
     if not conformance_is_reachable:
         return False

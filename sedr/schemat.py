@@ -1,7 +1,6 @@
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
 
-import os
 import sys
 import json
 import schemathesis
@@ -11,6 +10,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
+from urllib.parse import urljoin
 
 import util
 import edreq12 as edreq
@@ -93,7 +93,7 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
 
 
 @(
-    schema.include(path_regex="^" + os.path.join(util.args.base_path, "collections$"))
+    schema.include(path_regex="^" + urljoin(util.args.base_path, "collections$"))
     .include(method="GET")
     .parametrize()
 )
