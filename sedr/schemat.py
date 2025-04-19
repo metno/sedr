@@ -44,14 +44,14 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
 
     if args.openapi.startswith("http"):
         util.logger.info(
-            "Testing site %s using OpenAPI spec <%s>", args.url, args.openapi
+            "Testing site %s using OpenAPI spec <%s>", args.base_url, args.openapi
         )
-        return schemathesis.from_uri(uri=args.openapi, base_url=args.url)
+        return schemathesis.from_uri(uri=args.openapi, base_url=args.base_url)
 
     util.logger.info(
-        "Testing site %s using local OpenAPI spec at path <%s>", args.url, args.openapi
+        "Testing site %s using local OpenAPI spec at path <%s>", args.base_url, args.openapi
     )
-    return schemathesis.from_path(path=util.args.openapi, base_url=args.url)
+    return schemathesis.from_path(path=util.args.openapi, base_url=args.base_url)
 
 
 try:
