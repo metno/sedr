@@ -6,12 +6,11 @@ import json
 import schemathesis
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from hypothesis import settings
-import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
 from urllib.parse import urljoin
-
+import pytest
 import util
 import edreq12 as edreq
 
@@ -21,24 +20,21 @@ __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
 
 
-# Globals
-schema = None
-collections = []
-
-
-def set_up_schemathesis(args) -> BaseOpenAPISchema:
+def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
     """Set up schemathesis. file_path is only used for testing."""
     if args.openapi_version == "3.1":
         schemathesis.experimental.OPEN_API_3_1.enable()
 
-    if args.openapi == "":
-        # Attempt to find schema URL automatically
-        args.openapi = util.locate_openapi_url(args.url, timeout=util.args.timeout)
-        if len(args.openapi) == 0:
-            raise AssertionError(
-                "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
-            )
-        util.logger.info("Found openapi spec: %s", util.args.openapi)
+    # Attempt to find schema URL automatically
+    args.openapi = next(
+        (link["href"] for link in landing_page_links if link["rel"] == "service-desc"),
+        "",
+    )
+    if len(args.openapi) == 0:
+        raise AssertionError(
+            "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
+        )
+    util.logger.info("Found openapi spec: %s", util.args.openapi)
 
     util.logger.info("Using EDR version %s", edreq.edr_version)
 
@@ -56,11 +52,30 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
     return schemathesis.from_path(path=util.args.openapi, base_url=args.base_url)
 
 
-try:
-    schema = set_up_schemathesis(util.args)
-except requests.exceptions.ConnectionError:
-    msg = f"Unable to connect to site <{util.args.url}>"
-    pytest.fail(msg)
+def set_up_collections(landing_page_links: list) -> list:
+    """Get list of collections from /collections endpoint."""
+    collections_url = next(
+        (link.get("href") for link in landing_page_links if link.get("rel") == "data"),
+        None,
+    )
+    if not collections_url:
+        raise AssertionError(
+            f"Unable to find collections URL for API in {landing_page_links}"
+        )
+    try:
+        response = requests.get(collections_url)
+        response.raise_for_status()
+        return response.json().get("collections", [])
+    except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
+        util.logger.error("Error fetching collections <%s>:\n%s", collections_url, err)
+        return []
+
+
+landing_page_links = util.fetch_landing_page_links(util.args.url)
+
+# Global variables
+schema = set_up_schemathesis(util.args, landing_page_links)
+collections = set_up_collections(landing_page_links)
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
@@ -94,29 +109,74 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
         )
 
 
-@(
-    schema.include(path_regex="^" + urljoin(util.args.base_path, "collections$"))
-    .include(method="GET")
-    .parametrize()
-)
-@settings(max_examples=util.args.iterations, deadline=None)
-def test_edr_collections(case):
+@pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
+def test_edr_collections(id, collection):
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
-    global collections  # NOQA
 
-    response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
 
-    assert "collections" in json.loads(response.text), (
-        f"/collections does not contain a collections attribute. See {spec_ref} for more info."
-    )
+    # Run edr, ogc, profile tests
+    for test_func in util.test_functions["collection"]:
+        status, msg = test_func(jsondata=collection)
+        if not status:
+            util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
+            raise AssertionError(
+                f"Test {test_func.__name__} failed with message: {msg}"
+            )
+        util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
-    for collection_json in json.loads(response.text)["collections"]:
-        # Run edr, ogc, profile tests
-        for test_func in util.test_functions["collection"]:
-            status, msg = test_func(jsondata=collection_json)
+
+@pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
+def test_data_query_response(id, collection):
+    """Test that data queries work as expected and that the response is correct.
+    For each data query type in each collection, perform one query inside spatial extent
+    and one query outside spatial extent.
+    """
+
+    extent = util.parse_spatial_bbox(collection)[0]
+    if (
+        not isinstance(extent, list)
+        or len(extent) < 4
+        or not all(isinstance(coord, (int, float)) for coord in extent)
+    ):
+        pytest.fail(
+            f"Spatial extent bbox for collection {id} is not correctly formatted, so skipping this test."
+        )
+
+    base_url = collection_url(collection["links"])
+    for query_type in collection["data_queries"]:
+        queries = None
+        match query_type:
+            case "position":
+                queries = dq.position_queries(base_url, extent)
+            case "radius":
+                queries = dq.radius_queries(base_url, extent)
+            case "area":
+                queries = dq.area_queries(base_url, extent)
+            case "trajectory":
+                queries = dq.trajectory_queries(base_url, extent)
+        if queries is None:
+            continue
+        try:
+            if queries.outside != "":
+                response = requests.get(queries.outside)
+                if response.status_code < 400 or response.status_code >= 500:
+                    pytest.fail(
+                        f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
+                    )
+            response = requests.get(queries.inside)
+        except requests.exceptions.RequestException as err:
+            pytest.fail(f"Request for {err.request.url} failed: {err}")
+        if response.status_code != 200:
+            pytest.fail(
+                f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
+            )
+        for test_func in util.test_functions["data_query_response"]:
+            status, msg = test_func(jsondata=response.json())
             if not status:
                 util.logger.error(
                     "Test %s failed with message: %s", test_func.__name__, msg
@@ -125,63 +185,6 @@ def test_edr_collections(case):
                     f"Test {test_func.__name__} failed with message: {msg}"
                 )
             util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
-
-        collections.append(collection_json)
-
-
-def test_data_query_response():
-    """Test that data queries work as expected and that the response is correct.
-    For each data query type in each collection, perform one query inside spatial extent
-    and one query outside spatial extent.
-    """
-    global collections  # noqa: pylint: disable=global-variable-not-assigned
-
-    for collection_json in collections:
-        extent = util.parse_spatial_bbox(collection_json)[0]
-        base_url = collection_url(collection_json["links"])
-
-        for query_type in collection_json["data_queries"]:
-            queries = None
-            match query_type:
-                case "position":
-                    queries = dq.position_queries(base_url, extent)
-                case "radius":
-                    queries = dq.radius_queries(base_url, extent)
-                case "area":
-                    queries = dq.area_queries(base_url, extent)
-                case "trajectory":
-                    queries = dq.trajectory_queries(base_url, extent)
-
-            if queries is None:
-                continue
-
-            try:
-                if queries.outside != "":
-                    response = requests.get(queries.outside)
-                    if response.status_code < 400 or response.status_code >= 500:
-                        pytest.fail(
-                            f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
-                        )
-
-                response = requests.get(queries.inside)
-            except requests.exceptions.RequestException as err:
-                pytest.fail(f"Request for {err.request.url} failed: {err}")
-
-            if response.status_code != 200:
-                pytest.fail(
-                    f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
-                )
-
-            for test_func in util.test_functions["data_query_response"]:
-                status, msg = test_func(jsondata=response.json())
-                if not status:
-                    util.logger.error(
-                        "Test %s failed with message: %s", test_func.__name__, msg
-                    )
-                    raise AssertionError(
-                        f"Test {test_func.__name__} failed with message: {msg}"
-                    )
-                util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
 
 def collection_url(links):
