@@ -178,10 +178,6 @@ def build_conformance_url(url: str) -> str:
     return urljoin(url, "conformance")
 
 
-def parse_collection_url(jsondata: dict) -> str:
-    return jsondata["links"][0]["href"].rstrip("/")
-
-
 def parse_spatial_bbox(jsondata: dict) -> list:
     try:
         return jsondata["extent"]["spatial"]["bbox"]
