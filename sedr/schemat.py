@@ -1,7 +1,6 @@
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
 
-import os
 import sys
 import json
 import schemathesis
@@ -11,7 +10,7 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urljoin
 
 import util
 import edreq12 as edreq
@@ -45,14 +44,16 @@ def set_up_schemathesis(args) -> BaseOpenAPISchema:
 
     if args.openapi.startswith("http"):
         util.logger.info(
-            "Testing site %s using OpenAPI spec <%s>", args.url, args.openapi
+            "Testing site %s using OpenAPI spec <%s>", args.base_url, args.openapi
         )
-        return schemathesis.from_uri(uri=args.openapi, base_url=args.url)
+        return schemathesis.from_uri(uri=args.openapi, base_url=args.base_url)
 
     util.logger.info(
-        "Testing site %s using local OpenAPI spec at path <%s>", args.url, args.openapi
+        "Testing site %s using local OpenAPI spec at path <%s>",
+        args.base_url,
+        args.openapi,
     )
-    return schemathesis.from_path(path=util.args.openapi, base_url=args.url)
+    return schemathesis.from_path(path=util.args.openapi, base_url=args.base_url)
 
 
 try:
@@ -94,7 +95,7 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
 
 
 @(
-    schema.include(path_regex="^" + os.path.join(util.args.base_path, "collections$"))
+    schema.include(path_regex="^" + urljoin(util.args.base_path, "collections$"))
     .include(method="GET")
     .parametrize()
 )
