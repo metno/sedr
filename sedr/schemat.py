@@ -11,10 +11,12 @@ import shapely
 from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
+from urllib.parse import urljoin, urlencode
 
 import util
 import edreq12 as edreq
 
+import data_queries as dq
 
 __author__ = "Lars Falk-Petersen"
 __license__ = "GPL-2.0"
@@ -22,8 +24,7 @@ __license__ = "GPL-2.0"
 
 # Globals
 schema = None
-extents = {}
-collection_ids = {}
+collections = []
 
 
 def set_up_schemathesis(args) -> BaseOpenAPISchema:
@@ -102,7 +103,7 @@ def test_edr_collections(case):
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
-    global collection_ids, extents  # NOQA
+    global collections  # NOQA
 
     response = case.call()
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
@@ -112,14 +113,6 @@ def test_edr_collections(case):
     )
 
     for collection_json in json.loads(response.text)["collections"]:
-        # Use url as key for extents. Remove trailing slash from url.
-        collection_url = util.parse_collection_url(collection_json)
-
-        collection_ids[collection_url] = collection_json["id"]
-        util.logger.debug(
-            "test_collections found collection id %s", collection_json["id"]
-        )
-
         # Run edr, ogc, profile tests
         for test_func in util.test_functions["collection"]:
             status, msg = test_func(jsondata=collection_json)
@@ -132,71 +125,72 @@ def test_edr_collections(case):
                 )
             util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
-        # Validation of spatial_bbox done above
-        extent = util.parse_spatial_bbox(collection_json)
-        extents[collection_url] = tuple(extent[0])
+        collections.append(collection_json)
 
 
-for p in schema.raw_schema["paths"].keys():
-    # Optionally include endpoints if they exist, otherwise schemathesis will refuse to run
-    # TODO: can perhaps be replaced with a filter?
-    # https://schemathesis.readthedocs.io/en/stable/extending.html#filtering-api-operations
+def test_data_query_response():
+    """Test that data queries work as expected and that the response is correct.
+    For each data query type in each collection, perform one query inside spatial extent
+    and one query outside spatial extent.
+    """
+    global collections  # noqa: pylint: disable=global-variable-not-assigned
 
-    # Include position_extent test
-    if p.endswith("/position"):
+    for collection_json in collections:
+        extent = util.parse_spatial_bbox(collection_json)[0]
+        base_url = collection_url(collection_json["links"])
 
-        @schema.include(path_regex="/position$").include(method="GET").parametrize()
-        @settings(max_examples=util.args.iterations, deadline=None)
-        def test_edr_position_extent(case):
-            """The default test in function test_openapi will fuzz the coordinates.
+        for query_type in collection_json["data_queries"]:
+            queries = None
+            match query_type:
+                case "position":
+                    queries = dq.position_queries(base_url, extent)
+                case "radius":
+                    queries = dq.radius_queries(base_url, extent)
+                case "area":
+                    queries = dq.area_queries(base_url, extent)
+                case "trajectory":
+                    queries = dq.trajectory_queries(base_url, extent)
 
-            This function will test response given by coords inside and outside of the extent.
+            if queries is None:
+                continue
 
-            TODO: perhaps this can rather be done with a map hook?
-            https://schemathesis.readthedocs.io/en/stable/extending.html#modifying-data
-            """
-            response = case.call()
-            point = None
             try:
-                point = wkt_loads(case.query["coords"])
-            except shapely.errors.GEOSException:
-                return  # Invalid points are already tested by test_api, so not testing here
+                if queries.outside != "":
+                    response = requests.get(queries.outside)
+                    if response.status_code < 400 or response.status_code >= 500:
+                        pytest.fail(
+                            f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
+                        )
 
-            extent_path = case.base_url + str(case.path).removesuffix("/position")
-            extent_coords = extents[extent_path]
-            extent = shapely.geometry.Polygon(
-                [
-                    (extent_coords[0], extent_coords[1]),
-                    (extent_coords[0], extent_coords[3]),
-                    (extent_coords[2], extent_coords[3]),
-                    (extent_coords[2], extent_coords[1]),
-                ]
-            )
+                response = requests.get(queries.inside)
+            except requests.exceptions.RequestException as err:
+                pytest.fail(f"Request for {err.request.url} failed: {err}")
 
-            schema[case.path][case.method].validate_response(response)
-
-            # TODO: not sure if assume, pytest.fail or some other option is best when detecting errors
-            if extent.contains(point):
-                util.logger.debug(
-                    "test_positions Testing value INSIDE of extent, %s",
-                    case.query["coords"],
+            if response.status_code != 200:
+                pytest.fail(
+                    f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
                 )
-                if response.status_code != 200:
-                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                    #     f"Expected status code 200 but got {response.status_code}"
-                    # )
-                    pytest.fail(
-                        f"Expected status code 200 but got {response.status_code}"
+
+            for test_func in util.test_functions["data_query_response"]:
+                status, msg = test_func(jsondata=response.json())
+                if not status:
+                    util.logger.error(
+                        "Test %s failed with message: %s", test_func.__name__, msg
                     )
-            else:
-                util.logger.debug(
-                    "test_positions Testing value OUTSIDE of extent, %s",
-                    case.query["coords"],
-                )
-                if response.status_code != 422:
-                    # assume(  # Marking the example as bad. https://github.com/metno/sedr/issues/5
-                    #     f"Expected status code 422 but got {response.status_code}"
-                    # )
-                    pytest.fail(
-                        f"Expected status code 422 but got {response.status_code}"
+                    raise AssertionError(
+                        f"Test {test_func.__name__} failed with message: {msg}"
                     )
+                util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+
+def collection_url(links):
+    collection_link = next((x for x in links if x["rel"] == "data"), None)
+
+    if collection_link is None:
+        pytest.fail(f"Expected link with rel=self to be present: {links}")
+
+    url = collection_link["href"]
+    if str.endswith("/", url):
+        return url
+
+    return url + "/"
