@@ -60,7 +60,7 @@ def set_up_collections(landing_page_links: list) -> list:
     )
     if not collections_url:
         raise AssertionError(
-            f"Unable to find collections URL for API in {landing_page_links}"
+            f"Unable to find collections URL with 'rel: data', for API in {landing_page_links}"
         )
     try:
         response = requests.get(collections_url)
