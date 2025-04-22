@@ -7,8 +7,6 @@ import util
 import requests
 import json
 
-from urllib.parse import urljoin
-
 
 def fetch_landing(url: str, timeout: int) -> tuple[bool, dict]:
     """Test that the landing page contains required elements."""
@@ -50,8 +48,6 @@ def fetch_conformance(url: str, timeout: int) -> tuple[bool, dict]:
 
 
 def main():
-    global collections
-
     # Get landing
     landing_is_reachable, landing_json = fetch_landing(util.args.url, util.args.timeout)
     if not landing_is_reachable:

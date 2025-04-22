@@ -13,9 +13,7 @@ class TestInit(unittest.TestCase):
         __version__ = "testversion"
 
         url = "https://edrisobaric.k8s.met.no/"
-        util.args = util.parse_args(
-            ["--url", url], __version__
-        )
+        util.args = util.parse_args(["--url", url], __version__)
         util.args.openapi_version == "3.1"  # pylint:disable=pointless-statement
 
         landing_page_links = util.fetch_landing_page_links(url)

@@ -137,14 +137,11 @@ def test_data_query_response(id, collection):
     and one query outside spatial extent.
     """
 
-    extent = util.parse_spatial_bbox(collection)[0]
-    if (
-        not isinstance(extent, list)
-        or len(extent) < 4
-        or not all(isinstance(coord, (int, float)) for coord in extent)
-    ):
+    try:
+        extent = util.parse_spatial_bbox(collection)
+    except Exception as err:
         pytest.fail(
-            f"Spatial extent bbox for collection {id} is not correctly formatted, so skipping this test."
+            f"Extent in collection {id}> is not valid because: {err}...Skipping this test."
         )
 
     base_url = collection_url(collection["links"])
@@ -161,22 +158,24 @@ def test_data_query_response(id, collection):
                 queries = dq.trajectory_queries(base_url, extent)
         if queries is None:
             continue
+
         try:
             if queries.outside != "":
-                response = requests.get(queries.outside)
-                if response.status_code < 400 or response.status_code >= 500:
+                outside = requests.get(queries.outside)
+                if outside.status_code < 400 or outside.status_code >= 500:
                     pytest.fail(
-                        f"Expected status code 4xx for query {queries.outside}; Got {response.status_code}"
+                        f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}"
                     )
-            response = requests.get(queries.inside)
+            inside = requests.get(queries.inside)
         except requests.exceptions.RequestException as err:
             pytest.fail(f"Request for {err.request.url} failed: {err}")
-        if response.status_code != 200:
+        if inside.status_code != 200:
             pytest.fail(
-                f"Expected status code 200 for query {queries.inside}; Got {response.status_code}"
+                f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}"
             )
+
         for test_func in util.test_functions["data_query_response"]:
-            status, msg = test_func(jsondata=response.json())
+            status, msg = test_func(jsondata=inside.json())
             if not status:
                 util.logger.error(
                     "Test %s failed with message: %s", test_func.__name__, msg

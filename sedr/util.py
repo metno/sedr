@@ -170,9 +170,20 @@ def build_conformance_url(url: str) -> str:
 
 def parse_spatial_bbox(jsondata: dict) -> list:
     try:
-        return jsondata["extent"]["spatial"]["bbox"]
+        extent = jsondata["extent"]["spatial"]["bbox"]
+        if (
+            len(extent) != 1
+            or not isinstance(extent, list)
+            or not all(isinstance(coord, (int, float)) for coord in extent[0])
+        ):
+            raise AssertionError(
+                f"Extent→spatial→bbox should be a list of bboxes with exactly "
+                f"one bbox in, found {len(extent)}"
+            )
     except (AttributeError, KeyError):
-        return []
+        raise AssertionError("parse_spatial_bbox: Unable to find extent in JSON data.")
+
+    return extent[0]
 
 
 def get_collections(landing_page_links: list) -> list:
