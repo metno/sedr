@@ -123,16 +123,20 @@ def test_edr_collections(id, collection):
     spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
 
     # Run edr, ogc, profile tests
+    errors = ""
     for test_func in util.test_functions["collection"]:
         status, msg = test_func(jsondata=collection)
         if not status:
             util.logger.error(
                 "Test %s failed with message: %s", test_func.__name__, msg
             )
-            raise AssertionError(
-                f"Test {test_func.__name__} failed with message: {msg}"
-            )
+
+            errors += f"Test {test_func.__name__} failed with message: {msg}\n"
+
         util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+    if errors != "":
+        raise AssertionError(errors)
 
 
 @pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
@@ -149,6 +153,7 @@ def test_data_query_response(id, collection):
             f"Extent in collection {id}> is not valid because: {err}...Skipping this test."
         )
 
+    errors = ""
     base_url = collection_url(collection["links"])
     for query_type in collection["data_queries"]:
         queries = None
@@ -168,16 +173,12 @@ def test_data_query_response(id, collection):
             if queries.outside != "":
                 outside = requests.get(queries.outside)
                 if outside.status_code < 400 or outside.status_code >= 500:
-                    pytest.fail(
-                        f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}"
-                    )
+                    errors += f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}\n"
             inside = requests.get(queries.inside)
         except requests.exceptions.RequestException as err:
-            pytest.fail(f"Request for {err.request.url} failed: {err}")
+            errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
-            pytest.fail(
-                f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}"
-            )
+            errors += f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}\n"
 
         for test_func in util.test_functions["data_query_response"]:
             status, msg = test_func(jsondata=inside.json())
@@ -185,10 +186,11 @@ def test_data_query_response(id, collection):
                 util.logger.error(
                     "Test %s failed with message: %s", test_func.__name__, msg
                 )
-                raise AssertionError(
-                    f"Test {test_func.__name__} failed with message: {msg}"
-                )
+                errors += f"Test {test_func.__name__} failed with message: {msg}\n"
             util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+    if errors != "":
+        raise AssertionError(errors)
 
 
 def collection_url(links):
