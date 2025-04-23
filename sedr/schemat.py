@@ -28,9 +28,13 @@ def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
     # Attempt to find schema URL automatically, if not manually set.
     if args.openapi == "":
         args.openapi = next(
-        (link["href"] for link in landing_page_links if link["rel"] == "service-desc"),
-        "",
-    )
+            (
+                link["href"]
+                for link in landing_page_links
+                if link["rel"] == "service-desc"
+            ),
+            "",
+        )
     if len(args.openapi) == 0:
         raise AssertionError(
             "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
