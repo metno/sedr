@@ -25,8 +25,9 @@ def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
     if args.openapi_version == "3.1":
         schemathesis.experimental.OPEN_API_3_1.enable()
 
-    # Attempt to find schema URL automatically
-    args.openapi = next(
+    # Attempt to find schema URL automatically, if not manually set.
+    if args.openapi == "":
+        args.openapi = next(
         (link["href"] for link in landing_page_links if link["rel"] == "service-desc"),
         "",
     )
@@ -60,7 +61,7 @@ def set_up_collections(landing_page_links: list) -> list:
     )
     if not collections_url:
         raise AssertionError(
-            f"Unable to find collections URL with 'rel: data', for API in {landing_page_links}"
+            f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: {landing_page_links}. Aborting."
         )
     try:
         response = requests.get(collections_url)
