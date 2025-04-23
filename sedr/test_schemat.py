@@ -12,15 +12,16 @@ class TestInit(unittest.TestCase):
         """Test set_up_schemathesis."""
         __version__ = "testversion"
 
-        util.args = util.parse_args(
-            ["--url", "https://edrisobaric.k8s.met.no/"], __version__
-        )
+        url = "https://edrisobaric.k8s.met.no/"
+        util.args = util.parse_args(["--url", url], __version__)
         util.args.openapi_version == "3.1"  # pylint:disable=pointless-statement
+
+        landing_page_links = util.fetch_landing_page_links(url)
 
         util.logger = util.set_up_logging(
             args=util.args, logfile=util.args.log_file, version=__version__
         )
         import schemat  # pylint:disable=import-outside-toplevel
 
-        schemat.schema = schemat.set_up_schemathesis(util.args)
+        schemat.schema = schemat.set_up_schemathesis(util.args, landing_page_links)
         self.assertTrue(schemat.schema)

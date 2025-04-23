@@ -85,14 +85,12 @@ def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
 
     spec_url = f"{edr_root_url}#req_core_rc-bbox-definition"
 
-    extent = None
-    extent = util.parse_spatial_bbox(jsondata)
-    if extent == [] or len(extent) > 1 or not isinstance(extent, list):
+    try:
+        extent = util.parse_spatial_bbox(jsondata)
+    except Exception as err:
         return (
             False,
-            f"Extent→spatial→bbox should be a list of bboxes with exactly "
-            f"one bbox in, found {len(extent)} in collection "
-            f"<{jsondata['id']}>. See {spec_url} for more info.",
+            f"Extent in collection <{jsondata['id']}> is not valid: {err}. See {spec_url} for more info.",
         )
     return True, f"Extent→spatial→bbox for collection is {extent}"
 

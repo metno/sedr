@@ -152,25 +152,15 @@ def parse_locations(jsondata) -> None:
     #         )
 
 
-def locate_openapi_url(url: str, timeout: int) -> str:
-    """Locate the OpenAPI URL based on main URL."""
-    request = requests.get(url, timeout=timeout)
-
-    # Json
-    # See https://github.com/metno/sedr/issues/6
+def fetch_landing_page_links(url: str, timeout=10) -> list:
+    """Fetch landing page links."""
     try:
-        if request.json():
-            for link in request.json()["links"]:
-                if link["rel"] == "service-desc":
-                    return link["href"]
-    except json.JSONDecodeError:
-        pass
-
-    # TODO:
-    # Html
-    # Yaml
-    # Xml
-    return ""
+        response = requests.get(url, timeout=timeout)
+        response.raise_for_status()
+        return response.json().get("links", [])
+    except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
+        logger.error("Error fetching landing page <%s>:\n%s", url, err)
+        return []
 
 
 def build_conformance_url(url: str) -> str:
@@ -180,6 +170,35 @@ def build_conformance_url(url: str) -> str:
 
 def parse_spatial_bbox(jsondata: dict) -> list:
     try:
-        return jsondata["extent"]["spatial"]["bbox"]
+        extent = jsondata["extent"]["spatial"]["bbox"]
+        if (
+            len(extent) != 1
+            or not isinstance(extent, list)
+            or not all(isinstance(coord, (int, float)) for coord in extent[0])
+        ):
+            raise AssertionError(
+                f"Extent→spatial→bbox should be a list of bboxes with exactly "
+                f"one bbox in, found {len(extent)}"
+            )
     except (AttributeError, KeyError):
+        raise AssertionError("parse_spatial_bbox: Unable to find extent in JSON data.")
+
+    return extent[0]
+
+
+def get_collections(landing_page_links: list) -> list:
+    """Get list of collections from /collections endpoint."""
+    collections_url = next(
+        (link.get("href") for link in landing_page_links if link.get("rel") == "data"),
+        None,
+    )
+    if not collections_url:
+        logger.error("No collections URL found")
+        return []
+    try:
+        response = requests.get(collections_url)
+        response.raise_for_status()
+        return response.json().get("collections", [])
+    except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
+        logger.error("Error fetching collections <%s>:\n%s", collections_url, err)
         return []
