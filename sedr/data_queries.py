@@ -89,13 +89,13 @@ def points_outside(extent: list) -> list:
             Point(extent[0] + long_step * i, extent[3] + lat_step * i)
             for i in range(1, n_points)
         ]
-    else:
-        lat_step = (90 - abs(extent[1])) / (n_points * 100)
 
-        return [
-            Point(extent[0] + long_step * i, extent[1] - lat_step * i)
-            for i in range(1, n_points)
-        ]
+    lat_step = (90 - abs(extent[1])) / (n_points * 100)
+
+    return [
+        Point(extent[0] + long_step * i, extent[1] - lat_step * i)
+        for i in range(1, n_points)
+    ]
 
 
 def wkt_points(points: list) -> str:

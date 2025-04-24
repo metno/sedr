@@ -121,34 +121,6 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     return logger
 
 
-def parse_locations(jsondata) -> None:
-    """Parse locations from JSON, test geometries."""
-    try:
-        _ = json.loads(jsondata)
-    except json.JSONDecodeError as e:
-        raise AssertionError(f"parse_locations: Invalid JSON from {jsondata}") from e
-
-    # TODO: Locations must be a FeatureCollection or a location.
-    # https://docs.ogc.org/is/19-086r6/19-086r6.html#rc_locations-section
-
-    # if "name" not in json.loads(jsondata):
-    #     raise AssertionError('Expected "name": "locations" in /locations, didn\'t find "name".')
-    # if "locations" not in json.loads(jsondata)["name"]:
-    #     raise AssertionError('Expected "name": "locations" in /locations, didn\'t find "locations".')
-
-    # assert "features" in json.loads(jsondata), 'Expected "features" in /locations.'
-
-    # for feature in json.loads(jsondata)["features"]:
-    #     if feature["geometry"]["type"] == "Point":
-    #         _ = shapely.Point(feature["geometry"]["coordinates"])
-    #     elif feature["geometry"]["type"] == "Polygon":
-    #         _ = shapely.Polygon(feature["geometry"]["coordinates"])
-    #     else:
-    #         raise AssertionError(
-    #             f"Unable to create geometry type {feature['geometry']['type']} from coords {feature['geometry']['coordinates']}"
-    #         )
-
-
 def fetch_landing_page_links(url: str, timeout=10) -> list:
     """Fetch landing page links."""
     try:
@@ -177,25 +149,9 @@ def parse_spatial_bbox(jsondata: dict) -> list:
                 f"Extent→spatial→bbox should be a list of bboxes with exactly "
                 f"one bbox in, found {len(extent)}"
             )
-    except (AttributeError, KeyError):
-        raise AssertionError("parse_spatial_bbox: Unable to find extent in JSON data.")
+    except (AttributeError, KeyError) as err:
+        raise AssertionError(
+            "parse_spatial_bbox: Unable to find extent in JSON data."
+        ) from err
 
     return extent[0]
-
-
-def get_collections(landing_page_links: list) -> list:
-    """Get list of collections from /collections endpoint."""
-    collections_url = next(
-        (link.get("href") for link in landing_page_links if link.get("rel") == "data"),
-        None,
-    )
-    if not collections_url:
-        logger.error("No collections URL found")
-        return []
-    try:
-        response = requests.get(collections_url)
-        response.raise_for_status()
-        return response.json().get("collections", [])
-    except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
-        logger.error("Error fetching collections <%s>:\n%s", collections_url, err)
-        return []

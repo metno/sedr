@@ -3,11 +3,8 @@ import json
 import schemathesis
 from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from hypothesis import settings
-from shapely.wkt import loads as wkt_loads
 import pytest
 import requests
-from urllib.parse import urljoin
-import pytest
 import util
 import edreq12 as edreq
 
@@ -62,7 +59,7 @@ def set_up_collections(landing_page_links: list) -> list:
             f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: {landing_page_links}. Aborting."
         )
     try:
-        response = requests.get(collections_url)
+        response = requests.get(collections_url, timeout=30)
         response.raise_for_status()
         return response.json().get("collections", [])
     except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
@@ -114,7 +111,7 @@ def test_edr_collections(id, collection):
     This function will test that collections contain EDR spesifics.
     """
 
-    spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
+    # spec_ref = f"{edreq.edr_root_url}#_second_tier_collections_tests"
 
     # Run edr, ogc, profile tests
     errors = ""
@@ -165,10 +162,10 @@ def test_data_query_response(id, collection):
 
         try:
             if queries.outside != "":
-                outside = requests.get(queries.outside)
+                outside = requests.get(queries.outside, timeout=30)
                 if outside.status_code < 400 or outside.status_code >= 500:
                     errors += f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}\n"
-            inside = requests.get(queries.inside)
+            inside = requests.get(queries.inside, timeout=30)
         except requests.exceptions.RequestException as err:
             errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
