@@ -1,8 +1,5 @@
 """rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
-__author__ = "MET Norway"
-__license__ = "GPL-2.0"
-
 import json
 import util
 

@@ -1,8 +1,5 @@
 """rodeo-edr-profile core requirements. See <https://github.com/EUMETNET/rodeo-edr-profile/>."""
 
-__author__ = "Lars Falk-Petersen"
-__license__ = "GPL-2.0"
-
 import json
 import requests
 import util

@@ -51,6 +51,8 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - Use --strict to also fail on SHOULD requirements.
 - Use --log-file debug.log to get all output. For docker variant, see [Test it out](#test-it-out).
 
+The summary output at the end of the test run will list the first error found for each test. If you want all errors found, go up to the detailed output for that particular test.
+
 ### Limitations
 
 - Assuming Openapi 3.1
