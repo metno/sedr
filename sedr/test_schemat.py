@@ -1,8 +1,5 @@
 """Unit tests for schemat.py."""
 
-__author__ = "Lars Falk-Petersen"
-__license__ = "GPL-2.0"
-
 import unittest
 import util
 

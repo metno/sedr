@@ -1,8 +1,5 @@
 """Unit tests for rodeoprofileinsituobservations10.py."""
 
-__author__ = "MET Norway"
-__license__ = "GPL-2.0"
-
 import unittest
 import json
 import rodeoprofileinsituobservations10 as profileinsitu

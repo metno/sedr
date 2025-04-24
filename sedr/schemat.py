@@ -1,6 +1,3 @@
-__author__ = "Lars Falk-Petersen"
-__license__ = "GPL-2.0"
-
 import sys
 import json
 import schemathesis
@@ -15,9 +12,6 @@ import util
 import edreq12 as edreq
 
 import data_queries as dq
-
-__author__ = "Lars Falk-Petersen"
-__license__ = "GPL-2.0"
 
 
 def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
