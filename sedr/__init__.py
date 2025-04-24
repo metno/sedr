@@ -1,7 +1,7 @@
 """Main init file for sedr. Schemathesis related in schemat.py, others in utils.py."""
 
 __license__ = "GPL-2.0"
-__version__ = "v0.9.2"
+__version__ = "v0.10.0"
 
 import sys
 import pytest
