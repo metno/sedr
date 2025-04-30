@@ -464,16 +464,23 @@ def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
         )
 
     for feature in jsondata["features"]:
-        if "id" not in feature:
+        if "id" not in feature or not isinstance(feature["id"], str):
             return (
                 False,
-                "The response document for a /locations query SHALL have an id in the features.",
+                "The response document for a /locations query SHALL have an id of type string in each feature.",
             )
-        if "name" not in feature["properties"]:
+        if "name" not in feature["properties"] or not isinstance(
+            feature["properties"]["name"], str
+        ):
             return (
                 False,
-                "The response document for a /locations query SHALL have a name in the features.",
+                "The response document for a /locations query SHALL have a name in each feature.properties.",
             )
+
+    return (
+        True,
+        "The response document for a /locations query is valid.",
+    )
 
 
 tests_landing = [requirement7_2]
