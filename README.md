@@ -46,8 +46,7 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 
 ## Documentation
 
-- Use --rodeo-profile-core to force a test against the profile core conformance class
-- Use --rodeo-profile-insitu-observations to force a test against the profile insitu observations conformance class.
+- Use --rodeo-profile-insitu-observations to test against the profile insitu observations conformance class.
 - Use --strict to also fail on SHOULD requirements.
 - Use --log-file debug.log to get all output. For docker variant, see [Test it out](#test-it-out).
 

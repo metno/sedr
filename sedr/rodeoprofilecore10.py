@@ -2,6 +2,8 @@
 
 import json
 import requests
+import pint
+
 import util
 
 # These links aren't active yet. See link at start of this file for now.
@@ -398,6 +400,82 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
     )
 
 
+def requirement7_11(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.11. Collection radius metadata
+
+    Metadata about the radius data query in a collection.
+    """
+
+    if "radius" in jsondata["data_queries"]:
+        # A
+        if (
+            "within_units" not in jsondata["data_queries"]["radius"]
+            or "m" not in jsondata["data_queries"]["radius"]["within_units"]
+        ):
+            return (
+                False,
+                "The value 'm' SHALL be included in the within_units array",
+            )
+        # B
+        ureg = pint.UnitRegistry()
+        for unit in jsondata["data_queries"]["radius"]["within_units"]:
+            try:
+                ureg.Unit(unit)  # Validate if the unit is a valid SI unit
+                if not unit.dimensionality == {"[length]": 1}:
+                    return (
+                        False,
+                        f"Value '{unit}' in within_units is not a length unit.",
+                    )
+            except pint.UndefinedUnitError:
+                return (
+                    False,
+                    f"Value '{unit}' in within_units is not a valid length unit.",
+                )
+
+    return (
+        True,
+        "Collection radius metadata OK.",
+    )
+
+
+def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.12. Locations query response format
+
+    Structure of the response document for a /locations query.
+    """
+
+    if resp.headers["Content-Type"] != "application/geo+json":
+        return (
+            False,
+            "The response document for a /locations query SHALL have Content-Type set to 'application/geo+json'.",
+        )
+
+    jsondata = resp.json()
+    if "type" not in jsondata or jsondata["type"] != "FeatureCollection":
+        return (
+            False,
+            "The response document for a /locations query SHALL have type set to 'FeatureCollection'.",
+        )
+
+    for feature in jsondata["features"]:
+        if "id" not in feature:
+            return (
+                False,
+                "The response document for a /locations query SHALL have an id in the features.",
+            )
+        if "name" not in feature["properties"]:
+            return (
+                False,
+                "The response document for a /locations query SHALL have a name in the features.",
+            )
+
+
 tests_landing = [requirement7_2]
 tests_conformance = [requirement7_1]
 tests_collection = [
@@ -408,4 +486,9 @@ tests_collection = [
     requirement7_7,
     recommendation7_9,
     requirement7_10,
+    requirement7_11,
+]
+
+tests_locations_query_response = [
+    requirement7_12,
 ]
