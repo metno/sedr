@@ -411,28 +411,41 @@ def requirement7_11(jsondata: dict) -> tuple[bool, str]:
 
     if "radius" in jsondata["data_queries"]:
         # A
-        if (
-            "within_units" not in jsondata["data_queries"]["radius"]
-            or "m" not in jsondata["data_queries"]["radius"]["within_units"]
-        ):
+        try:
+            if (
+                "within_units"
+                not in jsondata["data_queries"]["radius"]["link"]["variables"]
+                or "m"
+                not in jsondata["data_queries"]["radius"]["link"]["variables"][
+                    "within_units"
+                ]
+            ):
+                return (
+                    False,
+                    "The value 'm' SHALL be included in the within_units array in data_queries.radius.link.variables.",
+                )
+        except KeyError as error:
             return (
                 False,
-                "The value 'm' SHALL be included in the within_units array",
+                f"Collection radius metadata is missing required properties: {error}.",
             )
         # B
         ureg = pint.UnitRegistry()
-        for unit in jsondata["data_queries"]["radius"]["within_units"]:
+        for unit in jsondata["data_queries"]["radius"]["link"]["variables"][
+            "within_units"
+        ]:
             try:
-                ureg.Unit(unit)  # Validate if the unit is a valid SI unit
-                if not unit.dimensionality == {"[length]": 1}:
+                # Check if the unit is a valid length unit
+                parsed_unit = ureg.Unit(unit)
+                if parsed_unit.dimensionality != ureg.m.dimensionality:
                     return (
                         False,
-                        f"Value '{unit}' in within_units is not a length unit.",
+                        f"Value '{unit}' in within_units is not a valid length unit.",
                     )
             except pint.UndefinedUnitError:
                 return (
                     False,
-                    f"Value '{unit}' in within_units is not a valid length unit.",
+                    f"Value '{unit}' in within_units is not a recognized unit.",
                 )
 
     return (
