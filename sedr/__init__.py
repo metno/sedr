@@ -24,23 +24,27 @@ def main() -> None:
     """Run the main program."""
 
     # Collect tests to run
-    util.test_functions["landing"] += (
-        edreq.tests_landing + ogcapi.tests_landing + rodeoprofilecore.tests_landing
-    )
+    util.test_functions["landing"] += edreq.tests_landing + ogcapi.tests_landing
     util.test_functions["conformance"] += (
-        edreq.tests_conformance
-        + ogcapi.tests_conformance
-        + rodeoprofilecore.tests_conformance
+        edreq.tests_conformance + ogcapi.tests_conformance
     )
     util.test_functions["collection"] += (
-        edreq.tests_collection
-        + ogcapi.tests_collections
-        + rodeoprofilecore.tests_collection
-    )
-    util.test_functions["locations_query_response"] = (
-        rodeoprofilecore.tests_locations_query_response
+        edreq.tests_collection + ogcapi.tests_collections
     )
     util.test_functions["data_query_response"] = []
+    util.test_functions["locations_query_response"] = []
+
+    if util.args.rodeo_profile_core:
+        util.logger.info(
+            "Including tests for Rodeo profile core %s",
+            rodeoprofilecore.conformance_url,
+        )
+        util.test_functions["landing"] += rodeoprofilecore.tests_landing
+        util.test_functions["conformance"] += rodeoprofilecore.tests_conformance
+        util.test_functions["collection"] += rodeoprofilecore.tests_collection
+        util.test_functions["locations_query_response"] = (
+            rodeoprofilecore.tests_locations_query_response
+        )
 
     if util.args.rodeo_profile_insitu_observations:
         util.logger.info(
