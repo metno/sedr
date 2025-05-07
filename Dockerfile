@@ -1,35 +1,36 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:24.04
+# Based on https://github.com/GoogleContainerTools/distroless/blob/main/examples/python3-requirements/Dockerfile
 
-ARG UID=1001
-ARG GID=1001
-
-# Create user with home dir
-RUN groupadd --gid $GID sedr && \
-  useradd \
-  --create-home \
-  --shell /bin/false \
-  --uid $UID \
-  --gid sedr \
-  sedr
-
-# Install python, git, ...
+FROM debian:12-slim AS build
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends python3-dev python3-venv && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev && \
+    python3 -m venv /venv && \
+    /venv/bin/pip install --upgrade pip
+    # setuptools
+    # wheel
+
+# Build the virtualenv as a separate step: Only re-execute this step when requirements.txt changes
+FROM build AS build-venv
+COPY requirements.txt /requirements.txt
+RUN /venv/bin/pip install --disable-pip-version-check -r /requirements.txt
+
+FROM gcr.io/distroless/python3-debian12
+
+ARG UID=65532
+ARG GID=65534
+
+COPY --from=build-venv /venv /venv
 
 # Set workdir
 WORKDIR /app
 
-COPY requirements.txt pytest.ini ./
+COPY pytest.ini ./
 COPY sedr/ ./sedr/
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m venv ./venv && \
-  ./venv/bin/pip install -r /app/requirements.txt
 
 # Run as nonroot user
-RUN mkdir .hypothesis .pytest_cache && \
-  chown -R sedr .hypothesis .pytest_cache
-USER sedr
+# RUN ["mkdir", ".hypothesis", ".pytest_cache"]
+# RUN ["chown", "-R", "$UID:$GID", ".hypothesis", ".pytest_cache"]
+USER nonroot
 
-ENTRYPOINT ["/app/venv/bin/python", "./sedr/__init__.py"]
+ENTRYPOINT ["/venv/bin/python", "/app/sedr/__init__.py"]
