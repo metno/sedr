@@ -5,11 +5,13 @@
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode"
+                "ms-python.debugpy",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "ms-python.mypy-type-checker"
             ]
         }
     },
     // Installs in system, not venv
-    "postCreateCommand": "pip install uv"
+    "postCreateCommand": "pip install uv; uv pip install tox-uv; uv sync"
 }
