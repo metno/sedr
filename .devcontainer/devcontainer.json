@@ -13,5 +13,5 @@
         }
     },
     // Installs in system, not venv
-    "postCreateCommand": "pip install uv; uv pip install tox-uv; uv sync"
+    "postCreateCommand": "pip install uv; uv tool install tox --with tox-uv; uv sync"
 }
