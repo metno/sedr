@@ -32,4 +32,4 @@ RUN mkdir .hypothesis .pytest_cache && \
 
 USER sedr
 
-ENTRYPOINT ["/app/.venv/bin/python", "./sedr/__init__.py"]
+ENTRYPOINT ["/app/.venv/bin/sedr"]
