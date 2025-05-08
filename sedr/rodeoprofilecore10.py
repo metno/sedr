@@ -4,7 +4,7 @@ import json
 import requests
 import pint
 
-import util
+import sedr.util
 
 # These links aren't active yet. See link at start of this file for now.
 conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
@@ -144,14 +144,14 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
                 break
         else:
             return (
-                not util.args.strict,
+                not sedr.util.args.strict,
                 f"Collection id SHOULD be from the following list of values: "
                 f"{', '.join(approved_data_types)}. A postfix can be added. "
                 f"Found: <{jsondata['id']}>. See <{spec_url}> for more info.",
             )
     except (json.JSONDecodeError, KeyError) as err:
         return (
-            not util.args.strict,
+            not sedr.util.args.strict,
             f"Collection must have an id. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
@@ -217,7 +217,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
 
     if license_count > 1:
         return (
-            not util.args.strict,
+            not sedr.util.args.strict,
             f"Collection <{jsondata['id']}> has more than one license link.",
         )
     if license_count < 1:
@@ -291,7 +291,7 @@ def requirement7_7(jsondata: dict) -> tuple[bool, str]:
 
         # D
         for q in jsondata["data_queries"]:
-            if "crs_details" in q and util.args.strict:
+            if "crs_details" in q and sedr.util.args.strict:
                 for crs_detail in q["crs_details"]:
                     if crs_detail["crs"] != "OGC:CRS84" and not crs_detail[
                         "crs"
@@ -330,7 +330,7 @@ def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
     ]
 
     # A
-    if "vertical" in jsondata["extent"] and util.args.strict:
+    if "vertical" in jsondata["extent"] and sedr.util.args.strict:
         if jsondata["extent"]["vertical"]["vrs"] not in allowed_vrs:
             return (
                 False,
@@ -380,7 +380,7 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
                     f"Unit.symbol.value SHALL be set to the value of 'qudt:symbol'. Error testing <{param}>.",
                 )
             # F
-            if util.args.strict and not items["observedProperty"]["id"].startswith(
+            if sedr.util.args.strict and not items["observedProperty"]["id"].startswith(
                 "https://vocab.nerc.ac.uk/standard_name/"
             ):
                 return (

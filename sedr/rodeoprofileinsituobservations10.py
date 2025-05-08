@@ -1,7 +1,7 @@
 """rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
-import util
+import sedr.util
 
 conformance_url = (
     "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/insitu-observations"
@@ -33,7 +33,7 @@ def requirement8_2(jsondata: dict) -> tuple[bool, str]:
                 )
     except (json.JSONDecodeError, KeyError) as err:
         return (
-            not util.args.strict,
+            not sedr.util.args.strict,
             f"Collection must have a data_queries object. None found in collection <{jsondata}>."
             f"Error {err}.",
         )
@@ -84,7 +84,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
                 "variance",
             ]
             if (
-                util.args.strict
+                sedr.util.args.strict
                 and p["measurementType"]["method"] not in cf_cell_methods
             ):
                 return (

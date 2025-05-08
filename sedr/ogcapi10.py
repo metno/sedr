@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 import requests
-import util
+import sedr.util
 
 ogc_api_common_version = "1.0"
 ogc_api_common_url = "https://docs.ogc.org/is/19-072/19-072.html"
@@ -86,10 +86,10 @@ def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str
         try:
             response = requests.head(url=link, timeout=timeout)
         except requests.exceptions.MissingSchema as error:
-            valid = not util.args.strict
+            valid = not sedr.util.args.strict
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
         if not response.status_code < 400:
-            valid = not util.args.strict
+            valid = not sedr.util.args.strict
             msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
     return valid, msg
 

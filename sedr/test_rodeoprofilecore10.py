@@ -2,16 +2,16 @@
 
 import unittest
 import json
-import util
+import sedr.util
 import requests
-import rodeoprofilecore10 as profilecore
+import sedr.rodeoprofilecore10 as profilecore
 
 
 class TestRodeoprofile(unittest.TestCase):
     __version__ = "testversion"
-    util.args = util.parse_args(["--url", "https://example.com/"], __version__)
-    util.logger = util.set_up_logging(
-        args=util.args, logfile=util.args.log_file, version=__version__
+    sedr.util.args = sedr.util.parse_args(["--url", "https://example.com/"], __version__)
+    sedr.util.logger = sedr.util.set_up_logging(
+        args=sedr.util.args, logfile=sedr.util.args.log_file, version=__version__
     )
 
     def test_requirement7_2(self):
