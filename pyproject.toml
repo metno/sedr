@@ -53,3 +53,5 @@ select = [
     "I",  # isort
 ]
 
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
