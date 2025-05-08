@@ -38,9 +38,11 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - [Github actions running tox](https://github.com/metno/edrisobaric/blob/main/.github/workflows/tests.yml)
 - [Gitlab CI](https://github.com/metno/edrisobaric/blob/main/.gitlab-ci.yml)
 
+Use --help to see all options.
+
 ## Overview of architecture
 
-- __init__ includes tests from ogcapi, edrreq and rodeoprofile at startup. Tests are categorized as landing, conformance and collection.
+- __init__ includes tests from ogcapi, edrreq and rodeoprofile at startup. Tests are categorized as landing, conformance and collection tests.
 - Landing and conformance tests are run first, in the preflight phase.
 - Then schemathesis will validate the OpenAPI spec and run lots of automatic tests, including fuzzing of query parameters. Collection tests are run during this phase.
 
