@@ -4,14 +4,15 @@ __license__ = "GPL-2.0"
 __version__ = "v0.12.0"
 
 import sys
+
 import pytest
 
-import sedr.util
-import sedr.preflight
 import sedr.edreq12 as edreq
 import sedr.ogcapi10 as ogcapi
+import sedr.preflight
 import sedr.rodeoprofilecore10 as rodeoprofilecore
 import sedr.rodeoprofileinsituobservations10 as rodeoprofileinsituobservations
+import sedr.util
 
 
 def run_schemat() -> None:

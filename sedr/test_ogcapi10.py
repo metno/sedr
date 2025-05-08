@@ -1,9 +1,10 @@
 """Unit tests for ogcapi10.py."""
 
-import unittest
 import json
-import sedr.util
+import unittest
+
 import sedr.ogcapi10 as ogcapi
+import sedr.util
 
 
 class TestOGCAPI(unittest.TestCase):

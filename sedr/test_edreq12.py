@@ -1,9 +1,10 @@
 """Unit tests for edreq12.py."""
 
-import unittest
 import json
-import sedr.util
+import unittest
+
 import sedr.edreq12 as edreq
+import sedr.util
 
 
 class TestEDR(unittest.TestCase):

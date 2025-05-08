@@ -1,7 +1,9 @@
 """OGC API Common requirements."""
 
 from collections.abc import Callable
+
 import requests
+
 import sedr.util
 
 ogc_api_common_version = "1.0"

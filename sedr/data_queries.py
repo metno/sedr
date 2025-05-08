@@ -1,5 +1,5 @@
 from collections import namedtuple
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urlencode, urljoin
 
 Point = namedtuple("Point", ["long", "lat"])
 Queries = namedtuple("Queries", ["inside", "outside"])

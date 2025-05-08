@@ -1,10 +1,12 @@
 """Unit tests for rodeoprofile10.py."""
 
-import unittest
 import json
-import sedr.util
+import unittest
+
 import requests
+
 import sedr.rodeoprofilecore10 as profilecore
+import sedr.util
 
 
 class TestRodeoprofile(unittest.TestCase):

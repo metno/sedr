@@ -1,6 +1,7 @@
 """rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
+
 import sedr.util
 
 conformance_url = (

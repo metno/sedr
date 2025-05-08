@@ -1,6 +1,7 @@
 """EDR requirements."""
 
 from collections.abc import Callable
+
 import sedr.util
 
 edr_version = "1.2"

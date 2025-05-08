@@ -1,6 +1,7 @@
 """Unit tests for schemat.py."""
 
 import unittest
+
 import sedr.util
 
 

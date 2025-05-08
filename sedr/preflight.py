@@ -1,8 +1,10 @@
 """Run a series of simple preflight checks before invoking schemathesis."""
 
-import sedr.util
-import requests
 import json
+
+import requests
+
+import sedr.util
 
 
 def fetch_landing(url: str, timeout: int) -> tuple[bool, dict]:

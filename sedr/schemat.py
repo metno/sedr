@@ -1,16 +1,16 @@
-import sys
 import json
-import schemathesis
-from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
-from hypothesis import settings
-import pytest
-import requests
+import sys
 from urllib.parse import urljoin
 
-import sedr.util
-import sedr.edreq12 as edreq
+import pytest
+import requests
+import schemathesis
+from hypothesis import settings
+from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 
 import sedr.data_queries as dq
+import sedr.edreq12 as edreq
+import sedr.util
 
 
 def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:

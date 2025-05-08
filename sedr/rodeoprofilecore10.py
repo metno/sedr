@@ -1,8 +1,9 @@
 """rodeo-edr-profile core requirements. See <https://github.com/EUMETNET/rodeo-edr-profile/>."""
 
 import json
-import requests
+
 import pint
+import requests
 
 import sedr.util
 

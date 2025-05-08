@@ -1,11 +1,12 @@
-import sys
-import logging
-import requests
-import schemathesis
 import argparse
 import json
-from typing import List, Callable, Dict
+import logging
+import sys
+from typing import Callable, Dict, List
 from urllib.parse import urljoin, urlsplit
+
+import requests
+import schemathesis
 from rich.logging import RichHandler
 
 args = logger = None

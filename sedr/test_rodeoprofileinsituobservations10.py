@@ -1,7 +1,8 @@
 """Unit tests for rodeoprofileinsituobservations10.py."""
 
-import unittest
 import json
+import unittest
+
 import sedr.rodeoprofileinsituobservations10 as profileinsitu
 import sedr.util
 
