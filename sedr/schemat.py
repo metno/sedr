@@ -111,7 +111,7 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
 
 
 @pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
-def test_edr_collections(id, collection): # pylint: disable=redefined-builtin,unused-argument
+def test_edr_collections(id, collection):  # pylint: disable=redefined-builtin,unused-argument
     """The default testing in function test_api() will fuzz the collections.
     This function will test that collections contain EDR spesifics.
     """
@@ -136,7 +136,7 @@ def test_edr_collections(id, collection): # pylint: disable=redefined-builtin,un
 
 
 @pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
-def test_data_query_response(id, collection): # pylint: disable=redefined-builtin,unused-argument
+def test_data_query_response(id, collection):  # pylint: disable=redefined-builtin,unused-argument
     """Test that data queries work as expected and that the response is correct.
     For each data query type in each collection, perform one query inside spatial extent
     and one query outside spatial extent.
@@ -190,7 +190,7 @@ def test_data_query_response(id, collection): # pylint: disable=redefined-builti
 
 
 @pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
-def test_locations_query_response(id, collection): # pylint: disable=redefined-builtin,unused-argument
+def test_locations_query_response(id, collection):  # pylint: disable=redefined-builtin,unused-argument
     if "locations" not in collection["data_queries"]:
         pytest.skip("No locations query in this collection")
 
