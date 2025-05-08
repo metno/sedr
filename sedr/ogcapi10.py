@@ -91,7 +91,7 @@ def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str
         except requests.exceptions.MissingSchema as error:
             valid = not sedr.util.args.strict
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
-        if not response.status_code < 400:
+        if response.status_code >= 400:
             valid = not sedr.util.args.strict
             msg += (
                 f"test_conformance_links Link {link} from /conformance is broken "
