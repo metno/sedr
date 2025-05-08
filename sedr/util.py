@@ -84,7 +84,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
-    FORMAT = "%(asctime)s - %(message)s"
+    format = "%(asctime)s - %(message)s"
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     # File
@@ -102,10 +102,10 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
             )
             sys.exit(1)
 
-        fh = logging.FileHandler(mode="a", filename=logfile)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(logging.Formatter(FORMAT, datefmt="[%X]"))
-        logger.addHandler(fh)
+        file_handler = logging.FileHandler(mode="a", filename=logfile)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter(format, datefmt="[%X]"))
+        logger.addHandler(file_handler)
         logger.debug(  # pylint:disable=logging-fstring-interpolation,logging-not-lazy
             f"SEDR version {version} on python {sys.version}, schemathesis "
             f"{schemathesis.__version__} \nTesting url <{args.url}>, openapi "
@@ -114,7 +114,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
 
     # Console
     stdout_handler = RichHandler(level=logging.INFO)
-    stdout_handler.setFormatter(logging.Formatter(FORMAT, datefmt="[%X]"))
+    stdout_handler.setFormatter(logging.Formatter(format, datefmt="[%X]"))
     logger.addHandler(stdout_handler)
     return logger
 
@@ -136,6 +136,7 @@ def build_conformance_url(url: str) -> str:
 
 
 def parse_spatial_bbox(jsondata: dict) -> list:
+    """Parse spatial bbox from JSON data."""
     try:
         extent = jsondata["extent"]["spatial"]["bbox"]
         if (

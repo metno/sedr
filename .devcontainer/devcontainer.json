@@ -8,7 +8,8 @@
                 "ms-python.debugpy",
                 "ms-python.vscode-pylance",
                 "charliermarsh.ruff",
-                "ms-python.mypy-type-checker"
+                "ms-python.mypy-type-checker",
+                "github.vscode-github-actions"
             ]
         }
     },
