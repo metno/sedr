@@ -45,6 +45,7 @@ Run manually as noted in [Test it out](#test-it-out), or add it to your CI using
 - Then schemathesis will validate the OpenAPI spec and run lots of automatic tests, including fuzzing of query parameters. Collection tests are run during this phase.
 
 ## Documentation
+
 - Use --rodeo-profile-core to force a test against the profile core conformance class
 - Use --rodeo-profile-insitu-observations to force a test against the profile insitu observations conformance class.
 - Use --strict to also fail on SHOULD requirements.

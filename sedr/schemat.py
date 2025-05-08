@@ -188,7 +188,7 @@ def test_data_query_response(id, collection):
 
 @pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
 def test_locations_query_response(id, collection):
-    if not "locations" in collection["data_queries"]:
+    if "locations" not in collection["data_queries"]:
         pytest.skip("No locations query in this collection")
 
     base_url = collection_url(collection["links"])
