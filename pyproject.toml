@@ -13,6 +13,7 @@ dependencies = [
     "shapely~=2.1.0",
     "requests~=2.32.0",
     "rich~=14.0.0",
+    "pint~=0.24.0"
 ]
 optional-dependencies.tests = [
     "tox-uv",

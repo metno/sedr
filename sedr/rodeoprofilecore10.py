@@ -2,6 +2,8 @@
 
 import json
 import requests
+import pint
+
 import util
 
 # These links aren't active yet. See link at start of this file for now.
@@ -398,6 +400,116 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
     )
 
 
+def requirement7_11(jsondata: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.11. Collection radius metadata
+
+    Metadata about the radius data query in a collection.
+    """
+
+    spec_url = f"{spec_base_url}#_collection_radius_data_query"
+
+    if "radius" not in jsondata["data_queries"]:
+        return (
+            True,
+            "Collection has no radius query.",
+        )
+
+    # A
+    try:
+        if (
+            "within_units"
+            not in jsondata["data_queries"]["radius"]["link"]["variables"]
+            or "m"
+            not in jsondata["data_queries"]["radius"]["link"]["variables"][
+                "within_units"
+            ]
+        ):
+            return (
+                False,
+                "The value 'm' SHALL be included in the within_units array in data_queries.radius.link.variables. See "
+                f"<{spec_url}> for more info.",
+            )
+    except KeyError as error:
+        return (
+            False,
+            f"Collection radius metadata is missing required properties: {error}. See "
+            f"<{spec_url}> for more info.",
+        )
+    # B
+    ureg = pint.UnitRegistry()
+    for unit in jsondata["data_queries"]["radius"]["link"]["variables"]["within_units"]:
+        try:
+            # Check if the unit is a valid length unit
+            parsed_unit = ureg.Unit(unit)
+            if parsed_unit.dimensionality != ureg.m.dimensionality:
+                return (
+                    False,
+                    f"Value '{unit}' in within_units is not a valid length unit."
+                    f"See <{spec_url}> for more info.",
+                )
+        except pint.UndefinedUnitError:
+            return (
+                False,
+                f"Value '{unit}' in within_units is not a recognized unit. See "
+                f"<{spec_url}> for more info.",
+            )
+
+    return (
+        True,
+        "Collection radius metadata OK.",
+    )
+
+
+def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.12. Locations query response format
+
+    Structure of the response document for a /locations query.
+    """
+    spec_url = f"{spec_base_url}#_locations_query_response_format"
+
+    if resp.headers["Content-Type"] != "application/geo+json":
+        return (
+            False,
+            "The response document for a /locations query SHALL have Content-Type set to 'application/geo+json'. See "
+            f"<{spec_url}> for more info.",
+        )
+
+    jsondata = resp.json()
+    if "type" not in jsondata or jsondata["type"] != "FeatureCollection":
+        return (
+            False,
+            "The response document for a /locations query SHALL have type set to 'FeatureCollection'. See "
+            f"<{spec_url}> for more info.",
+        )
+
+    for feature in jsondata["features"]:
+        if "id" not in feature or not isinstance(feature["id"], str):
+            return (
+                False,
+                "The response document for a /locations query SHALL have an id of type string in each feature. See "
+                f"<{spec_url}> for more info.",
+            )
+        if "name" not in feature["properties"] or not isinstance(
+            feature["properties"]["name"], str
+        ):
+            return (
+                False,
+                "The response document for a /locations query SHALL have a name in each feature.properties. See "
+                f"<{spec_url}> for more info.",
+            )
+
+    return (
+        True,
+        "The response document for a /locations query is valid.",
+    )
+
+
 tests_landing = [requirement7_2]
 tests_conformance = [requirement7_1]
 tests_collection = [
@@ -408,4 +520,9 @@ tests_collection = [
     requirement7_7,
     recommendation7_9,
     requirement7_10,
+    requirement7_11,
+]
+
+tests_locations_query_response = [
+    requirement7_12,
 ]

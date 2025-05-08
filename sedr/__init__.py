@@ -32,6 +32,7 @@ def main() -> None:
         edreq.tests_collection + ogcapi.tests_collections
     )
     util.test_functions["data_query_response"] = []
+    util.test_functions["locations_query_response"] = []
 
     if util.args.rodeo_profile_core:
         util.logger.info(
@@ -41,6 +42,9 @@ def main() -> None:
         util.test_functions["landing"] += rodeoprofilecore.tests_landing
         util.test_functions["conformance"] += rodeoprofilecore.tests_conformance
         util.test_functions["collection"] += rodeoprofilecore.tests_collection
+        util.test_functions["locations_query_response"] = (
+            rodeoprofilecore.tests_locations_query_response
+        )
 
     if util.args.rodeo_profile_insitu_observations:
         util.logger.info(
