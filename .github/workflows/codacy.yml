@@ -3,6 +3,10 @@ permissions:
   contents: read
   security-events: write
 
+permissions:
+  contents: read
+  security-events: write
+
 on:
   push:
     branches: [ "master", "main" ]
