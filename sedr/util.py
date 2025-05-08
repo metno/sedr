@@ -84,7 +84,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
     """Set up logging."""
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.DEBUG)
-    format = "%(asctime)s - %(message)s"
+    log_format = "%(asctime)s - %(message)s"
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     # File
@@ -104,7 +104,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
 
         file_handler = logging.FileHandler(mode="a", filename=logfile)
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(logging.Formatter(format, datefmt="[%X]"))
+        file_handler.setFormatter(logging.Formatter(log_format, datefmt="[%X]"))
         logger.addHandler(file_handler)
         logger.debug(  # pylint:disable=logging-fstring-interpolation,logging-not-lazy
             f"SEDR version {version} on python {sys.version}, schemathesis "
@@ -114,7 +114,7 @@ def set_up_logging(args, logfile=None, version: str = "") -> logging.Logger:
 
     # Console
     stdout_handler = RichHandler(level=logging.INFO)
-    stdout_handler.setFormatter(logging.Formatter(format, datefmt="[%X]"))
+    stdout_handler.setFormatter(logging.Formatter(log_format, datefmt="[%X]"))
     logger.addHandler(stdout_handler)
     return logger
 
