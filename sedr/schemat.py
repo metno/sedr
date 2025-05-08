@@ -5,6 +5,8 @@ from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 from hypothesis import settings
 import pytest
 import requests
+from urllib.parse import urljoin
+
 import util
 import edreq12 as edreq
 
@@ -182,6 +184,30 @@ def test_data_query_response(id, collection):
 
     if errors != "":
         raise AssertionError(errors)
+
+
+@pytest.mark.parametrize("id,collection", [(c["id"], c) for c in collections])
+def test_locations_query_response(id, collection):
+    if "locations" not in collection["data_queries"]:
+        pytest.skip("No locations query in this collection")
+
+    base_url = collection_url(collection["links"])
+    resp = requests.get(urljoin(base_url, "locations"), timeout=30)
+    if resp.status_code != 200:
+        pytest.fail(
+            f"Expected status code 200 for query {base_url}; Got {resp.status_code}"
+        )
+    if resp.json() is None:
+        pytest.fail(f"Expected JSON response for query {base_url}; Got {resp.text}")
+
+    for test_func in util.test_functions["locations_query_response"]:
+        status, msg = test_func(resp=resp)
+        if not status:
+            util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
+            pytest.fail(f"Test {test_func.__name__} failed with message: {msg}")
+        util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
 
 def collection_url(links):

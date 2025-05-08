@@ -53,7 +53,7 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
         "--rodeo-profile-core",
         action="store_true",
         default=True,
-        help="Use the rodeo profile core conformance class even though the API doesn't specify it. Default False.",
+        help="Use the rodeo profile core conformance class even though the API doesn't specify it. Default True.",
     )
     parser.add_argument(
         "--rodeo-profile-insitu-observations",

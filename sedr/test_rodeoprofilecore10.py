@@ -3,6 +3,7 @@
 import unittest
 import json
 import util
+import requests
 import rodeoprofilecore10 as profilecore
 
 
@@ -28,6 +29,63 @@ class TestRodeoprofile(unittest.TestCase):
             landing_json = json.load(f)
         ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)
+
+    def test_requirement7_12(self):
+        def mock_response(
+            content, status_code=200, content_type="application/geo+json"
+        ):
+            response = requests.Response()
+            response._content = content.encode("utf-8")
+            response.status_code = status_code
+            response.headers["Content-Type"] = content_type
+            return response
+
+        # Example usage of the mock_response function
+        geojson_erroneous_content = """
+        {
+            "type": "FeatureCollection",
+            "features": [
+            {
+                "type": "Feature",
+                "id": 1,
+                "properties": {
+                    "title": "Test Feature"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [0, 0]
+                }
+            }
+            ]
+        }
+        """
+        # Example usage of the mock_response function
+        geojson_correct_content = """
+        {
+            "type": "FeatureCollection",
+            "features": [
+            {
+                "type": "Feature",
+                "id": "identifier1",
+                "properties": {
+                    "name": "Test Feature"
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [0, 0]
+                }
+            }
+            ]
+        }
+        """
+
+        erroneous_response = mock_response(geojson_erroneous_content)
+        ok, msg = profilecore.requirement7_12(erroneous_response)
+        self.assertFalse(ok, f"Expected errors in response; Got {msg}")
+
+        erroneous_response = mock_response(geojson_correct_content)
+        ok, msg = profilecore.requirement7_12(erroneous_response)
+        self.assertTrue(ok, f"Expected correct response; Got {msg}")
 
 
 if __name__ == "__main__":
