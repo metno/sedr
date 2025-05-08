@@ -1,7 +1,0 @@
-schemathesis~=3.39.0
-pytest~=8.3.0
-shapely~=2.1.0
-requests~=2.32.0
-rich~=14.0.0
-pint~=0.24.0
-

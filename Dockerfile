@@ -9,27 +9,27 @@ ARG GID=1001
 RUN groupadd --gid $GID sedr && \
   useradd \
   --create-home \
-  --shell /bin/false \
   --uid $UID \
   --gid sedr \
   sedr
 
-# Install python, git, ...
-RUN apt-get update && \
-  apt-get install -y --no-install-recommends python3-dev python3-venv && \
-  apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set workdir
 WORKDIR /app
 
-COPY requirements.txt pytest.ini ./
+COPY pyproject.toml pytest.ini ./
 COPY sedr/ ./sedr/
-RUN --mount=type=cache,target=/root/.cache/pip python3 -m venv ./venv && \
-  ./venv/bin/pip install -r /app/requirements.txt
 
-# Run as nonroot user
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv uv tool install tox --with tox-uv; uv sync
+RUN chmod a+rX -R /root
+
+# Prepare to run as nonroot user
 RUN mkdir .hypothesis .pytest_cache && \
   chown -R sedr .hypothesis .pytest_cache
+
 USER sedr
 
-ENTRYPOINT ["/app/venv/bin/python", "./sedr/__init__.py"]
+ENTRYPOINT ["/app/.venv/bin/sedr"]

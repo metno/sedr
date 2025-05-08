@@ -1,7 +1,7 @@
 import unittest
-import data_queries as dq
-
 from urllib.parse import urljoin
+
+import sedr.data_queries as dq
 
 
 class TestDataQueries(unittest.TestCase):

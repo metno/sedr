@@ -1,7 +1,8 @@
 """EDR requirements."""
 
 from collections.abc import Callable
-import util
+
+import sedr.util
 
 edr_version = "1.2"
 edr_root_url = "https://docs.ogc.org/DRAFTS/19-086r7.html"
@@ -60,7 +61,7 @@ def requirementA11_1(jsondata: dict) -> tuple[bool, str]:
                 return True, f"Found openapi class <{url}>. "
             return (
                 False,
-                f"OpenAPI version {util.args.openapi_version} and version in "
+                f"OpenAPI version {sedr.util.args.openapi_version} and version in "
                 f"conformance {url} doesn't match. See <{spec_url}> for more info.",
             )
 
@@ -83,7 +84,7 @@ def requrementA5_2(jsondata: dict) -> tuple[bool, str]:
     spec_url = f"{edr_root_url}#req_core_rc-bbox-definition"
 
     try:
-        extent = util.parse_spatial_bbox(jsondata)
+        extent = sedr.util.parse_spatial_bbox(jsondata)
     except Exception as err:
         return (
             False,

@@ -1,15 +1,57 @@
-[tool.ruff.lint]
-select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
+[build-system]
+requires = ["setuptools>=61", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sedr"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "schemathesis~=3.39.0",
+    "pytest~=8.3.0",
+    "shapely~=2.1.0",
+    "requests~=2.32.0",
+    "rich~=14.0.0",
+    "pint~=0.24.0"
 ]
+optional-dependencies.tests = [
+    "tox-uv",
+    "bandit",
+    "mypy",
+    "prospector",
+    "pymarkdownlnt",
+    "ruff",
+    "setuptools", # prospector requirement
+    "tox>=4.0.0",
+    "types-requests~=2.32.0",
+]
+
+dynamic = ["version"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["sedr"]
+
+[tool.setuptools.dynamic]
+version = {attr = "sedr.__version__"}
+
+[project.scripts]
+sedr = "sedr:main"
+
+
+[tool.ruff.lint]
+fixable = ["I"]
+select = [
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "SIM",# flake8-simplify
+    "I",  # isort
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120

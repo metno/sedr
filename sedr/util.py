@@ -1,18 +1,16 @@
-import sys
-import logging
-import requests
-import schemathesis
 import argparse
 import json
-from typing import List, Callable, Dict
+import logging
+import sys
+from collections.abc import Callable
 from urllib.parse import urljoin, urlsplit
+
+import requests
+import schemathesis
 from rich.logging import RichHandler
 
-__author__ = "Lars Falk-Petersen"
-__license__ = "GPL-2.0"
-
 args = logger = None
-test_functions: Dict[str, List[Callable]] = {
+test_functions: dict[str, list[Callable]] = {
     "landing": [],
     "conformance": [],
     "collection": [],
@@ -143,7 +141,7 @@ def parse_spatial_bbox(jsondata: dict) -> list:
         if (
             len(extent) != 1
             or not isinstance(extent, list)
-            or not all(isinstance(coord, (int, float)) for coord in extent[0])
+            or not all(isinstance(coord, (int | float)) for coord in extent[0])
         ):
             raise AssertionError(
                 f"Extent→spatial→bbox should be a list of bboxes with exactly "

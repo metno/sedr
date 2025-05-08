@@ -1,8 +1,8 @@
 """Unit tests for __init__.py."""
 
-import unittest
 import subprocess
 import sys
+import unittest
 
 
 class TestInit(unittest.TestCase):

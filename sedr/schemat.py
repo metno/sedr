@@ -1,16 +1,16 @@
-import sys
 import json
-import schemathesis
-from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
-from hypothesis import settings
-import pytest
-import requests
+import sys
 from urllib.parse import urljoin
 
-import util
-import edreq12 as edreq
+import pytest
+import requests
+import schemathesis
+from hypothesis import settings
+from schemathesis.specs.openapi.schemas import BaseOpenAPISchema
 
-import data_queries as dq
+import sedr.data_queries as dq
+import sedr.edreq12 as edreq
+import sedr.util
 
 
 def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
@@ -32,22 +32,22 @@ def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
         raise AssertionError(
             "Unable to find openapi spec for API. Please supply manually with --openapi <url>"
         )
-    util.logger.info("Found openapi spec: %s", util.args.openapi)
+    sedr.util.logger.info("Found openapi spec: %s", sedr.util.args.openapi)
 
-    util.logger.info("Using EDR version %s", edreq.edr_version)
+    sedr.util.logger.info("Using EDR version %s", edreq.edr_version)
 
     if args.openapi.startswith("http"):
-        util.logger.info(
+        sedr.util.logger.info(
             "Testing site %s using OpenAPI spec <%s>", args.base_url, args.openapi
         )
         return schemathesis.from_uri(uri=args.openapi, base_url=args.base_url)
 
-    util.logger.info(
+    sedr.util.logger.info(
         "Testing site %s using local OpenAPI spec at path <%s>",
         args.base_url,
         args.openapi,
     )
-    return schemathesis.from_path(path=util.args.openapi, base_url=args.base_url)
+    return schemathesis.from_path(path=sedr.util.args.openapi, base_url=args.base_url)
 
 
 def set_up_collections(landing_page_links: list) -> list:
@@ -58,26 +58,29 @@ def set_up_collections(landing_page_links: list) -> list:
     )
     if not collections_url:
         raise AssertionError(
-            f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: {landing_page_links}. Aborting."
+            f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: "
+            f"{landing_page_links}. Aborting."
         )
     try:
         response = requests.get(collections_url, timeout=30)
         response.raise_for_status()
         return response.json().get("collections", [])
     except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
-        util.logger.error("Error fetching collections <%s>:\n%s", collections_url, err)
+        sedr.util.logger.error(
+            "Error fetching collections <%s>:\n%s", collections_url, err
+        )
         return []
 
 
-landing_page_links = util.fetch_landing_page_links(util.args.url)
+landing_page_links = sedr.util.fetch_landing_page_links(sedr.util.args.url)
 
 # Global variables
-schema = set_up_schemathesis(util.args, landing_page_links)
+schema = set_up_schemathesis(sedr.util.args, landing_page_links)
 collections = set_up_collections(landing_page_links)
 
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
-@settings(max_examples=util.args.iterations, deadline=None)
+@settings(max_examples=sedr.util.args.iterations, deadline=None)
 def test_openapi(case):
     """Run schemathesis standard tests."""
     try:
@@ -101,7 +104,7 @@ def after_call(context, case, response):  # noqa: pylint: disable=unused-argumen
     """Hook runs after any call to the API, used for logging."""
     if response.request:
         # Log calls with status
-        util.logger.debug(  # noqa: pylint: disable=logging-not-lazy
+        sedr.util.logger.debug(  # noqa: pylint: disable=logging-not-lazy
             f"after_call {'OK' if response.ok else 'ERR'} "
             + f"{response.request.path_url} {response.text[0:150]}"
         )
@@ -117,16 +120,16 @@ def test_edr_collections(id, collection):
 
     # Run edr, ogc, profile tests
     errors = ""
-    for test_func in util.test_functions["collection"]:
+    for test_func in sedr.util.test_functions["collection"]:
         status, msg = test_func(jsondata=collection)
         if not status:
-            util.logger.error(
+            sedr.util.logger.error(
                 "Test %s failed with message: %s", test_func.__name__, msg
             )
 
             errors += f"Test {test_func.__name__} failed with message: {msg}\n"
 
-        util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+        sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
     if errors != "":
         raise AssertionError(errors)
@@ -140,7 +143,7 @@ def test_data_query_response(id, collection):
     """
 
     try:
-        extent = util.parse_spatial_bbox(collection)
+        extent = sedr.util.parse_spatial_bbox(collection)
     except Exception as err:
         pytest.fail(
             f"Extent in collection {id}> is not valid because: {err}...Skipping this test."
@@ -173,14 +176,14 @@ def test_data_query_response(id, collection):
         if inside.status_code != 200:
             errors += f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}\n"
 
-        for test_func in util.test_functions["data_query_response"]:
+        for test_func in sedr.util.test_functions["data_query_response"]:
             status, msg = test_func(jsondata=inside.json())
             if not status:
-                util.logger.error(
+                sedr.util.logger.error(
                     "Test %s failed with message: %s", test_func.__name__, msg
                 )
                 errors += f"Test {test_func.__name__} failed with message: {msg}\n"
-            util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+            sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
     if errors != "":
         raise AssertionError(errors)
@@ -200,14 +203,14 @@ def test_locations_query_response(id, collection):
     if resp.json() is None:
         pytest.fail(f"Expected JSON response for query {base_url}; Got {resp.text}")
 
-    for test_func in util.test_functions["locations_query_response"]:
+    for test_func in sedr.util.test_functions["locations_query_response"]:
         status, msg = test_func(resp=resp)
         if not status:
-            util.logger.error(
+            sedr.util.logger.error(
                 "Test %s failed with message: %s", test_func.__name__, msg
             )
             pytest.fail(f"Test {test_func.__name__} failed with message: {msg}")
-        util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+        sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
 
 def collection_url(links):

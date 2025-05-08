@@ -1,31 +1,33 @@
 """Unit tests for rodeoprofile10.py."""
 
-import unittest
 import json
-import util
+import unittest
+
 import requests
-import rodeoprofilecore10 as profilecore
+
+import sedr.rodeoprofilecore10 as profilecore
+import sedr.util
 
 
 class TestRodeoprofile(unittest.TestCase):
     __version__ = "testversion"
-    util.args = util.parse_args(["--url", "https://example.com/"], __version__)
-    util.logger = util.set_up_logging(
-        args=util.args, logfile=util.args.log_file, version=__version__
+    sedr.util.args = sedr.util.parse_args(
+        ["--url", "https://example.com/"], __version__
+    )
+    sedr.util.logger = sedr.util.set_up_logging(
+        args=sedr.util.args, logfile=sedr.util.args.log_file, version=__version__
     )
 
     def test_requirement7_2(self):
         # Good tests
         landing_json = {}
-        with open("testdata/edrisobaric_landing.json", "r", encoding="utf-8") as f:
+        with open("testdata/edrisobaric_landing.json", encoding="utf-8") as f:
             landing_json = json.load(f)
         ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertTrue(ok)
 
         # Bad tests
-        with open(
-            "testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8"
-        ) as f:
+        with open("testdata/edrisobaric_landing-bad-desc.json", encoding="utf-8") as f:
             landing_json = json.load(f)
         ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)
