@@ -12,7 +12,7 @@ class TestInit(unittest.TestCase):
 
         url = "https://edrisobaric.k8s.met.no/"
         sedr.util.args = sedr.util.parse_args(["--url", url], __version__)
-        sedr.util.args.openapi_version == "3.1"  # pylint:disable=pointless-statement
+        sedr.util.args.openapi_version == "3.1"  # noqa: B015
 
         landing_page_links = sedr.util.fetch_landing_page_links(url)
 

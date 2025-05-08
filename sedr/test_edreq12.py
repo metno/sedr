@@ -24,7 +24,7 @@ class TestEDR(unittest.TestCase):
             "edrisobaric_collection_bbox2.json",
         ]:
             jsondata = {}
-            with open(f"testdata/{test_file}", "r", encoding="utf-8") as f:
+            with open(f"testdata/{test_file}", encoding="utf-8") as f:
                 jsondata = json.load(f)
             ok, _ = edreq.requrementA5_2(jsondata)
             self.assertTrue(ok)
@@ -32,7 +32,7 @@ class TestEDR(unittest.TestCase):
         # Bad tests
         jsondata = {}
         with open(
-            "testdata/edrisobaric_collection_bad_bbox.json", "r", encoding="utf-8"
+            "testdata/edrisobaric_collection_bad_bbox.json", encoding="utf-8"
         ) as f:
             jsondata = json.load(f)
         ok, _ = edreq.requrementA5_2(jsondata)

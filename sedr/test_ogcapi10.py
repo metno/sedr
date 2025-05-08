@@ -19,16 +19,14 @@ class TestOGCAPI(unittest.TestCase):
     def test_requirement9_1(self):
         # Good tests
         jsondata = {}
-        with open("testdata/edrisobaric_landing.json", "r", encoding="utf-8") as f:
+        with open("testdata/edrisobaric_landing.json", encoding="utf-8") as f:
             jsondata = json.load(f)
         ok, _ = ogcapi.requirement9_1(jsondata)
         self.assertTrue(ok)
 
         # Bad tests
         jsondata = {}
-        with open(
-            "testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8"
-        ) as f:
+        with open("testdata/edrisobaric_landing-bad-desc.json", encoding="utf-8") as f:
             jsondata = json.load(f)
         ok, _ = ogcapi.requirement9_1(jsondata)
         self.assertFalse(ok)

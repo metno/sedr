@@ -21,15 +21,13 @@ class TestRodeoprofile(unittest.TestCase):
     def test_requirement7_2(self):
         # Good tests
         landing_json = {}
-        with open("testdata/edrisobaric_landing.json", "r", encoding="utf-8") as f:
+        with open("testdata/edrisobaric_landing.json", encoding="utf-8") as f:
             landing_json = json.load(f)
         ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertTrue(ok)
 
         # Bad tests
-        with open(
-            "testdata/edrisobaric_landing-bad-desc.json", "r", encoding="utf-8"
-        ) as f:
+        with open("testdata/edrisobaric_landing-bad-desc.json", encoding="utf-8") as f:
             landing_json = json.load(f)
         ok, _ = profilecore.requirement7_2(landing_json, timeout=10)
         self.assertFalse(ok)

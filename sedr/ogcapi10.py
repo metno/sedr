@@ -18,7 +18,8 @@ def requirement9_1(jsondata: dict) -> tuple[bool, str]:
 
     Test that the landing page contains required elements.
 
-    TODO: See https://github.com/metno/sedr/issues/6 - Should landing page in json only be tested if correct conformance class exists?
+    TODO: See https://github.com/metno/sedr/issues/6 - Should landing page in
+        json only be tested if correct conformance class exists?
     """
     spec_ref = f"{ogc_api_common_url}#_7c772474-7037-41c9-88ca-5c7e95235389"
 
@@ -92,7 +93,10 @@ def test_conformance_links(jsondata: dict, timeout: int = 10) -> tuple[bool, str
             msg += f"test_conformance_links Link <{link}> from /conformance is malformed: {error}). "
         if not response.status_code < 400:
             valid = not sedr.util.args.strict
-            msg += f"test_conformance_links Link {link} from /conformance is broken (gives status code {response.status_code}). "
+            msg += (
+                f"test_conformance_links Link {link} from /conformance is broken "
+                + f"(gives status code {response.status_code}). "
+            )
     return valid, msg
 
 

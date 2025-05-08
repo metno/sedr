@@ -47,7 +47,7 @@ def set_up_schemathesis(args, landing_page_links) -> BaseOpenAPISchema:
         args.base_url,
         args.openapi,
     )
-    return schemathesis.from_path(path=util.args.openapi, base_url=args.base_url)
+    return schemathesis.from_path(path=sedr.util.args.openapi, base_url=args.base_url)
 
 
 def set_up_collections(landing_page_links: list) -> list:
@@ -58,7 +58,8 @@ def set_up_collections(landing_page_links: list) -> list:
     )
     if not collections_url:
         raise AssertionError(
-            f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: {landing_page_links}. Aborting."
+            f"Unable to find collections url for the API through a link object with 'rel: data' in the links list: "
+            f"{landing_page_links}. Aborting."
         )
     try:
         response = requests.get(collections_url, timeout=30)

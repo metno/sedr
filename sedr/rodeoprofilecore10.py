@@ -208,7 +208,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     # A, B
     for link in jsondata["links"]:
         if link["rel"] == wanted_rel:
-            if not link["type"] == wanted_type:
+            if link["type"] != wanted_type:
                 return (
                     False,
                     f"Collection <{jsondata['id']}> license link should have "
@@ -281,14 +281,13 @@ def requirement7_7(jsondata: dict) -> tuple[bool, str]:
 
         # C
         for q in jsondata["data_queries"]:
-            if "crs_details" in q:
-                if not any(
-                    crs_detail["crs"] == "OGC:CRS84" for crs_detail in q["crs_details"]
-                ):
-                    return (
-                        False,
-                        "If crs_details is specified there SHALL be an object with crs set to 'OGC:CRS84'.",
-                    )
+            if "crs_details" in q and not any(
+                crs_detail["crs"] == "OGC:CRS84" for crs_detail in q["crs_details"]
+            ):
+                return (
+                    False,
+                    "If crs_details is specified there SHALL be an object with crs set to 'OGC:CRS84'.",
+                )
 
         # D
         for q in jsondata["data_queries"]:
@@ -331,12 +330,15 @@ def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
     ]
 
     # A
-    if "vertical" in jsondata["extent"] and sedr.util.args.strict:
-        if jsondata["extent"]["vertical"]["vrs"] not in allowed_vrs:
-            return (
-                False,
-                f"Collection extent.vertical.vrs should be one of the following: {', '.join(allowed_vrs)}.",
-            )
+    if (
+        "vertical" in jsondata["extent"]
+        and sedr.util.args.strict
+        and jsondata["extent"]["vertical"]["vrs"] not in allowed_vrs
+    ):
+        return (
+            False,
+            f"Collection extent.vertical.vrs should be one of the following: {', '.join(allowed_vrs)}.",
+        )
 
     return (
         True,
@@ -360,7 +362,8 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
             if not all(key in items for key in ["label", "description", "unit"]):
                 return (
                     False,
-                    f"Each parameter in parameter_names SHALL include keys 'label', 'description' and 'unit'. Error testing <{param}>.",
+                    f"Each parameter in parameter_names SHALL include keys 'label', "
+                    f"'description' and 'unit'. Error testing <{param}>.",
                 )
             # C
             if len(items["label"]) > 50:
