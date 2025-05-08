@@ -8,7 +8,9 @@ import sedr.util
 
 class TestRodeoprofileInsituObservations(unittest.TestCase):
     __version__ = "testversion"
-    sedr.util.args = sedr.util.parse_args(["--url", "https://example.com/"], __version__)
+    sedr.util.args = sedr.util.parse_args(
+        ["--url", "https://example.com/"], __version__
+    )
     sedr.util.logger = sedr.util.set_up_logging(
         args=sedr.util.args, logfile=sedr.util.args.log_file, version=__version__
     )

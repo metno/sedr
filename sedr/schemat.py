@@ -65,7 +65,9 @@ def set_up_collections(landing_page_links: list) -> list:
         response.raise_for_status()
         return response.json().get("collections", [])
     except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
-        sedr.util.logger.error("Error fetching collections <%s>:\n%s", collections_url, err)
+        sedr.util.logger.error(
+            "Error fetching collections <%s>:\n%s", collections_url, err
+        )
         return []
 
 

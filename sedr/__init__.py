@@ -1,7 +1,7 @@
 """Main init file for sedr. Schemathesis related in schemat.py, others in utils.py."""
 
 __license__ = "GPL-2.0"
-__version__ = "v0.11.0"
+__version__ = "v0.12.0"
 
 import sys
 import pytest
@@ -23,6 +23,13 @@ def run_schemat() -> None:
 def main() -> None:
     """Run the main program."""
 
+    # Handle --version and --help
+    if not sedr.util.args:
+        sedr.util.args = sedr.util.parse_args(sys.argv[1:], __version__)
+        sedr.util.logger = sedr.util.set_up_logging(
+            args=sedr.util.args, logfile=sedr.util.args.log_file, version=__version__
+        )
+
     # Collect tests to run
     sedr.util.test_functions["landing"] += edreq.tests_landing + ogcapi.tests_landing
     sedr.util.test_functions["conformance"] += (
@@ -34,7 +41,7 @@ def main() -> None:
     sedr.util.test_functions["data_query_response"] = []
     sedr.util.test_functions["locations_query_response"] = []
 
-    if sedr.util.args.rodeo_profile_core:
+    if sedr.util.args and sedr.util.args.rodeo_profile_core:
         sedr.util.logger.info(
             "Including tests for Rodeo profile core %s",
             rodeoprofilecore.conformance_url,
@@ -46,7 +53,7 @@ def main() -> None:
             rodeoprofilecore.tests_locations_query_response
         )
 
-    if sedr.util.args.rodeo_profile_insitu_observations:
+    if sedr.util.args and sedr.util.args.rodeo_profile_insitu_observations:
         sedr.util.logger.info(
             "Including tests for Rodeo profile insitu observations %s",
             rodeoprofileinsituobservations.conformance_url,
@@ -66,11 +73,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # Handle --version and --help
-    if not sedr.util.args:
-        sedr.util.args = sedr.util.parse_args(sys.argv[1:], __version__)
-        sedr.util.logger = sedr.util.set_up_logging(
-            args=sedr.util.args, logfile=sedr.util.args.log_file, version=__version__
-        )
-
     main()

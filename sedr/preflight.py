@@ -46,7 +46,9 @@ def fetch_conformance(url: str, timeout: int) -> tuple[bool, dict]:
 
 def main():
     # Get landing
-    landing_is_reachable, landing_json = fetch_landing(sedr.util.args.url, sedr.util.args.timeout)
+    landing_is_reachable, landing_json = fetch_landing(
+        sedr.util.args.url, sedr.util.args.timeout
+    )
     if not landing_is_reachable:
         return False
 
