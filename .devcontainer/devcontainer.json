@@ -12,6 +12,12 @@
             ]
         }
     },
-    // Installs in system, not venv
-    "postCreateCommand": "pip install uv; uv tool install tox --with tox-uv; uv sync"
+    "mounts": [
+        // Mount pip cache inside image. May open for cache poisoning, but saves so much time and bandwidth
+        "source=${localEnv:HOME}/.cache/pip,target=/home/vscode/.cache/pip,type=bind,consistency=cached",
+        // Mount uv cache inside image. May open for cache poisoning, but saves so much time and bandwidth
+        "source=${localEnv:HOME}/.cache/uv,target=/home/vscode/.cache/uv,type=bind,consistency=cached"
+    ],
+    // Installs in system, not venv.
+    "postCreateCommand": "export UV_LINK_MODE=copy; pip install uv; uv tool install tox --with tox-uv; uv sync"
 }
