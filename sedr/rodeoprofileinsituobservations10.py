@@ -1,6 +1,7 @@
 """rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
+import requests
 
 import sedr.util
 
@@ -118,7 +119,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         # A, C
         if not any(
             custom_dim["id"] == "standard_names"
-            and custom_dim["reference"].startsWith(
+            and custom_dim["reference"].startswith(
                 "https://vocab.nerc.ac.uk/standard_name"
             )
             for custom_dim in jsondata["extent"]["custom"]
@@ -155,5 +156,85 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         "Collection custom extent OK. ",
     )
 
+def requirement8_5(resp: requests.Response) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Insitu observations
+    Version: 0.1.0
+    8.5. Data query response format
 
+    Check if the data query response format is correctly defined.
+    """
+    spec_url = f"{spec_base_url}#_data_query_response_format"
+
+    if resp.headers["Content-Type"] != "application/vnd.cov+json":
+        return (
+            False,
+            "Data query response format SHALL be application/vnd.cov+json. "
+            f"Found: {resp.headers['Content-Type']}. See <{spec_url}> for more info.",
+        )
+
+
+    return (
+        True,
+        "Data query response format OK. ",
+    )
+
+def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Insitu observations
+    Version: 0.1.0
+    8.6. The metadata about parameters in CoverageJSON.
+
+
+    Check if the parameters in the CoverageJSON data query response is correctly defined.
+    """
+
+    spec_url = f"{spec_base_url}#_coveragejson_parameters"
+
+    try:
+        for coverage in resp.json()["coverage"]:
+            # A
+            if not all(
+                "metocean:measurementType" in p and
+                ["method", "period"] in p["metocean:measurementType"]
+                for p in coverage["parameters"]
+            ):
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a parameters object with metocean:measurementType. "
+                    "metocean:measurementType SHALL have method and period properties. "
+                    f"See <{spec_url}> for more info.",
+                )
+            # B
+            if not all(
+                "metocean:standard_name" in p
+                for p in coverage["parameters"]
+            ):
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a metocean:standard_name property for all parameters. "
+                    f"See <{spec_url}> for more info.",
+                )
+            # C
+            if not all(
+                "metocean:level" in p
+                for p in coverage["parameters"]
+            ):
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a metocean:level property for all parameters. "
+                    f"See <{spec_url}> for more info.",
+                )
+    
+    except (json.JSONDecodeError, KeyError) as err:
+        return (
+            False,
+            f"CoverageJSON data query response has one or more missing properties: {err}.",
+        )
+
+    return (
+        True,
+        "Parameters in CoverageJSON data query response OK. ",
+    )
 tests_collection = [requirement8_2, requirement8_3, requirement8_4]
+tests_data_query_response = [requirement8_5, requirement8_6]
