@@ -37,7 +37,7 @@ class TestRodeoprofile(unittest.TestCase):
             content, status_code=200, content_type="application/geo+json"
         ):
             response = requests.Response()
-            response._content = content.encode("utf-8")
+            response._content = content.encode("utf-8") # pylint: disable=protected-access
             response.status_code = status_code
             response.headers["Content-Type"] = content_type
             return response
