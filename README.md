@@ -2,6 +2,8 @@
 
 ![Logo](/img/sedr.png "Logo")
 
+[![CodeQL](https://github.com/metno/sedr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/metno/sedr/actions/workflows/github-code-scanning/codeql)
+
 ## What is sedr?
 
 An experimental validator for OGC EDR APIs. Main focus will be on the Rodeo Profile, which is a subset of the OGC EDR API.
