@@ -1,6 +1,7 @@
 """rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
 
 import json
+from urllib.parse import parse_qs, urlparse
 
 import requests
 
@@ -234,5 +235,62 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
     )
 
 
+def requirement8_7(resp: requests.Response) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Insitu observations
+    Version: 0.1.0
+    8.7. Coordinate referencing metadata in CoverageJSON.
+
+    Check that the CoverageJSON doc has correct referencing metadata.
+    """
+    spec_url = f"{spec_base_url}#_coveragejson_referencing"
+    query_url = resp.request.url
+
+    try:
+        data = resp.json()
+    except json.JSONDecodeError:
+        return (
+            False,
+            "CoverageJSON data query response is not valid JSON. "
+            f"Query URL: {query_url}. See <{spec_url}> for more info.",
+        )
+
+    query_params = parse_qs(urlparse(query_url).query)
+    expected_crs = query_params.get("crs", "OGC:CRS84")
+    coverages = []
+    if data["type"] == "Coverage":
+        coverages.append(data)
+    elif data["type"] == "CoverageCollection":
+        coverages = data["coverage"]
+
+    try:
+        for coverage in coverages:
+            # A, B
+            correct_crs = list(
+                filter(
+                    lambda r: r["system"]["type"] == "GeographicCRS"
+                    and r["system"]["id"] == expected_crs,
+                    coverage["domain"]["referencing"],
+                )
+            )
+            if len(correct_crs) == 0:
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a referencing object with a crs set to either "
+                    f"OGC:CRS84 or the same as specified in query URL: {query_url}. See <{spec_url}> for more info.",
+                )
+    except KeyError as err:
+        return (
+            False,
+            f"CoverageJSON data query response has one or more missing properties: {err}. "
+            f" See <{spec_url}> for more info.",
+        )
+
+    return (
+        True,
+        f"Referencing metadata in CoverageJSON data query response OK. {data}",
+    )
+
+
 tests_collection = [requirement8_2, requirement8_3, requirement8_4]
-tests_data_query_response = [requirement8_5, requirement8_6]
+tests_data_query_response = [requirement8_5, requirement8_6, requirement8_7]

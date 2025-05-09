@@ -175,6 +175,7 @@ def test_data_query_response(id, collection):  # pylint: disable=redefined-built
             errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
             errors += f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}\n"
+            continue
 
         for test_func in sedr.util.test_functions["data_query_response"]:
             status, msg = test_func(resp=inside)
