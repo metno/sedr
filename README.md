@@ -55,6 +55,15 @@ Use --help to see all options.
 
 The summary output at the end of the test run will list the first error found for each test. If you want all errors found, go up to the detailed output for that particular test.
 
+### Development
+
+- Uv is used (instead of pip) for package management.
+  - Install uv
+  - in project dir, run `uv sync --all-extras` to set up environment and install all packages
+  - to run project: `uv run sedr`
+- Tox is used to run tests
+  - to run tox: `uv tool run tox`
+
 ### Limitations
 
 - Assuming Openapi 3.1
