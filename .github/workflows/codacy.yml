@@ -27,11 +27,8 @@ jobs:
           # Force 0 exit code to allow SARIF file generation
           # This will hand over control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
-          tool: # https://docs.codacy.com/repositories-configure/codacy-configuration-file/#which-tools-can-be-configured-and-which-name-should-i-use
-            - bandit
-            - prospector
-            - ruff
-            - trivy
+          # https://docs.codacy.com/repositories-configure/codacy-configuration-file/#which-tools-can-be-configured-and-which-name-should-i-use
+          tool: bandit
       
       # Upload the SARIF file generated in the previous step
       - name: Upload SARIF results file
