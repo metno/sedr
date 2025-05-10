@@ -100,11 +100,11 @@ def test_openapi(case):
 
 
 @schemathesis.hook
-def after_call(context, case, response):  # noqa: pylint: disable=unused-argument
+def after_call(context, case, response):  # noqa: F841 pylint: disable=unused-argument
     """Hook runs after any call to the API, used for logging."""
     if response.request:
         # Log calls with status
-        sedr.util.logger.debug(  # noqa: pylint: disable=logging-not-lazy
+        sedr.util.logger.debug(  # noqa: E501 pylint: disable=logging-not-lazy
             f"after_call {'OK' if response.ok else 'ERR'} "
             + f"{response.request.path_url} {response.text[0:150]}"
         )

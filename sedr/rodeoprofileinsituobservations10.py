@@ -32,8 +32,8 @@ def requirement8_2(jsondata: dict) -> tuple[bool, str]:
                 return (
                     False,
                     f"Collection must have data queries for all required types: "
-                    f"{', '.join(required_data_query_types)}. Missing: {q}. "
-                    f"Found: {list(jsondata['data_queries'].keys())}. See <{spec_base_url}> for more info.",
+                    f"{', '.join(required_data_query_types)}. Missing: {q}. Found: "
+                    f"{list(jsondata['data_queries'].keys())}. See <{spec_base_url}> for more info.",
                 )
     except (json.JSONDecodeError, KeyError) as err:
         return (
@@ -69,9 +69,8 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
             ):
                 return (
                     False,
-                    "An object in parameter_names shall have the property 'metocean:standard_name', 'metocean:level' "
-                    "and measurementType."
-                    f"See <{spec_base_url}> for more info.",
+                    "An object in parameter_names shall have the property 'metocean:standard_name', "
+                    f"'metocean:level' and measurementType. See <{spec_base_url}> for more info.",
                 )
             # C
             cf_cell_methods = [
@@ -93,8 +92,8 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
             ):
                 return (
                     False,
-                    "An object in parameter_names shall have the property 'measurementType' with a 'method' property"
-                    f"that is one of the following: {', '.join(cf_cell_methods)}."
+                    "An object in parameter_names shall have the property 'measurementType' with a "
+                    f"'method' property that is one of the following: {', '.join(cf_cell_methods)}."
                     f"See <{spec_base_url}> for more info.",
                 )
     except (json.JSONDecodeError, KeyError) as err:
@@ -204,23 +203,23 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
             ):
                 return (
                     False,
-                    "CoverageJSON data query response SHALL have a parameters object with metocean:measurementType. "
-                    "metocean:measurementType SHALL have method and period properties. "
-                    f"See <{spec_url}> for more info.",
+                    "CoverageJSON data query response SHALL have a parameters object with "
+                    "metocean:measurementType.  metocean:measurementType SHALL have "
+                    f"method and period properties. See <{spec_url}> for more info.",
                 )
             # B
             if not all("metocean:standard_name" in p for p in coverage["parameters"]):
                 return (
                     False,
-                    "CoverageJSON data query response SHALL have a metocean:standard_name property for all parameters. "
-                    f"See <{spec_url}> for more info.",
+                    "CoverageJSON data query response SHALL have a metocean:standard_name property "
+                    f"for all parameters. See <{spec_url}> for more info.",
                 )
             # C
             if not all("metocean:level" in p for p in coverage["parameters"]):
                 return (
                     False,
-                    "CoverageJSON data query response SHALL have a metocean:level property for all parameters. "
-                    f"See <{spec_url}> for more info.",
+                    "CoverageJSON data query response SHALL have a metocean:level property "
+                    f"for all parameters. See <{spec_url}> for more info.",
                 )
 
     except (json.JSONDecodeError, KeyError) as err:
@@ -276,8 +275,9 @@ def requirement8_7(resp: requests.Response) -> tuple[bool, str]:
             if len(correct_crs) == 0:
                 return (
                     False,
-                    "CoverageJSON data query response SHALL have a referencing object with a crs set to either "
-                    f"OGC:CRS84 or the same as specified in query URL: {query_url}. See <{spec_url}> for more info.",
+                    "CoverageJSON data query response SHALL have a referencing object "
+                    "with a crs set to either OGC:CRS84 or the same as specified in "
+                    f"query URL: {query_url}. See <{spec_url}> for more info.",
                 )
     except KeyError as err:
         return (
