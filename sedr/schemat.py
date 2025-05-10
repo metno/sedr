@@ -100,11 +100,11 @@ def test_openapi(case):
 
 
 @schemathesis.hook
-def after_call(context, case, response):  # noqa: pylint: disable=unused-argument
+def after_call(context, case, response):  # noqa: F841 pylint: disable=unused-argument
     """Hook runs after any call to the API, used for logging."""
     if response.request:
         # Log calls with status
-        sedr.util.logger.debug(  # noqa: pylint: disable=logging-not-lazy
+        sedr.util.logger.debug(  # noqa: E501 pylint: disable=logging-not-lazy
             f"after_call {'OK' if response.ok else 'ERR'} "
             + f"{response.request.path_url} {response.text[0:150]}"
         )
@@ -175,9 +175,10 @@ def test_data_query_response(id, collection):  # pylint: disable=redefined-built
             errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
             errors += f"Expected status code 200 for query {queries.inside}; Got {inside.status_code}\n"
+            continue
 
         for test_func in sedr.util.test_functions["data_query_response"]:
-            status, msg = test_func(jsondata=inside.json())
+            status, msg = test_func(resp=inside)
             if not status:
                 sedr.util.logger.error(
                     "Test %s failed with message: %s", test_func.__name__, msg
