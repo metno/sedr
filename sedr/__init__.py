@@ -63,6 +63,10 @@ def main() -> None:
             rodeoprofileinsituobservations.tests_collection
         )
 
+        sedr.util.test_functions["data_query_response"] = (
+            rodeoprofileinsituobservations.tests_data_query_response
+        )
+
     # TODO: include profile tests based on conformance_url, https://github.com/metno/sedr/issues/32
     # if rodeoprofile.conformance_url in conformance_json["conformsTo"]:
     #     sedr.util.args.rodeo_profile = True
