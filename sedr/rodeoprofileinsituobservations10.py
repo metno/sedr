@@ -195,32 +195,30 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
 
     try:
         for coverage in resp.json()["coverage"]:
-            # A
-            if not all(
-                "metocean:measurementType" in p
-                and ["method", "period"] in p["metocean:measurementType"]
-                for p in coverage["parameters"]
-            ):
-                return (
-                    False,
-                    "CoverageJSON data query response SHALL have a parameters object with "
-                    "metocean:measurementType.  metocean:measurementType SHALL have "
-                    f"method and period properties. See <{spec_url}> for more info.",
-                )
-            # B
-            if not all("metocean:standard_name" in p for p in coverage["parameters"]):
-                return (
-                    False,
-                    "CoverageJSON data query response SHALL have a metocean:standard_name property "
-                    f"for all parameters. See <{spec_url}> for more info.",
-                )
-            # C
-            if not all("metocean:level" in p for p in coverage["parameters"]):
-                return (
-                    False,
-                    "CoverageJSON data query response SHALL have a metocean:level property "
-                    f"for all parameters. See <{spec_url}> for more info.",
-                )
+            for param in coverage["parameters"].values():
+                # A
+                measurement_type = param.get("metocean:measurementType", {})
+                if not ("method" in measurement_type and "period" in measurement_type):
+                    return (
+                        False,
+                        "CoverageJSON data query response SHALL have a parameters object with "
+                        "metocean:measurementType. metocean:measurementType SHALL have "
+                        f"method and period properties. See <{spec_url}> for more info. Got: {coverage['parameters']}.",
+                    )
+                # B
+                if "metocean:standard_name" not in param:
+                    return (
+                        False,
+                        "CoverageJSON data query response SHALL have a metocean:standard_name property "
+                        f"for all parameters. See <{spec_url}> for more info.",
+                    )
+                # C
+                if "metocean:level" not in param:
+                    return (
+                        False,
+                        "CoverageJSON data query response SHALL have a metocean:level property "
+                        f"for all parameters. See <{spec_url}> for more info.",
+                    )
 
     except (json.JSONDecodeError, KeyError) as err:
         return (
@@ -272,10 +270,10 @@ def requirement8_7(resp: requests.Response) -> tuple[bool, str]:
                     coverage["domain"]["referencing"],
                 )
             )
-            if len(correct_crs) == 0:
+            if len(correct_crs) != 1:
                 return (
                     False,
-                    "CoverageJSON data query response SHALL have a referencing object "
+                    "CoverageJSON data query response SHALL have one referencing object "
                     "with a crs set to either OGC:CRS84 or the same as specified in "
                     f"query URL: {query_url}. See <{spec_url}> for more info.",
                 )

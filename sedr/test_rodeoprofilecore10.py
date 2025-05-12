@@ -43,6 +43,7 @@ class TestRodeoprofile(unittest.TestCase):
             return response
 
         # Example usage of the mock_response function
+        # How is this wrong: id not string, no name in properties.
         geojson_erroneous_content = """
         {
             "type": "FeatureCollection",

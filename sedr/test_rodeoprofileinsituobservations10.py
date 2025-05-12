@@ -26,6 +26,17 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
         ok, _ = profileinsitu.requirement8_2(collection_json)
         self.assertFalse(ok)
 
+    def test_requirement8_6(self):
+        # Bad test
+        bad_coveragejson = self.mock_bad_coveragejson_response()
+        ok, msg = profileinsitu.requirement8_6(bad_coveragejson)
+        self.assertFalse(ok, msg)
+
+        # Good test
+        good_coveragejson = self.mock_good_coveragejson_response()
+        ok, msg = profileinsitu.requirement8_6(good_coveragejson)
+        self.assertTrue(ok, msg)
+
     def test_requirement8_7(self):
         # Bad test
         bad_coveragejson = self.mock_bad_coveragejson_response()
@@ -38,6 +49,8 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
         self.assertTrue(ok, msg)
 
     def mock_good_coveragejson_response(self):
+        """Mock a good coverage JSON response for testing."""
+
         good_coveragejson = MagicMock(spec=requests.Response)
 
         # Set attributes on the mock response object
@@ -93,9 +106,12 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                                 "label": {"en": "Relative humidity"},
                             },
                             "unit": {"label": {"en": "percent"}},
-                            "measurementType": {"method": "point", "period": "PT0S"},
-                            "rodeo:standard_name": "relative_humidity",
-                            "rodeo:level": 10.0,
+                            "metocean:measurementType": {
+                                "method": "point",
+                                "period": "PT0S",
+                            },
+                            "metocean:standard_name": "relative_humidity",
+                            "metocean:level": 10.0,
                         },
                         "wind_from_direction:10.0:point:PT10M": {
                             "type": "Parameter",
@@ -107,9 +123,12 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                                 "label": {"en": "Wind from direction"},
                             },
                             "unit": {"label": {"en": "degrees"}},
-                            "measurementType": {"method": "point", "period": "PT10M"},
-                            "rodeo:standard_name": "wind_from_direction",
-                            "rodeo:level": 10.0,
+                            "metocean:measurementType": {
+                                "method": "point",
+                                "period": "PT10M",
+                            },
+                            "metocean:standard_name": "wind_from_direction",
+                            "metocean:level": 10.0,
                         },
                         "wind_speed:10.0:point:PT10M": {
                             "type": "Parameter",
@@ -121,9 +140,12 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                                 "label": {"en": "Wind speed"},
                             },
                             "unit": {"label": {"en": "m/s"}},
-                            "measurementType": {"method": "point", "period": "PT10M"},
-                            "rodeo:standard_name": "wind_speed",
-                            "rodeo:level": 10.0,
+                            "metocean:measurementType": {
+                                "method": "point",
+                                "period": "PT10M",
+                            },
+                            "metocean:standard_name": "wind_speed",
+                            "metocean:level": 10.0,
                         },
                     },
                     "ranges": {
@@ -158,7 +180,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                             ],
                         },
                     },
-                    "rodeo:wigosId": "0-20000-0-02024",
+                    "metocean:wigosId": "0-20000-0-02024",
                 }
             ],
         }
@@ -166,9 +188,14 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
         return good_coveragejson
 
     def mock_bad_coveragejson_response(self):
+        """Mock a bad coverage JSON response for testing."""
+
         bad_coveragejson = MagicMock(spec=requests.Response)
 
         # Set attributes on the mock response object
+        # The response has these errors:
+        #   - referencing system is not same as crs in query.
+        #   - no metocean:standard_name in one parameter.
         bad_coveragejson.request = MagicMock()
         bad_coveragejson.request.url = (
             "https://api.example.com/collection/example/locations/1?crs=EPSG:4326"
@@ -215,9 +242,8 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Relative humidity"},
                     },
                     "unit": {"label": {"en": "percent"}},
-                    "measurementType": {"method": "point", "period": "PT0S"},
-                    "rodeo:standard_name": "relative_humidity",
-                    "rodeo:level": 10.0,
+                    "metocean:measurementType": {"method": "point", "period": "PT0S"},
+                    "metocean:level": 10.0,
                 },
                 "wind_from_direction:10.0:point:PT10M": {
                     "type": "Parameter",
@@ -229,9 +255,9 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Wind from direction"},
                     },
                     "unit": {"label": {"en": "degrees"}},
-                    "measurementType": {"method": "point", "period": "PT10M"},
-                    "rodeo:standard_name": "wind_from_direction",
-                    "rodeo:level": 10.0,
+                    "metocean:measurementType": {"method": "point", "period": "PT10M"},
+                    "metocean:standard_name": "wind_from_direction",
+                    "metocean:level": 10.0,
                 },
                 "wind_speed:10.0:point:PT10M": {
                     "type": "Parameter",
@@ -243,9 +269,9 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Wind speed"},
                     },
                     "unit": {"label": {"en": "m/s"}},
-                    "measurementType": {"method": "point", "period": "PT10M"},
-                    "rodeo:standard_name": "wind_speed",
-                    "rodeo:level": 10.0,
+                    "metocean:measurementType": {"method": "point", "period": "PT10M"},
+                    "metocean:standard_name": "wind_speed",
+                    "metocean:level": 10.0,
                 },
             },
             "ranges": {
@@ -280,7 +306,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                     ],
                 },
             },
-            "rodeo:wigosId": "0-20000-0-02024",
+            "metocean:wigosId": "0-20000-0-02024",
         }
 
         return bad_coveragejson
