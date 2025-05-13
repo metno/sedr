@@ -108,7 +108,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                             "unit": {"label": {"en": "percent"}},
                             "metocean:measurementType": {
                                 "method": "point",
-                                "period": "PT0S",
+                                "duration": "PT0S",
                             },
                             "metocean:standard_name": "relative_humidity",
                             "metocean:level": 10.0,
@@ -125,7 +125,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                             "unit": {"label": {"en": "degrees"}},
                             "metocean:measurementType": {
                                 "method": "point",
-                                "period": "PT10M",
+                                "duration": "PT10M",
                             },
                             "metocean:standard_name": "wind_from_direction",
                             "metocean:level": 10.0,
@@ -142,7 +142,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                             "unit": {"label": {"en": "m/s"}},
                             "metocean:measurementType": {
                                 "method": "point",
-                                "period": "PT10M",
+                                "duration": "PT10M",
                             },
                             "metocean:standard_name": "wind_speed",
                             "metocean:level": 10.0,
@@ -242,7 +242,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Relative humidity"},
                     },
                     "unit": {"label": {"en": "percent"}},
-                    "metocean:measurementType": {"method": "point", "period": "PT0S"},
+                    "metocean:measurementType": {"method": "point", "duration": "PT0S"},
                     "metocean:level": 10.0,
                 },
                 "wind_from_direction:10.0:point:PT10M": {
@@ -255,7 +255,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Wind from direction"},
                     },
                     "unit": {"label": {"en": "degrees"}},
-                    "metocean:measurementType": {"method": "point", "period": "PT10M"},
+                    "metocean:measurementType": {"method": "point", "duration": "PT10M"},
                     "metocean:standard_name": "wind_from_direction",
                     "metocean:level": 10.0,
                 },
@@ -269,7 +269,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                         "label": {"en": "Wind speed"},
                     },
                     "unit": {"label": {"en": "m/s"}},
-                    "metocean:measurementType": {"method": "point", "period": "PT10M"},
+                    "metocean:measurementType": {"method": "point", "duration": "PT10M"},
                     "metocean:standard_name": "wind_speed",
                     "metocean:level": 10.0,
                 },
