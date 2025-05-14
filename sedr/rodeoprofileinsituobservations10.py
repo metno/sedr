@@ -198,12 +198,14 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
             for param in coverage["parameters"].values():
                 # A
                 measurement_type = param.get("metocean:measurementType", {})
-                if not ("method" in measurement_type and "duration" in measurement_type):
+                if not (
+                    "method" in measurement_type and "duration" in measurement_type
+                ):
                     return (
                         False,
                         "CoverageJSON data query response SHALL have a parameters object with "
-                        "metocean:measurementType. metocean:measurementType SHALL have "
-                        f"method and duration properties. See <{spec_url}> for more info. Got: {coverage['parameters']}.",
+                        "metocean:measurementType. metocean:measurementType SHALL have method and duration "
+                        f"properties. See <{spec_url}> for more info. Got: {coverage['parameters']}.",
                     )
                 # B
                 if "metocean:standard_name" not in param:
