@@ -36,12 +36,12 @@ def radius_queries(base_url: str, extent: list) -> Queries:
 
 def area_queries(base_url: str, extent: list) -> Queries:
     """Generate area queries for a given extent."""
-    inside_polygon = wkt_points(points_inside(extent))
-    outside_polygon = wkt_points(points_outside(extent))
+    inside_polygon = wkt_points(points_inside(extent), closed=True)
+    outside_polygon = wkt_points(points_outside(extent), closed=True)
 
     return Queries(
-        urljoin(base_url, "area") + f"?coords=POLYGON({inside_polygon})",
-        urljoin(base_url, "area") + f"?coords=POLYGON({outside_polygon})"
+        urljoin(base_url, "area") + f"?coords=POLYGON(({inside_polygon}))",
+        urljoin(base_url, "area") + f"?coords=POLYGON(({outside_polygon}))"
         if outside_polygon
         else "",
     )
@@ -98,6 +98,10 @@ def points_outside(extent: list) -> list:
     ]
 
 
-def wkt_points(points: list) -> str:
+def wkt_points(points: list, closed=False) -> str:
     """Convert a list of points to a WKT string."""
-    return ",".join(f"{p.long} {p.lat}" for p in points)
+    wkt_str = ",".join(f"{p.long} {p.lat}" for p in points)
+    if closed:
+        wkt_str += f",{points[0].long} {points[0].lat}"
+
+    return wkt_str

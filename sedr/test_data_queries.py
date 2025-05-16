@@ -43,7 +43,7 @@ class TestDataQueries(unittest.TestCase):
     def test_area_queries(self):
         extent = [-100, 5, 100, 85]
         base_url = "http://example.com/edr/collections/test/"
-        match_prefix = urljoin(base_url, "area") + "?coords=POLYGON("
+        match_prefix = urljoin(base_url, "area") + "?coords=POLYGON(("
 
         queries = dq.area_queries(base_url, extent)
 
@@ -54,6 +54,16 @@ class TestDataQueries(unittest.TestCase):
         self.assertTrue(
             queries.inside.startswith(match_prefix),
             f"Expected prefix match {match_prefix}; Got {queries.outside} ",
+        )
+        # Check that the POLYGON string in queries.inside ends with the same "long lat" coordinates
+        polygon_coords = queries.inside.split("POLYGON((")[1].split("))")[0]
+        first_coord, last_coord = (
+            polygon_coords.split(",")[0],
+            polygon_coords.split(",")[-1],
+        )
+        self.assertTrue(
+            first_coord.strip() == last_coord.strip(),
+            f"Expected first and last coordinates to match; Got {first_coord} and {last_coord}",
         )
 
 
