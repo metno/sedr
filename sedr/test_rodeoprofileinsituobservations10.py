@@ -62,7 +62,7 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
         good_coveragejson.headers = {"Content-Type": "application/vnd.cov+json"}
         good_coveragejson.json.return_value = {
             "type": "CoverageCollection",
-            "coverage": [
+            "coverages": [
                 {
                     "type": "Coverage",
                     "domain": {
@@ -94,59 +94,6 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                                 },
                             },
                         ],
-                    },
-                    "parameters": {
-                        "relative_humidity:10.0:point:PT0S": {
-                            "type": "Parameter",
-                            "description": {
-                                "en": "Relative humidity at 10.0m, aggregated over PT0S with method 'point'"
-                            },
-                            "observedProperty": {
-                                "id": "https://vocab.nerc.ac.uk/standard_name/relative_humidity",
-                                "label": {"en": "Relative humidity"},
-                            },
-                            "unit": {"label": {"en": "percent"}},
-                            "metocean:measurementType": {
-                                "method": "point",
-                                "duration": "PT0S",
-                            },
-                            "metocean:standard_name": "relative_humidity",
-                            "metocean:level": 10.0,
-                        },
-                        "wind_from_direction:10.0:point:PT10M": {
-                            "type": "Parameter",
-                            "description": {
-                                "en": "Wind from direction at 10.0m, aggregated over PT10M with method 'point'"
-                            },
-                            "observedProperty": {
-                                "id": "https://vocab.nerc.ac.uk/standard_name/wind_from_direction",
-                                "label": {"en": "Wind from direction"},
-                            },
-                            "unit": {"label": {"en": "degrees"}},
-                            "metocean:measurementType": {
-                                "method": "point",
-                                "duration": "PT10M",
-                            },
-                            "metocean:standard_name": "wind_from_direction",
-                            "metocean:level": 10.0,
-                        },
-                        "wind_speed:10.0:point:PT10M": {
-                            "type": "Parameter",
-                            "description": {
-                                "en": "Wind speed at 10.0m, aggregated over PT10M with method 'point'"
-                            },
-                            "observedProperty": {
-                                "id": "https://vocab.nerc.ac.uk/standard_name/wind_speed",
-                                "label": {"en": "Wind speed"},
-                            },
-                            "unit": {"label": {"en": "m/s"}},
-                            "metocean:measurementType": {
-                                "method": "point",
-                                "duration": "PT10M",
-                            },
-                            "metocean:standard_name": "wind_speed",
-                            "metocean:level": 10.0,
-                        },
                     },
                     "ranges": {
                         "relative_humidity:10.0:point:PT0S": {
@@ -183,6 +130,59 @@ class TestRodeoprofileInsituObservations(unittest.TestCase):
                     "metocean:wigosId": "0-20000-0-02024",
                 }
             ],
+            "parameters": {
+                "relative_humidity:10.0:point:PT0S": {
+                    "type": "Parameter",
+                    "description": {
+                        "en": "Relative humidity at 10.0m, aggregated over PT0S with method 'point'"
+                    },
+                    "observedProperty": {
+                        "id": "https://vocab.nerc.ac.uk/standard_name/relative_humidity",
+                        "label": {"en": "Relative humidity"},
+                    },
+                    "unit": {"label": {"en": "percent"}},
+                    "metocean:measurementType": {
+                        "method": "point",
+                        "duration": "PT0S",
+                    },
+                    "metocean:standard_name": "relative_humidity",
+                    "metocean:level": 10.0,
+                },
+                "wind_from_direction:10.0:point:PT10M": {
+                    "type": "Parameter",
+                    "description": {
+                        "en": "Wind from direction at 10.0m, aggregated over PT10M with method 'point'"
+                    },
+                    "observedProperty": {
+                        "id": "https://vocab.nerc.ac.uk/standard_name/wind_from_direction",
+                        "label": {"en": "Wind from direction"},
+                    },
+                    "unit": {"label": {"en": "degrees"}},
+                    "metocean:measurementType": {
+                        "method": "point",
+                        "duration": "PT10M",
+                    },
+                    "metocean:standard_name": "wind_from_direction",
+                    "metocean:level": 10.0,
+                },
+                "wind_speed:10.0:point:PT10M": {
+                    "type": "Parameter",
+                    "description": {
+                        "en": "Wind speed at 10.0m, aggregated over PT10M with method 'point'"
+                    },
+                    "observedProperty": {
+                        "id": "https://vocab.nerc.ac.uk/standard_name/wind_speed",
+                        "label": {"en": "Wind speed"},
+                    },
+                    "unit": {"label": {"en": "m/s"}},
+                    "metocean:measurementType": {
+                        "method": "point",
+                        "duration": "PT10M",
+                    },
+                    "metocean:standard_name": "wind_speed",
+                    "metocean:level": 10.0,
+                },
+            },
         }
 
         return good_coveragejson
