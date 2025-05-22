@@ -60,9 +60,8 @@ def trajectory_queries(base_url: str, extent: list) -> Queries:
 
 
 def points_inside(extent: list) -> list:
-    """Generate points inside the given extent."""
+    """Generate points as a square with center of extent as lower left corner inside the given extent."""
 
-    # Create a square polyogon with center of extent as lower left corner.
     long_left = (extent[0] + extent[2]) / 2
     lat_bottom = (extent[1] + extent[3]) / 2
 
@@ -78,13 +77,12 @@ def points_inside(extent: list) -> list:
 
 
 def points_outside(extent: list) -> list:
-    """Generate points outside the given extent."""
+    """Generate points as a square outside the given extent."""
 
     # Check if extent is pole to pole. If so, no points can be created
     if extent[1] == -90 and extent[3] == 90:
         return []
 
-    # Create a set of points relatively close to each other.
     # Either north or south of spatial extent. Pick north first if it has most "room".
     long_left = (extent[0] + extent[2]) / 2
     long_right = long_left + abs(extent[2] - extent[0]) / 4
