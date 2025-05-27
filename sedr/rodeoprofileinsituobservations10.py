@@ -205,7 +205,8 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
                         False,
                         "CoverageJSON data query response SHALL have a parameters object with "
                         "metocean:measurementType. metocean:measurementType SHALL have "
-                        f"method and duration properties. See <{spec_url}> for more info. Got: {coverage['parameters']}.",
+                        f"method and duration properties. See <{spec_url}> for more info. Got: "
+                        f"{coverage['parameters']}.",
                     )
                 # B
                 if "metocean:standard_name" not in param:
