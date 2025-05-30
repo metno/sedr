@@ -44,11 +44,16 @@ def main() -> None:
 
     # Check if rodeo profile should be auto-included
     if sedr.util.args and not sedr.util.args.rodeo_profile_core:
-        conformance_is_reachable, conformance_json = sedr.preflight.fetch_conformance(url=sedr.util.args.base_url)
-        if conformance_is_reachable and rodeoprofilecore.conformance_url in conformance_json["conformsTo"]:
-            sedr.util.logger.info(
-            "Enabling tests for Rodeo profile core based on conformance URLs of API."
+        conformance_is_reachable, conformance_json = sedr.preflight.fetch_conformance(
+            url=sedr.util.args.base_url
         )
+        if (
+            conformance_is_reachable
+            and rodeoprofilecore.conformance_url in conformance_json["conformsTo"]
+        ):
+            sedr.util.logger.info(
+                "Enabling tests for Rodeo profile core based on conformance URLs of API."
+            )
             sedr.util.args.rodeo_profile = True
 
     if sedr.util.args and sedr.util.args.rodeo_profile_core:
