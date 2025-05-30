@@ -7,15 +7,15 @@
 
 ### Example
 
-> curl https://edrisobaric.k8s.met.no/conformance
-{
-  "conformsTo": [
-    "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/core",
-    "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.0/conf/covjson",
-    "http://www.opengis.net/spec/ogcapi-edr-1/1.0/conf/queries",
-    "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
-  ]
-}
+    > curl https://edrisobaric.k8s.met.no/conformance
+    {
+      "conformsTo": [
+        "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/core",
+        "http://www.opengis.net/spec/ogcapi-common-2/1.0/conf/collections",
+        "http://www.opengis.net/spec/ogcapi-edr-1/1.1/conf/core",
+        "http://www.opengis.net/spec/ogcapi-edr-1/1.2/req/oas31",
+        "http://www.opengis.net/spec/ogcapi-edr-1/1.0/conf/covjson",
+        "http://www.opengis.net/spec/ogcapi-edr-1/1.0/conf/queries",
+        "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
+      ]
+    }
