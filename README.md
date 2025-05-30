@@ -50,12 +50,13 @@ Use --help to see all options.
 
 ## Documentation
 
+- See [Changelog](CHANGELOG.md)
 - Use --rodeo-profile-core to force a test against the profile core conformance class
 - Use --rodeo-profile-insitu-observations to force a test against the profile insitu observations conformance class.
 - Use --strict to also fail on SHOULD requirements.
 - Use --log-file debug.log to get all output. For docker variant, see [Test it out](#test-it-out).
 
-The summary output at the end of the test run will list the first error found for each test. If you want all errors found, go up to the detailed output for that particular test.
+The summary output at the end of the test run will list the first error found for each test. If you want all errors found, scroll up to the detailed output for that particular test.
 
 ### Development
 

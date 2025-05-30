@@ -26,7 +26,7 @@ def fetch_landing(url: str, timeout: int) -> tuple[bool, dict]:
     return True, landing_json
 
 
-def fetch_conformance(url: str, timeout: int) -> tuple[bool, dict]:
+def fetch_conformance(url: str, timeout: int = 10) -> tuple[bool, dict]:
     """Test that the conformance page contains required elements."""
     conformance_url = sedr.util.build_conformance_url(url)
     conformance_json = {}
@@ -35,6 +35,7 @@ def fetch_conformance(url: str, timeout: int) -> tuple[bool, dict]:
     try:
         response = requests.get(conformance_url, timeout=timeout)
         conformance_json = response.json()
+
     except requests.exceptions.ConnectionError as err:
         sedr.util.logger.error("Unable to get conformance <%s>.\n%s", url, err)
         return False, conformance_json

@@ -515,7 +515,7 @@ def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
 
 
 tests_landing = [requirement7_2]
-tests_conformance = []#[requirement7_1]
+tests_conformance = []  # [requirement7_1]
 tests_collection = [
     requirement7_3,
     requirement7_4,
