@@ -20,17 +20,21 @@ Experiment - Every error reported might as well be an error in the validator, ra
 
 ### Test it out
 
+Update image (if you've never used it, you don't have to run this command):
+
+- `docker pull ghcr.io/metno/sedr:latest`
+
 Run docker image:
 
-- `docker run -it --rm ghcr.io/metno/sedr --url https://edrisobaric.k8s.met.no`
+- `docker run -it --rm ghcr.io/metno/sedr:latest --url https://edrisobaric.k8s.met.no`
 
 Or when your service is running on localhost:
 
-- `docker run -it --rm --network=host ghcr.io/metno/sedr --url http://localhost:8080`
+- `docker run -it --rm --network=host ghcr.io/metno/sedr:latest --url http://localhost:8080`
 
 Debug logging will show every request and it's status:
 
-- Run container, mounting the current directory at /logs, and tell container to output log there: `docker run -it --rm -v .:/logs ghcr.io/metno/sedr --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log`
+- Run container, mounting the current directory at /logs, and tell container to output log there: `docker run -it --rm -v .:/logs ghcr.io/metno/sedr:latest --openapi https://edrisobaric.k8s.met.no/api --url https://edrisobaric.k8s.met.no --log-file /logs/debug.log`
 
 ### Use it for production
 
