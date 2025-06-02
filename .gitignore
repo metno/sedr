@@ -9,3 +9,5 @@ old
 .ropeproject
 *.log
 *.egg-info
+build
+.python-version

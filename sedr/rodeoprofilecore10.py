@@ -13,24 +13,24 @@ spec_base_url = (
     "https://eumetnet.github.io/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
 )
 
+## TODO: add this test when its clear how the profile conformance shall be specified.
+# def requirement7_1(jsondata: dict) -> tuple[bool, str]:
+#     """
+#     RODEO EDR Profile Core
+#     Version: 0.1.0
+#     7.1. Requirements Class "Core"
 
-def requirement7_1(jsondata: dict) -> tuple[bool, str]:
-    """
-    RODEO EDR Profile Core
-    Version: 0.1.0
-    7.1. Requirements Class "Core"
-
-    Check if the conformance page contains the required EDR classes.
-    jsondata should be a valid conformance page json dict.
-    """
-    spec_url = f"{spec_base_url}#_requirements_class_core"
-    if conformance_url not in jsondata["conformsTo"]:
-        return (
-            False,
-            f"Conformance page /conformance does not contain the profile "
-            f"class {conformance_url}. See <{spec_url}> for more info.",
-        )
-    return True, "Conformance contains conformsTo with required EDR classes."
+#     Check if the conformance page contains the required EDR classes.
+#     jsondata should be a valid conformance page json dict.
+#     """
+#     spec_url = f"{spec_base_url}#_requirements_class_core"
+#     if conformance_url not in jsondata["conformsTo"]:
+#         return (
+#             False,
+#             f"Conformance page /conformance does not contain the profile "
+#             f"class {conformance_url}. See <{spec_url}> for more info.",
+#         )
+#     return True, "Conformance contains conformsTo with required EDR classes."
 
 
 def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
@@ -515,7 +515,7 @@ def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
 
 
 tests_landing = [requirement7_2]
-tests_conformance = [requirement7_1]
+tests_conformance = []  # [requirement7_1]
 tests_collection = [
     requirement7_3,
     requirement7_4,
