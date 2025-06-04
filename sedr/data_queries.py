@@ -60,41 +60,46 @@ def trajectory_queries(base_url: str, extent: list) -> Queries:
 
 
 def points_inside(extent: list) -> list:
-    """Generate points inside the given extent."""
-    n_points = 5
-    long_step = (extent[2] - extent[0]) / (n_points * 100)
-    lat_step = (extent[3] - extent[1]) / (n_points * 100)
+    """Generate points as a square with center of extent as lower left corner inside the given extent."""
+
+    long_left = (extent[0] + extent[2]) / 2
+    lat_bottom = (extent[1] + extent[3]) / 2
+
+    long_right = long_left + abs(extent[2] - extent[0]) / 4
+    lat_top = lat_bottom + abs(extent[3] - extent[1]) / 4
 
     return [
-        Point(extent[0] + long_step * i, extent[1] + lat_step * i)
-        for i in range(1, n_points)
+        Point(long_left, lat_bottom),
+        Point(long_left, lat_top),
+        Point(long_right, lat_top),
+        Point(long_right, lat_bottom),
     ]
 
 
 def points_outside(extent: list) -> list:
-    """Generate points outside the given extent."""
-    n_points = 5
+    """Generate points as a square outside the given extent."""
 
-    # Check if extent is global. If so, no points can be created
-    if extent[0] == -180 and extent[1] == -90 and extent[2] == 180 and extent[3] == 90:
+    # Check if extent is pole to pole. If so, no points can be created
+    if extent[1] == -90 and extent[3] == 90:
         return []
 
-    # Create a set of points relatively close to each other.
     # Either north or south of spatial extent. Pick north first if it has most "room".
-    long_step = (extent[2] - extent[0]) / (n_points * 100)
+    long_left = (extent[0] + extent[2]) / 2
+    long_right = long_left + abs(extent[2] - extent[0]) / 4
+    lat_bottom = None
+    lat_top = None
     if abs(extent[3]) < abs(extent[1]):
-        lat_step = (90 - abs(extent[3])) / (n_points * 100)
-
-        return [
-            Point(extent[0] + long_step * i, extent[3] + lat_step * i)
-            for i in range(1, n_points)
-        ]
-
-    lat_step = (90 - abs(extent[1])) / (n_points * 100)
+        lat_bottom = extent[3] + abs(90 - extent[3]) / 4
+        lat_top = lat_bottom + abs(90 - extent[3]) / 4
+    else:
+        lat_bottom = -90 + abs(-90 - extent[1]) / 4
+        lat_top = lat_bottom + abs(-90 + extent[1]) / 4
 
     return [
-        Point(extent[0] + long_step * i, extent[1] - lat_step * i)
-        for i in range(1, n_points)
+        Point(long_left, lat_bottom),
+        Point(long_left, lat_top),
+        Point(long_right, lat_top),
+        Point(long_right, lat_bottom),
     ]
 
 
