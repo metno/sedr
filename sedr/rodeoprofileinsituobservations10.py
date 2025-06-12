@@ -57,7 +57,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
     Check if the collections parameter_names are correctly defined.
     """
     try:
-        for p in jsondata["parameter_names"]:
+        for p_id, p in jsondata["parameter_names"].items():
             # A, B, C
             if not all(
                 key in p
@@ -69,7 +69,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
             ):
                 return (
                     False,
-                    "An object in parameter_names shall have the property 'metocean:standard_name', "
+                    f"Parameter {p_id} is missing one or more of properties 'metocean:standard_name', "
                     f"'metocean:level' and measurementType. See <{spec_base_url}> for more info.",
                 )
             # C
@@ -119,7 +119,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
     try:
         # A, C
         if not any(
-            custom_dim["id"] == "standard_names"
+            custom_dim["id"] == "standard_name"
             and custom_dim["reference"].startswith(
                 "https://vocab.nerc.ac.uk/standard_name"
             )
@@ -134,7 +134,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         # B not tested
         # D
         if not any(
-            custom_dim["id"] == "levels"
+            custom_dim["id"] == "level"
             and custom_dim["reference"]
             == "Height of measurement above ground level in meters"
             for custom_dim in jsondata["extent"]["custom"]
