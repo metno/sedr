@@ -196,7 +196,15 @@ def test_locations_query_response(id, collection):  # pylint: disable=redefined-
         pytest.skip("No locations query in this collection")
 
     base_url = collection_url(collection["links"])
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     resp = requests.get(urljoin(base_url, "locations"), timeout=60)
+=======
+    resp = requests.get(urljoin(base_url, "locations"), timeout=90)
+>>>>>>> Stashed changes
+=======
+    resp = requests.get(urljoin(base_url, "locations"), timeout=90)
+>>>>>>> Stashed changes
     if resp.status_code != 200:
         pytest.fail(
             f"Expected status code 200 for query {base_url}; Got {resp.status_code}"
