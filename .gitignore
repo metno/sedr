@@ -11,3 +11,4 @@ old
 *.egg-info
 build
 .python-version
+.zed
