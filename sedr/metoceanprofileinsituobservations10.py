@@ -1,4 +1,4 @@
-"""rodeo-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/rodeo-edr-profile>."""
+"""metocean-edr-profile insitu-observations requirements. See <http://rodeo-project.eu/metocean-edr-profile>."""
 
 import json
 from urllib.parse import parse_qs, urlparse
@@ -8,16 +8,16 @@ import requests
 import sedr.util
 
 conformance_url = (
-    "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/insitu-observations"
+    "http://rodeo-project.eu/spec/metocean-edr-profile/1/req/insitu-observations"
 )
 spec_base_url = (
-    "https://rodeo-project.eu/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
+    "https://rodeo-project.eu/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
 )
 
 
 def requirement8_2(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.2. Collection data queries
 
@@ -50,7 +50,7 @@ def requirement8_2(jsondata: dict) -> tuple[bool, str]:
 
 def requirement8_3(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.3. Collection parameter names
 
@@ -110,7 +110,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
 
 def requirement8_4(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.4. Collection custom dimensions
 
@@ -160,7 +160,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
 
 def requirement8_5(resp: requests.Response) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.5. Data query response format
 
@@ -183,7 +183,7 @@ def requirement8_5(resp: requests.Response) -> tuple[bool, str]:
 
 def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.6. The metadata about parameters in CoverageJSON.
 
@@ -233,7 +233,7 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
 
 def requirement8_7(resp: requests.Response) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Insitu observations
+    MetOcean EDR Profile Insitu observations
     Version: 0.1.0
     8.7. Coordinate referencing metadata in CoverageJSON.
 
