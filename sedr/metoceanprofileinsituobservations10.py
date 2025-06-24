@@ -10,9 +10,7 @@ import sedr.util
 conformance_url = (
     "http://rodeo-project.eu/spec/metocean-edr-profile/1/req/insitu-observations"
 )
-spec_base_url = (
-    "https://rodeo-project.eu/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
-)
+spec_base_url = "https://rodeo-project.eu/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
 
 
 def requirement8_2(jsondata: dict) -> tuple[bool, str]:

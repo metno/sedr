@@ -9,9 +9,7 @@ import sedr.util
 
 # These links aren't active yet. See link at start of this file for now.
 conformance_url = "http://rodeo-project.eu/spec/metocean-edr-profile/1/req/core"
-spec_base_url = (
-    "https://eumetnet.github.io/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
-)
+spec_base_url = "https://eumetnet.github.io/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
 
 ## TODO: add this test when its clear how the profile conformance shall be specified.
 # def requirement7_1(jsondata: dict) -> tuple[bool, str]:

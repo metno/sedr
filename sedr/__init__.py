@@ -1,17 +1,17 @@
 """Main init file for sedr. Schemathesis related in schemat.py, others in utils.py."""
 
 __license__ = "GPL-2.0"
-__version__ = "v0.15.0"
+__version__ = "v0.15.1"
 
 import sys
 
 import pytest
 
 import sedr.edreq12 as edreq
-import sedr.ogcapi10 as ogcapi
-import sedr.preflight
 import sedr.metoceanprofilecore10 as metoceanprofilecore
 import sedr.metoceanprofileinsituobservations10 as metoceanprofileinsituobservations
+import sedr.ogcapi10 as ogcapi
+import sedr.preflight
 import sedr.util
 
 
