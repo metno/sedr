@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.16.0](https://github.com/metno/sedr/releases/tag/v0.16.0) (2025-06-24)
+
+- Rename profile. Arguments now look like this:
+
+```bash
+--metocean-profile-core
+                        Use the metocean profile core conformance class even though the API doesn't specify it. Default False.
+--metocean-profile-insitu-observations
+                        Use the metocean profile core conformance class even though the API doesn't specify it. Default False.
+```
+
 ## [v0.15.0](https://github.com/metno/sedr/releases/tag/v0.15.0) (2025-06-04)
 
 - Bug fix: Correct how CoverageJSON `coverages` and `parameters` are parsed.
