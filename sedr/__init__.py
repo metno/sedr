@@ -68,7 +68,9 @@ def main() -> None:
         sedr.util.test_functions["locations_query_response"] = (
             metoceanprofilecore.tests_locations_query_response
         )
-        sedr.util.test_functions["openapi_schema"] += rodeoprofilecore.tests_openapi_schema
+        sedr.util.test_functions["openapi_schema"] += (
+            metoceanprofilecore.tests_openapi_schema
+        )
 
     if sedr.util.args and sedr.util.args.metocean_profile_insitu_observations:
         sedr.util.logger.info(

@@ -46,7 +46,7 @@ def fetch_conformance(url: str, timeout: int = 10) -> tuple[bool, dict]:
         return False, conformance_json
     return True, conformance_json
 
-    
+
 def main():
     # Get landing
     landing_is_reachable, landing_json = fetch_landing(
@@ -83,7 +83,7 @@ def main():
             sedr.util.logger.debug("Test %s passed. (%s)", test_func.__name__, msg)
 
     sedr.util.logger.info("Preflight checks done.")
-    
+
     return True
 
 

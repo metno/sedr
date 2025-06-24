@@ -511,6 +511,7 @@ def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
         "The response document for a /locations query is valid.",
     )
 
+
 def requirement7_13(schema: dict) -> tuple[bool, str]:
     """
     RODEO EDR Profile Core
@@ -533,22 +534,20 @@ def requirement7_13(schema: dict) -> tuple[bool, str]:
             responses = details.get("responses", {})
             for status_code, response in responses.items():
                 if status_code.startswith("4"):  # Check only 4XX status codes
-                    error_response_schema = response.get("content", {}).get("application/problem+json")
+                    error_response_schema = response.get("content", {}).get(
+                        "application/problem+json"
+                    )
                     if not error_response_schema:
-                        errors += (f"4XX response for {method.upper()} {path} is not valid. Should use media type 'application/problem+json'."
-                                  f"See <{spec_url}> for more info.\n"
-                                  )
+                        errors += (
+                            f"4XX response for {method.upper()} {path} is not valid. Media-type shall be 'application/problem+json'."
+                            f"See <{spec_url}> for more info.\n"
+                        )
 
     if errors != "":
-        return (
-            False,
-            errors,
-        )
-    
-    return (
-        True,
-        "OpenAPI schema defines error handling for 4XX responses.",
-    )
+        return (False, errors)
+
+    return (True, "OpenAPI schema defines error handling for 4XX responses.")
+
 
 tests_landing = [requirement7_2]
 tests_conformance = []  # [requirement7_1]

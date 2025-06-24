@@ -82,7 +82,7 @@ collections = set_up_collections(landing_page_links)
 def test_openapi_schema():
     """Test that the OpenAPI schema is correct according to the EDR profile."""
 
-     # Run edr, ogc, profile tests
+    # Run edr, ogc, profile tests
     errors = ""
     for test_func in sedr.util.test_functions["openapi_schema"]:
         status, msg = test_func(schema=schema.raw_schema)
