@@ -1,4 +1,4 @@
-"""Unit tests for rodeoprofileinsituobservations10.py."""
+"""Unit tests for metoceanprofileinsituobservations10.py."""
 
 import json
 import unittest
@@ -6,11 +6,11 @@ from unittest.mock import MagicMock
 
 import requests
 
-import sedr.rodeoprofileinsituobservations10 as profileinsitu
+import sedr.metoceanprofileinsituobservations10 as profileinsitu
 import sedr.util
 
 
-class TestRodeoprofileInsituObservations(unittest.TestCase):
+class TestMetOceanprofileInsituObservations(unittest.TestCase):
     __version__ = "testversion"
     sedr.util.args = sedr.util.parse_args(
         ["--url", "https://example.com/"], __version__

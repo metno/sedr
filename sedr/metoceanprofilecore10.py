@@ -1,4 +1,4 @@
-"""rodeo-edr-profile core requirements. See <https://github.com/EUMETNET/rodeo-edr-profile/>."""
+"""metocean-edr-profile core requirements. See <https://github.com/EUMETNET/metocean-edr-profile/>."""
 
 import json
 
@@ -8,15 +8,15 @@ import requests
 import sedr.util
 
 # These links aren't active yet. See link at start of this file for now.
-conformance_url = "http://rodeo-project.eu/spec/rodeo-edr-profile/1/req/core"
+conformance_url = "http://rodeo-project.eu/spec/metocean-edr-profile/1/req/core"
 spec_base_url = (
-    "https://eumetnet.github.io/rodeo-edr-profile/standard/rodeo-edr-profile-DRAFT.html"
+    "https://eumetnet.github.io/metocean-edr-profile/standard/metocean-edr-profile-DRAFT.html"
 )
 
 ## TODO: add this test when its clear how the profile conformance shall be specified.
 # def requirement7_1(jsondata: dict) -> tuple[bool, str]:
 #     """
-#     RODEO EDR Profile Core
+#     MetOcean EDR Profile Core
 #     Version: 0.1.0
 #     7.1. Requirements Class "Core"
 
@@ -35,7 +35,7 @@ spec_base_url = (
 
 def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.2. OpenAPI
 
@@ -122,7 +122,7 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
 
 def requirement7_3(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.3. Collection identifier
 
@@ -164,7 +164,7 @@ def requirement7_3(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_4(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.4. Collection title
 
@@ -195,7 +195,7 @@ def requirement7_4(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_5(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.5. Collection license
 
@@ -236,7 +236,7 @@ def requirement7_5(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_6(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.6. Collection temporal extent
 
@@ -258,7 +258,7 @@ def requirement7_6(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_7(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.7. Collection spatial extent
 
@@ -314,7 +314,7 @@ def requirement7_7(jsondata: dict) -> tuple[bool, str]:
 
 def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.9. Collection vertical extent
 
@@ -348,7 +348,7 @@ def recommendation7_9(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_10(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.10. Collection parameter names
 
@@ -406,7 +406,7 @@ def requirement7_10(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_11(jsondata: dict) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.11. Collection radius metadata
 
@@ -469,7 +469,7 @@ def requirement7_11(jsondata: dict) -> tuple[bool, str]:
 
 def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
     """
-    RODEO EDR Profile Core
+    MetOcean EDR Profile Core
     Version: 0.1.0
     7.12. Locations query response format
 
