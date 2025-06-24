@@ -79,6 +79,26 @@ schema = set_up_schemathesis(sedr.util.args, landing_page_links)
 collections = set_up_collections(landing_page_links)
 
 
+def test_openapi_schema():
+    """Test that the OpenAPI schema is correct according to the EDR profile."""
+
+     # Run edr, ogc, profile tests
+    errors = ""
+    for test_func in sedr.util.test_functions["openapi_schema"]:
+        status, msg = test_func(schema=schema.raw_schema)
+        if not status:
+            sedr.util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
+
+            errors += f"Test {test_func.__name__} failed with message: {msg}\n"
+
+        sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+    if errors != "":
+        raise AssertionError(errors)
+
+
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=sedr.util.args.iterations, deadline=None)
 def test_openapi(case):
@@ -196,15 +216,7 @@ def test_locations_query_response(id, collection):  # pylint: disable=redefined-
         pytest.skip("No locations query in this collection")
 
     base_url = collection_url(collection["links"])
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    resp = requests.get(urljoin(base_url, "locations"), timeout=60)
-=======
     resp = requests.get(urljoin(base_url, "locations"), timeout=90)
->>>>>>> Stashed changes
-=======
-    resp = requests.get(urljoin(base_url, "locations"), timeout=90)
->>>>>>> Stashed changes
     if resp.status_code != 200:
         pytest.fail(
             f"Expected status code 200 for query {base_url}; Got {resp.status_code}"
