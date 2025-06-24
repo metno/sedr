@@ -1,6 +1,13 @@
 # Changelog
 
+## [v0.15.0](https://github.com/metno/sedr/releases/tag/v0.15.0) (2025-06-04)
+
+- Bug fix: Correct how CoverageJSON `coverages` and `parameters` are parsed.
+- Enhancement: Increase geographical area to use for area data queries inside extent, to improve chance of getting data back.
+
 ## [v0.14.1](https://github.com/metno/sedr/releases/tag/v0.14.1) (2025-05-30)
+
+## [v0.14.0](https://github.com/metno/sedr/releases/tag/v0.14.0) (2025-05-30)
 
 - Started using changelog
 - **Breaking change**: --rodeo-profile-core is now False by default. To enable rodeo-profile tests you should add the argument --rodeo-profile-core or add the Rodeo Profile URL to your conformance classes.

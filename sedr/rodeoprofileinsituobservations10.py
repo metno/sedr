@@ -57,7 +57,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
     Check if the collections parameter_names are correctly defined.
     """
     try:
-        for p in jsondata["parameter_names"]:
+        for p_id, p in jsondata["parameter_names"].items():
             # A, B, C
             if not all(
                 key in p
@@ -69,7 +69,7 @@ def requirement8_3(jsondata: dict) -> tuple[bool, str]:
             ):
                 return (
                     False,
-                    "An object in parameter_names shall have the property 'metocean:standard_name', "
+                    f"Parameter {p_id} is missing one or more of properties 'metocean:standard_name', "
                     f"'metocean:level' and measurementType. See <{spec_base_url}> for more info.",
                 )
             # C
@@ -119,7 +119,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
     try:
         # A, C
         if not any(
-            custom_dim["id"] == "standard_names"
+            custom_dim["id"] == "standard_name"
             and custom_dim["reference"].startswith(
                 "https://vocab.nerc.ac.uk/standard_name"
             )
@@ -134,7 +134,7 @@ def requirement8_4(jsondata: dict) -> tuple[bool, str]:
         # B not tested
         # D
         if not any(
-            custom_dim["id"] == "levels"
+            custom_dim["id"] == "level"
             and custom_dim["reference"]
             == "Height of measurement above ground level in meters"
             for custom_dim in jsondata["extent"]["custom"]
@@ -192,35 +192,32 @@ def requirement8_6(resp: requests.Response) -> tuple[bool, str]:
     """
 
     spec_url = f"{spec_base_url}#_coveragejson_parameters"
-
+    doc = resp.json()
     try:
-        for coverage in resp.json()["coverage"]:
-            for param in coverage["parameters"].values():
-                # A
-                measurement_type = param.get("metocean:measurementType", {})
-                if not (
-                    "method" in measurement_type and "duration" in measurement_type
-                ):
-                    return (
-                        False,
-                        "CoverageJSON data query response SHALL have a parameters object with "
-                        "metocean:measurementType. metocean:measurementType SHALL have method and duration "
-                        f"properties. See <{spec_url}> for more info. Got: {coverage['parameters']}.",
-                    )
-                # B
-                if "metocean:standard_name" not in param:
-                    return (
-                        False,
-                        "CoverageJSON data query response SHALL have a metocean:standard_name property "
-                        f"for all parameters. See <{spec_url}> for more info.",
-                    )
-                # C
-                if "metocean:level" not in param:
-                    return (
-                        False,
-                        "CoverageJSON data query response SHALL have a metocean:level property "
-                        f"for all parameters. See <{spec_url}> for more info.",
-                    )
+        for param in doc["parameters"].values():
+            # A
+            measurement_type = param.get("metocean:measurementType", {})
+            if not ("method" in measurement_type and "duration" in measurement_type):
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a parameters object with "
+                    "metocean:measurementType. metocean:measurementType SHALL have "
+                    f"method and duration properties. See <{spec_url}> for more info. Got: {doc['parameters']}.",
+                )
+            # B
+            if "metocean:standard_name" not in param:
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a metocean:standard_name property "
+                    f"for all parameters. See <{spec_url}> for more info.",
+                )
+            # C
+            if "metocean:level" not in param:
+                return (
+                    False,
+                    "CoverageJSON data query response SHALL have a metocean:level property "
+                    f"for all parameters. See <{spec_url}> for more info.",
+                )
 
     except (json.JSONDecodeError, KeyError) as err:
         return (
@@ -260,7 +257,7 @@ def requirement8_7(resp: requests.Response) -> tuple[bool, str]:
     if data["type"] == "Coverage":
         coverages.append(data)
     elif data["type"] == "CoverageCollection":
-        coverages = data["coverage"]
+        coverages = data["coverages"]
 
     try:
         for coverage in coverages:
