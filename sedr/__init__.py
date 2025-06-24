@@ -10,8 +10,8 @@ import pytest
 import sedr.edreq12 as edreq
 import sedr.ogcapi10 as ogcapi
 import sedr.preflight
-import sedr.rodeoprofilecore10 as rodeoprofilecore
-import sedr.rodeoprofileinsituobservations10 as rodeoprofileinsituobservations
+import sedr.metoceanprofilecore10 as metoceanprofilecore
+import sedr.metoceanprofileinsituobservations10 as metoceanprofileinsituobservations
 import sedr.util
 
 
@@ -42,43 +42,43 @@ def main() -> None:
     sedr.util.test_functions["data_query_response"] = []
     sedr.util.test_functions["locations_query_response"] = []
 
-    # Check if rodeo profile should be auto-included
-    if sedr.util.args and not sedr.util.args.rodeo_profile_core:
+    # Check if metocean profile should be auto-included
+    if sedr.util.args and not sedr.util.args.metocean_profile_core:
         conformance_is_reachable, conformance_json = sedr.preflight.fetch_conformance(
             url=sedr.util.args.base_url
         )
         if (
             conformance_is_reachable
-            and rodeoprofilecore.conformance_url in conformance_json["conformsTo"]
+            and metoceanprofilecore.conformance_url in conformance_json["conformsTo"]
         ):
             sedr.util.logger.info(
-                "Enabling tests for Rodeo profile core based on conformance URLs of API."
+                "Enabling tests for MetOcean profile core based on conformance URLs of API."
             )
-            sedr.util.args.rodeo_profile = True
+            sedr.util.args.metocean_profile = True
 
-    if sedr.util.args and sedr.util.args.rodeo_profile_core:
+    if sedr.util.args and sedr.util.args.metocean_profile_core:
         sedr.util.logger.info(
-            "Including tests for Rodeo profile core %s",
-            rodeoprofilecore.conformance_url,
+            "Including tests for MetOcean profile core %s",
+            metoceanprofilecore.conformance_url,
         )
-        sedr.util.test_functions["landing"] += rodeoprofilecore.tests_landing
-        sedr.util.test_functions["conformance"] += rodeoprofilecore.tests_conformance
-        sedr.util.test_functions["collection"] += rodeoprofilecore.tests_collection
+        sedr.util.test_functions["landing"] += metoceanprofilecore.tests_landing
+        sedr.util.test_functions["conformance"] += metoceanprofilecore.tests_conformance
+        sedr.util.test_functions["collection"] += metoceanprofilecore.tests_collection
         sedr.util.test_functions["locations_query_response"] = (
-            rodeoprofilecore.tests_locations_query_response
+            metoceanprofilecore.tests_locations_query_response
         )
 
-    if sedr.util.args and sedr.util.args.rodeo_profile_insitu_observations:
+    if sedr.util.args and sedr.util.args.metocean_profile_insitu_observations:
         sedr.util.logger.info(
-            "Including tests for Rodeo profile insitu observations %s",
-            rodeoprofileinsituobservations.conformance_url,
+            "Including tests for MetOcean profile insitu observations %s",
+            metoceanprofileinsituobservations.conformance_url,
         )
         sedr.util.test_functions["collection"] += (
-            rodeoprofileinsituobservations.tests_collection
+            metoceanprofileinsituobservations.tests_collection
         )
 
         sedr.util.test_functions["data_query_response"] = (
-            rodeoprofileinsituobservations.tests_data_query_response
+            metoceanprofileinsituobservations.tests_data_query_response
         )
 
     if sedr.preflight.main():

@@ -1,15 +1,15 @@
-"""Unit tests for rodeoprofile10.py."""
+"""Unit tests for metoceanprofile10.py."""
 
 import json
 import unittest
 
 import requests
 
-import sedr.rodeoprofilecore10 as profilecore
+import sedr.metoceanprofilecore10 as profilecore
 import sedr.util
 
 
-class TestRodeoprofile(unittest.TestCase):
+class TestMetoceanprofile(unittest.TestCase):
     __version__ = "testversion"
     sedr.util.args = sedr.util.parse_args(
         ["--url", "https://example.com/"], __version__

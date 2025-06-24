@@ -6,7 +6,7 @@
 
 ## What is sedr?
 
-An experimental validator for OGC EDR APIs. Main focus will be on the Rodeo Profile, which is a subset of the OGC EDR API.
+An experimental validator for OGC EDR APIs. Main focus will be on the MetOcean Profile, which is a subset of the OGC EDR API.
 
 ## Who is responsible?
 
@@ -44,15 +44,15 @@ Use --help to see all options.
 
 ## Overview of architecture
 
-- __init__ includes tests from ogcapi, edrreq and rodeoprofile at startup. Tests are categorized as landing, conformance and collection tests.
+- __init__ includes tests from ogcapi, edrreq and metoceanprofile at startup. Tests are categorized as landing, conformance and collection tests.
 - Landing and conformance tests are run first, in the preflight phase.
 - Then schemathesis will validate the OpenAPI spec and run lots of automatic tests, including fuzzing of query parameters. Collection tests are run during this phase.
 
 ## Documentation
 
 - See [Changelog](CHANGELOG.md)
-- Use --rodeo-profile-core to force a test against the profile core conformance class
-- Use --rodeo-profile-insitu-observations to force a test against the profile insitu observations conformance class.
+- Use --metocean-profile-core to force a test against the profile core conformance class
+- Use --metocean-profile-insitu-observations to force a test against the profile insitu observations conformance class.
 - Use --strict to also fail on SHOULD requirements.
 - Use --log-file debug.log to get all output. For docker variant, see [Test it out](#test-it-out).
 
@@ -72,7 +72,7 @@ The summary output at the end of the test run will list the first error found fo
 - Assuming Openapi 3.1
 - Assuming OGC EDR API version 1.2 (draft)
 - Few, basic tests for now
-- Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EUMETNET/rodeo-edr-profile> than the full EDR spec.
+- Will focus more on profiles (limitations within the EDR spec) like <https://github.com/EUMETNET/metocean-edr-profile> than the full EDR spec.
 
 ### Testing the sedr code to look for regressions
 
