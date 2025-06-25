@@ -539,14 +539,14 @@ def requirement7_13(schema: dict) -> tuple[bool, str]:
                     )
                     if not error_response_schema:
                         errors += (
-                            f"4XX response for {method.upper()} {path} is not valid. Media-type shall be 'application/problem+json'."
-                            f"See <{spec_url}> for more info.\n"
+                            f"The schema definition for 4XX responses for {method.upper()} {path} is not valid. "
+                            f"Media-type shall be 'application/problem+json'. See <{spec_url}> for more info.\n"
                         )
 
     if errors != "":
         return (False, errors)
 
-    return (True, "OpenAPI schema defines error handling for 4XX responses.")
+    return (True, "OpenAPI schema defines error handling for 4XX responses correctly.")
 
 
 tests_landing = [requirement7_2]
