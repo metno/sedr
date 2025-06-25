@@ -13,8 +13,8 @@ RUN groupadd --gid $GID sedr && \
   --gid sedr \
   sedr
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+# Install uv 0.7.14, locked to hash
+COPY --from=ghcr.io/astral-sh/uv@sha256:cda0fdc9b6066975ba4c791597870d18bc3a441dfc18ab24c5e888c16e15780c /uv /uvx /usr/local/bin/
 
 USER sedr
 
