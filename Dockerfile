@@ -14,7 +14,16 @@ RUN groupadd --gid $GID sedr && \
   sedr
 
 # Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
+USER sedr
+
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
+# uv will skip updating the environment
+ENV UV_NO_SYNC=1
 
 # Set workdir
 WORKDIR /app
@@ -22,14 +31,7 @@ WORKDIR /app
 COPY pyproject.toml pytest.ini ./
 COPY sedr/ ./sedr/
 
-# Install dependencies
-RUN --mount=type=cache,target=/root/.cache/uv uv tool install tox --with tox-uv; uv sync
-RUN chmod a+rX -R /root
+# Install dependencies, using cache from host
+RUN --mount=type=cache,target=/root/.cache/uv uv sync
 
-# Prepare to run as nonroot user
-RUN mkdir .hypothesis .pytest_cache && \
-  chown -R sedr .hypothesis .pytest_cache
-
-USER sedr
-
-ENTRYPOINT ["/app/.venv/bin/sedr"]
+ENTRYPOINT ["uv", "run", "sedr"]
