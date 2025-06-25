@@ -2,6 +2,7 @@ import json
 import sys
 from urllib.parse import urljoin
 
+import warnings
 import pytest
 import requests
 import schemathesis
@@ -96,8 +97,12 @@ def test_openapi_schema():
         sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
 
     if errors != "":
-        raise AssertionError(errors)
-
+        # Use warning instead of error as default for now, as custom media-type for 4XX is currently not
+        # fully supported in frameworks like FastAPI.
+        if sedr.util.args.strict:
+            raise AssertionError(errors)
+        else:
+            warnings.warn(errors)
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=sedr.util.args.iterations, deadline=None)
