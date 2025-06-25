@@ -63,7 +63,7 @@ def set_up_collections(landing_page_links: list) -> list:
             f"{landing_page_links}. Aborting."
         )
     try:
-        response = requests.get(collections_url, timeout=60)
+        response = requests.get(collections_url, timeout=sedr.util.args.timeout)
         response.raise_for_status()
         return response.json().get("collections", [])
     except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
@@ -192,10 +192,10 @@ def test_data_query_response(id, collection):  # pylint: disable=redefined-built
 
         try:
             if queries.outside != "":
-                outside = requests.get(queries.outside, timeout=60)
+                outside = requests.get(queries.outside, timeout=sedr.util.args.timeout)
                 if outside.status_code < 400 or outside.status_code >= 500:
                     errors += f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}\n"
-            inside = requests.get(queries.inside, timeout=60)
+            inside = requests.get(queries.inside, timeout=sedr.util.args.timeout)
         except requests.exceptions.RequestException as err:
             errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
@@ -221,7 +221,7 @@ def test_locations_query_response(id, collection):  # pylint: disable=redefined-
         pytest.skip("No locations query in this collection")
 
     base_url = collection_url(collection["links"])
-    resp = requests.get(urljoin(base_url, "locations"), timeout=90)
+    resp = requests.get(urljoin(base_url, "locations"), timeout=sedr.util.args.timeout)
     if resp.status_code != 200:
         pytest.fail(
             f"Expected status code 200 for query {base_url}; Got {resp.status_code}"
