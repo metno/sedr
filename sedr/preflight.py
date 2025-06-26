@@ -83,6 +83,7 @@ def main():
             sedr.util.logger.debug("Test %s passed. (%s)", test_func.__name__, msg)
 
     sedr.util.logger.info("Preflight checks done.")
+
     return True
 
 

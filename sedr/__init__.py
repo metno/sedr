@@ -41,6 +41,7 @@ def main() -> None:
     )
     sedr.util.test_functions["data_query_response"] = []
     sedr.util.test_functions["locations_query_response"] = []
+    sedr.util.test_functions["openapi_schema"] = []
 
     # Check if metocean profile should be auto-included
     if sedr.util.args and not sedr.util.args.metocean_profile_core:
@@ -66,6 +67,9 @@ def main() -> None:
         sedr.util.test_functions["collection"] += metoceanprofilecore.tests_collection
         sedr.util.test_functions["locations_query_response"] = (
             metoceanprofilecore.tests_locations_query_response
+        )
+        sedr.util.test_functions["openapi_schema"] += (
+            metoceanprofilecore.tests_openapi_schema
         )
 
     if sedr.util.args and sedr.util.args.metocean_profile_insitu_observations:

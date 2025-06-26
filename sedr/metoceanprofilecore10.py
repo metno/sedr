@@ -512,6 +512,43 @@ def requirement7_12(resp: requests.Response) -> tuple[bool, str]:
     )
 
 
+def requirement7_13(schema: dict) -> tuple[bool, str]:
+    """
+    RODEO EDR Profile Core
+    Version: 0.1.0
+    7.13 Error handling.
+
+    Check that the OpenAPI schema defines error handling.
+    """
+    spec_url = f"{spec_base_url}#_error_handling"
+
+    paths = schema.get("paths", {})
+    errors = ""
+
+    # C
+    for path, methods in paths.items():
+        for method, details in methods.items():
+            if not isinstance(details, dict):
+                continue
+
+            responses = details.get("responses", {})
+            for status_code, response in responses.items():
+                if status_code.startswith("4"):  # Check only 4XX status codes
+                    error_response_schema = response.get("content", {}).get(
+                        "application/problem+json"
+                    )
+                    if not error_response_schema:
+                        errors += (
+                            f"The schema definition for 4XX responses for {method.upper()} {path} is not valid. "
+                            f"Media-type shall be 'application/problem+json'. See <{spec_url}> for more info.\n"
+                        )
+
+    if errors != "":
+        return (False, errors)
+
+    return (True, "OpenAPI schema defines error handling for 4XX responses correctly.")
+
+
 tests_landing = [requirement7_2]
 tests_conformance = []  # [requirement7_1]
 tests_collection = [
@@ -527,4 +564,8 @@ tests_collection = [
 
 tests_locations_query_response = [
     requirement7_12,
+]
+
+tests_openapi_schema = [
+    requirement7_13,
 ]

@@ -68,8 +68,8 @@ def parse_args(args, version: str = "") -> argparse.Namespace:
     parser.add_argument(
         "--timeout",
         type=int,
-        default=10,
-        help="Set timeout for requests. Default 10.",
+        default=60,
+        help="Set timeout for requests. Default 60.",
     )
 
     args = parser.parse_args(args)

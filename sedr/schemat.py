@@ -2,6 +2,7 @@ import json
 import sys
 from urllib.parse import urljoin
 
+import warnings
 import pytest
 import requests
 import schemathesis
@@ -62,7 +63,7 @@ def set_up_collections(landing_page_links: list) -> list:
             f"{landing_page_links}. Aborting."
         )
     try:
-        response = requests.get(collections_url, timeout=30)
+        response = requests.get(collections_url, timeout=sedr.util.args.timeout)
         response.raise_for_status()
         return response.json().get("collections", [])
     except (requests.RequestException, json.JSONDecodeError, requests.HTTPError) as err:
@@ -78,6 +79,30 @@ landing_page_links = sedr.util.fetch_landing_page_links(sedr.util.args.url)
 schema = set_up_schemathesis(sedr.util.args, landing_page_links)
 collections = set_up_collections(landing_page_links)
 
+
+def test_openapi_schema():
+    """Test that the OpenAPI schema is correct according to the EDR profile."""
+
+    # Run edr, ogc, profile tests
+    errors = ""
+    for test_func in sedr.util.test_functions["openapi_schema"]:
+        status, msg = test_func(schema=schema.raw_schema)
+        if not status:
+            sedr.util.logger.error(
+                "Test %s failed with message: %s", test_func.__name__, msg
+            )
+
+            errors += f"Test {test_func.__name__} failed with message: {msg}\n"
+
+        sedr.util.logger.info("Test %s passed. (%s)", test_func.__name__, msg)
+
+    if errors != "":
+        # Use warning instead of error as default for now, as custom media-type for 4XX is currently not
+        # fully supported in frameworks like FastAPI.
+        if sedr.util.args.strict:
+            raise AssertionError(errors)
+        else:
+            warnings.warn(errors)
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=sedr.util.args.iterations, deadline=None)
@@ -167,10 +192,10 @@ def test_data_query_response(id, collection):  # pylint: disable=redefined-built
 
         try:
             if queries.outside != "":
-                outside = requests.get(queries.outside, timeout=30)
+                outside = requests.get(queries.outside, timeout=sedr.util.args.timeout)
                 if outside.status_code < 400 or outside.status_code >= 500:
                     errors += f"Expected status code 4xx for query {queries.outside}; Got {outside.status_code}\n"
-            inside = requests.get(queries.inside, timeout=30)
+            inside = requests.get(queries.inside, timeout=sedr.util.args.timeout)
         except requests.exceptions.RequestException as err:
             errors += f"Request for {err.request.url} failed: {err}\n"
         if inside.status_code != 200:
@@ -196,7 +221,7 @@ def test_locations_query_response(id, collection):  # pylint: disable=redefined-
         pytest.skip("No locations query in this collection")
 
     base_url = collection_url(collection["links"])
-    resp = requests.get(urljoin(base_url, "locations"), timeout=30)
+    resp = requests.get(urljoin(base_url, "locations"), timeout=sedr.util.args.timeout)
     if resp.status_code != 200:
         pytest.fail(
             f"Expected status code 200 for query {base_url}; Got {resp.status_code}"
