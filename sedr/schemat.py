@@ -243,7 +243,7 @@ def collection_url(links):
     collection_link = next((x for x in links if x["rel"] == "data"), None)
 
     if collection_link is None:
-        pytest.fail(f"Expected link with rel=self to be present: {links}")
+        pytest.fail(f"Expected link with rel=data to be present: {links}")
 
     url = collection_link["href"]
     if str.endswith("/", url):
