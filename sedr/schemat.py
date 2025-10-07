@@ -1,8 +1,8 @@
 import json
 import sys
+import warnings
 from urllib.parse import urljoin
 
-import warnings
 import pytest
 import requests
 import schemathesis
@@ -103,6 +103,7 @@ def test_openapi_schema():
             raise AssertionError(errors)
         else:
             warnings.warn(errors)
+
 
 @schema.parametrize()  # parametrize => Create tests for all operations in schema
 @settings(max_examples=sedr.util.args.iterations, deadline=None)

@@ -1,6 +1,7 @@
 """metocean-edr-profile core requirements. See <https://github.com/EUMETNET/metocean-edr-profile/>."""
 
 import json
+import re
 
 import pint
 import requests
@@ -42,7 +43,12 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     returns status: bool, message
     """
     spec_url = f"{spec_base_url}#_openapi"
-    openapi_type = "application/vnd.oai.openapi+json;version=3.1"
+    openapi_types = [
+        "application/openapi+json",
+        "application/openapi+yaml",
+        "application/vnd.oai.openapi+json",
+        "application/vnd.oai.openapi+yaml",
+    ]
     servicedoc_type = "text/html"
 
     service_desc_link = ""
@@ -50,9 +56,11 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
     for link in jsondata["links"]:
         if link["rel"] == "service-desc":
             service_desc_link = link["href"]
-            service_desc_type = link["type"]
+            service_desc_type, service_desc_version = (link["type"].split(";", 1) + [None, None])[:2]
             break
 
+    # print(service_desc_type, service_desc_version, file=sys.stderr)
+    # logging.DEBUG(service_desc_type, service_desc_version)
     if not service_desc_link:
         return (
             False,
@@ -60,14 +68,29 @@ def requirement7_2(jsondata: dict, timeout: int = 10) -> tuple[bool, str]:
         )
 
     # C - relation type
-    if openapi_type not in service_desc_type:
+    if service_desc_type not in openapi_types:
         return (
             False,
-            "OpenAPI link service-desc should identify the content as openAPI "
-            f"and include version. Example <{openapi_type}>. Found: "
+            "OpenAPI link service-desc must identify the content as openAPI "
+            f"and should include version. Example <{openapi_types[0]}>. Found: "
             f"<{service_desc_type}>. See <{spec_url}> and <{spec_base_url}"
             "#_openapi_2> for more info.",
         )
+
+    if service_desc_version:
+        m = re.match(r"^version=(\d+\.\d+)$", service_desc_version)
+        if m:
+            version = m.groups()[0]
+            if version != "3.1":  # profile should allow later versions FIXME
+                return (
+                    False,
+                    f"OpenAPI version not 3.1: {version}.",
+                )
+        else:
+            return (
+                False,
+                f"OpenAPI version suffix malformed: {service_desc_version}.",
+            )
 
     # A - described using an OpenAPI document
     response = requests.get(service_desc_link, timeout=timeout)
